@@ -13,7 +13,7 @@ steps:
   - run:
       name: Install the AWS IAM Authenticator for Kubernetes
       command: |
-        if [ which aws-iam-authenticator > /dev/null ]; then
+        if which aws-iam-authenticator > /dev/null ; then
           echo "AWS IAM Authenticator for Kubernetes is already installed"
           exit 0
         fi
@@ -25,7 +25,7 @@ steps:
         curl -L -o aws-iam-authenticator $DOWNLOAD_URL
         chmod +x ./aws-iam-authenticator
         SUDO=""
-        if [ $(id -u) -ne 0 ] && [ which sudo > /dev/null ]; then
+        if [ $(id -u) -ne 0 ] && which sudo > /dev/null ; then
           SUDO="sudo"
         fi
         $SUDO mv ./aws-iam-authenticator /usr/local/bin/aws-iam-authenticator
