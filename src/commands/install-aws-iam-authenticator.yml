@@ -1,0 +1,31 @@
+description: >
+  Install the AWS IAM Authenticator for Kubernetes
+
+parameters:
+  platform:
+    description: |
+      The platform on which to install the AWS IAM Authenticator
+    type: enum
+    default: "linux"
+    enum: ["linux", "darwin"]
+
+steps:
+  - run:
+      name: Install the AWS IAM Authenticator for Kubernetes
+      command: |
+        if [ which aws-iam-authenticator > /dev/null ]; then
+          echo "AWS IAM Authenticator for Kubernetes is already installed"
+          exit 0
+        fi
+
+        DOWNLOAD_URL=$(curl -s "https://api.github.com/repos/kubernetes-sigs/aws-iam-authenticator/releases/latest" \
+                        | grep << parameters.platform >> \
+                        | awk '/browser_download_url/ {print $2}' | sed 's/"//g')
+        curl -L -o aws-iam-authenticator $DOWNLOAD_URL
+        chmod +x ./aws-iam-authenticator
+        SUDO=""
+        if [ $(id -u) -ne 0 ] && [ which sudo > /dev/null ]; then
+          SUDO="sudo"
+        fi
+        $SUDO mv ./aws-iam-authenticator /usr/local/bin/aws-iam-authenticator
+

@@ -1,0 +1,40 @@
+version: 2.1
+
+orbs:
+  aws-eks: sandbox/aws-eks@dev:alpha
+  cli: circleci/circleci-cli@0.1.2
+  orb-tools: circleci/orb-tools@7.3.0
+
+executors:
+  python27:
+    resource_class: small
+    docker:
+      - image: circleci/python:2.7-stretch
+
+jobs:
+  test-orb-python:
+    executor: python27
+    steps:
+      - aws-eks/install-aws-iam-authenticator
+      - run:
+          name: Test aws-iam-authenticator
+          command: |
+            aws-iam-authenticator
+
+workflows:
+  lint_pack-validate_publish-dev:
+    jobs:
+      - orb-tools/lint
+
+      - orb-tools/pack:
+          requires:
+            - orb-tools/lint
+
+      - orb-tools/publish-dev:
+          orb-name: sandbox/aws-eks
+          context: orb-publishing
+          requires:
+            - orb-tools/pack
+  test-orb:
+    jobs:
+      - test-orb-python
