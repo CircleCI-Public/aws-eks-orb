@@ -18,9 +18,10 @@ steps:
           exit 0
         fi
 
-        DOWNLOAD_URL=$(curl -s "https://api.github.com/repos/kubernetes-sigs/aws-iam-authenticator/releases/latest" \
-                        | grep << parameters.platform >> \
-                        | awk '/browser_download_url/ {print $2}' | sed 's/"//g')
+        RELEASE_ENDPOINT="https://api.github.com/repos/kubernetes-sigs/aws-iam-authenticator/releases/latest"
+        DOWNLOAD_URL=$(curl -s "$RELEASE_ENDPOINT" \
+          | grep << parameters.platform >> \
+          | awk '/browser_download_url/ {print $2}' | sed 's/"//g')
         curl -L -o aws-iam-authenticator $DOWNLOAD_URL
         chmod +x ./aws-iam-authenticator
         SUDO=""
@@ -28,4 +29,3 @@ steps:
           SUDO="sudo"
         fi
         $SUDO mv ./aws-iam-authenticator /usr/local/bin/aws-iam-authenticator
-
