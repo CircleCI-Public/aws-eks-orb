@@ -1,0 +1,59 @@
+description: >
+  Deletes cluster and resources that were created for it.
+  The cluster must have been created with the create-cluster command of the orb.
+
+parameters:
+  cluster-name:
+    description: |
+      Name of the k8s cluster
+    type: string
+    default: ""
+  aws-region:
+    description: |
+      AWS region that the k8s cluster will be created in.
+      If no value is specified, the cluster will be created in the us-west-2 region.
+    type: string
+    default: ""
+  wait:
+    description: |
+      Whether to wait for deletion of all resources before exiting
+    type: boolean
+    default: false
+  verbose:
+    description: |
+      Set a value from 0 to 5 to control the verbosity level of the log output (the higher, the more verbose).
+      Use 0 to silence, 4 for debugging and 5 for debugging with AWS debug logging.
+      The logging verbosity level is set to 3 by default.
+      When set to 4 and above, verbose details of AWS resources will be displayed in the log output.
+      When set to 5, sensitive information such as credentials may be displayed in the log output.
+    type: integer
+    default: 3
+  no-output-timeout:
+    description: |
+      Elapsed time that the cluster creation command can run without output.
+      The string is a decimal with unit suffix, such as “20m”, “1.25h”, “5s” (default: 20 minutes)
+    type: string
+    default: "20m"
+
+steps:
+  - run:
+      name: Delete eks cluster and associated resources
+      command: |
+        CLUSTER_NAME="<< parameters.cluster-name >>"
+        AWS_REGION="<< parameters.aws-region >>"
+        WAIT="<< parameters.wait >>"
+        VERBOSE="<< parameters.verbose >>"
+        if [ -n "${CLUSTER_NAME}" ]; then
+            set -- "$@" --name "${CLUSTER_NAME}"
+        fi
+        if [ -n "${AWS_REGION}" ]; then
+            set -- "$@" --region "${AWS_REGION}"
+        fi
+        if [ "${WAIT}" == "true" ]; then
+            set -- "$@" --wait
+        fi
+        set -- "$@" --verbose ${VERBOSE}
+        set -x
+        eksctl delete cluster "$@"
+        set +x
+      no_output_timeout: << parameters.no-output-timeout >>

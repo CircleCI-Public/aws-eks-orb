@@ -4,23 +4,162 @@ orbs:
   aws-eks: sandbox/aws-eks@dev:alpha
   cli: circleci/circleci-cli@0.1.2
   orb-tools: circleci/orb-tools@7.3.0
+  kubernetes: circleci/kubernetes@0.1.0
 
 executors:
   python27:
     resource_class: small
     docker:
       - image: circleci/python:2.7-stretch
+  python3:
+    resource_class: small
+    docker:
+      - image: circleci/python:3-node-browsers
 
 jobs:
-  test-orb-python:
+  setup-cluster:
     executor: python27
     steps:
+      - run:
+          name: Check if test env should be set up
+          command: |
+            if [ "${SKIP_TEST_ENV_CREATION}" = "true" ]
+            then
+              circleci step halt
+            fi
       - aws-eks/install-aws-iam-authenticator
       - run:
           name: Test aws-iam-authenticator
           command: |
             aws-iam-authenticator
+      - aws-eks/create-cluster:
+          cluster-name: eks-orb-test-cluster
+          tags: name=eks-orb-tests
+          no-output-timeout: 20m
+      - run:
+          name: Test kubernetes
+          command: |
+            # Check that kubectl has been configured
+            kubectl get nodes
+            kubectl cluster-info
+            kubectl config view
+            kubectl config get-contexts
+            kubectl get pods --namespace kube-system
+  test-cluster:
+    executor: python3
+    steps:
+      - kubernetes/install:
+          platform: linux
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: eks-orb-test-cluster
+          dry-run: true
+          verbose: true
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: eks-orb-test-cluster
+          aws-region: $AWS_DEFAULT_REGION
+          kubeconfig-file-path: kube-config.test
+          skip-authenticator-install: true
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: eks-orb-test-cluster
+      - run:
+          name: Test kubernetes
+          command: |
+            ls -al kube-config.test
+            # Check that kubectl has been configured
+            kubectl get nodes
+            kubectl cluster-info
+            kubectl config view
+            kubectl config get-contexts
+            kubectl get pods --namespace kube-system
+      - run:
+          name: Run kubectl proxy
+          command: |
+            kubectl proxy --port=8080
+          background: true
+      - run:
+          name: Test API
+          command: |
+            sleep 15
+            curl http://localhost:8080/api/
+      - run:
+          name: Install kubernetes dashboard
+          command: |
+            # https://docs.aws.amazon.com/eks/latest/userguide/dashboard-tutorial.html
+            kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v1.10.1/src/deploy/recommended/kubernetes-dashboard.yaml
+            kubectl apply -f https://raw.githubusercontent.com/kubernetes/heapster/master/deploy/kube-config/influxdb/heapster.yaml
+            kubectl apply -f https://raw.githubusercontent.com/kubernetes/heapster/master/deploy/kube-config/influxdb/influxdb.yaml
+            kubectl apply -f https://raw.githubusercontent.com/kubernetes/heapster/master/deploy/kube-config/rbac/heapster-rbac.yaml
 
+            cat > eks-admin-service-account.yaml \<<-EOF
+            apiVersion: v1
+            kind: ServiceAccount
+            metadata:
+              name: eks-admin
+              namespace: kube-system
+            ---
+            apiVersion: rbac.authorization.k8s.io/v1beta1
+            kind: ClusterRoleBinding
+            metadata:
+              name: eks-admin
+            roleRef:
+              apiGroup: rbac.authorization.k8s.io
+              kind: ClusterRole
+              name: cluster-admin
+            subjects:
+            - kind: ServiceAccount
+              name: eks-admin
+              namespace: kube-system
+            EOF
+
+            kubectl apply -f eks-admin-service-account.yaml
+            kubectl get services
+            sleep 15
+      - run:
+          name: Set up python environment for browser testing
+          command: |
+            sudo pip3 install selenium
+      - run:
+          name: Test if kubernetes dashboard is deployed
+          command: |
+            mkdir -p /tmp/artifacts
+            cat > test.py \<<-EOF
+            import time
+            import os
+            from selenium import webdriver
+            from selenium.webdriver.chrome.options import Options
+            print("Script started")
+            options = Options()
+            options.headless = True
+            driver = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', chrome_options=options)
+            print("Loading page")
+            driver.get('http://localhost:8080/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/login');
+            time.sleep(5)
+            print("Finding element")
+            driver.save_screenshot("/tmp/artifacts/screenshot.png")
+            driver.quit()
+            EOF
+
+            chmod +x test.py
+            python3 test.py
+      - store_artifacts:
+          path: /tmp/artifacts
+  delete-cluster:
+    executor: python3
+    steps:
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: eks-orb-test-cluster
+      - run:
+          name: Check if test env should be destroyed
+          command: |
+            if [ "${SKIP_TEST_ENV_TEARDOWN}" = "true" ]
+            then
+              circleci step halt
+            fi
+      - aws-eks/delete-cluster:
+          cluster-name: eks-orb-test-cluster
+          wait: true
+          verbose: 3
+          no-output-timeout: 20m
 workflows:
   lint_pack-validate_publish-dev:
     jobs:
@@ -32,9 +171,39 @@ workflows:
 
       - orb-tools/publish-dev:
           orb-name: sandbox/aws-eks
-          context: orb-publishing
           requires:
             - orb-tools/pack
-  test-orb:
+
+      - orb-tools/trigger-integration-workflow:
+          name: trigger-integration-dev
+          ssh-fingerprints: 2a:7f:74:c8:92:7a:a6:42:05:c8:6f:06:62:24:bc:ba
+          tag: integration
+          requires:
+            - orb-tools/publish-dev
+          filters:
+            branches:
+              ignore: master
+  integration-tests:
     jobs:
-      - test-orb-python
+      - setup-cluster:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /integration-.*/
+      - test-cluster:
+          requires:
+            - setup-cluster
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /integration-.*/
+      - delete-cluster:
+          requires:
+            - test-cluster
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /integration-.*/

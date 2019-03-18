@@ -1,0 +1,192 @@
+description: >
+  Creates a k8s cluster with default settings
+
+parameters:
+  cluster-name:
+    description: |
+      Name of the k8s cluster
+    type: string
+    default: ""
+  aws-region:
+    description: |
+      AWS region that the k8s cluster will be created in.
+      If no value is specified, the cluster will be created in the us-west-2 region.
+    type: string
+    default: ""
+  zones:
+    description: |
+      The AWS availability zones to be used.
+      If no value is specified, the availability zones will be auto-selected.
+    type: string
+    default: ""
+  kubernetes-version:
+    description: |
+      Specify a version of Kubernetes that is supported by eksctl.
+      If no value is specified, the version that eksctl defaults to will be used.
+    type: string
+    default: ""
+  config-file:
+    description: |
+      Use this to specify a file if you wish to load configuration from it.
+    type: string
+    default: ""
+  vpc-private-subnets:
+    description: |
+      Private subnets
+      If no value is specified for vpc-private-subnets and vpc-public-subnets, a VPC will be created.
+    type: string
+    default: ""
+  vpc-public-subnets:
+    description: |
+      If no value is specified for vpc-private-subnets and vpc-public-subnets, a VPC will be created.
+    type: string
+    default: ""
+  node-type:
+    description: |
+      Node instance type for the node group.
+    type: string
+    default: "m5.large"
+  nodes-min:
+    description: |
+      Sets the minimum numbers of nodes in the Auto Scaling Group, if a number bigger than 0 is set as the value.
+    type: integer
+    default: 0
+  nodes-max:
+    description: |
+      Sets the maximum numbers of nodes in the Auto Scaling Group, if a number bigger than 0 is set as the value.
+    type: integer
+    default: 0
+  ssh-access:
+    description: |
+      Control SSH access for nodes
+    type: boolean
+    default: false
+  ssh-public-key:
+    description: |
+      SSH public key to use for nodes (import from local path, or use existing EC2 key pair)
+      "~/.ssh/id_rsa.pub" will be taken as the path if a value is not specified.
+    type: string
+    default: ""
+  tags:
+    description: |
+      A list of key-value pairs used to tag the AWS resources (e.g. "Owner=John Doe,Team=Some Team")
+      Note: Until https://github.com/weaveworks/eksctl/issues/25 is resolved, tags cannot be
+      applied to the EKS cluster itself, but can be applied to most of the other resources.
+    type: string
+    default: ""
+  verbose:
+    description: |
+      Set a value from 0 to 5 to control the verbosity level of the log output (the higher, the more verbose).
+      Use 0 to silence, 4 for debugging and 5 for debugging with AWS debug logging.
+      The logging verbosity level is set to 3 by default.
+      When set to 4 and above, verbose details of AWS resources will be displayed in the log output.
+      When set to 5, sensitive information such as credentials may be displayed in the log output.
+    type: integer
+    default: 3
+  skip-kubectl-install:
+    description: |
+      Whether to skip the installation of kubectl.
+    type: boolean
+    default: false
+  no-output-timeout:
+    description: |
+      Elapsed time that the cluster creation command can run without output.
+      The string is a decimal with unit suffix, such as “20m”, “1.25h”, “5s” (default: 20 minutes)
+    type: string
+    default: "20m"
+
+steps:
+  - run:
+      name: Install the eksctl tool
+      command: |
+        mkdir -p eksctl_download
+        curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/latest_release/eksctl_$(uname -s)_amd64.tar.gz" \
+          | tar xz -C eksctl_download
+        chmod +x eksctl_download/eksctl
+        SUDO=""
+        if [ $(id -u) -ne 0 ] && which sudo > /dev/null ; then
+          SUDO="sudo"
+        fi
+        $SUDO mv eksctl_download/eksctl /usr/local/bin/
+        rmdir eksctl_download
+  - unless:
+      condition: << parameters.skip-kubectl-install >>
+      steps:
+        - kubernetes/install
+  - run:
+      name: Create k8s cluster with vpc
+      command: |
+        CLUSTER_NAME="<< parameters.cluster-name >>"
+        AWS_REGION="<< parameters.aws-region >>"
+        ZONES="<< parameters.zones >>"
+        KUBERNETES_VERSION="<< parameters.kubernetes-version >>"
+        CONFIG_FILE="<< parameters.config-file >>"
+        VPC_PRIVATE_SUBNETS="<< parameters.vpc-private-subnets >>"
+        VPC_PUBLIC_SUBNETS="<< parameters.vpc-public-subnets >>"
+        NODE_TYPE="<< parameters.node-type >>"
+        NODES_MIN="<< parameters.nodes-min >>"
+        NODES_MAX="<< parameters.nodes-max >>"
+        SSH_ACCESS="<< parameters.ssh-access >>"
+        SSH_PUBLIC_KEY="<< parameters.ssh-public-key >>"
+        TAGS="<< parameters.tags >>"
+        VERBOSE="<< parameters.verbose >>"
+        if [ -n "${CLUSTER_NAME}" ]; then
+            set -- "$@" --name "${CLUSTER_NAME}"
+        fi
+        if [ -n "${AWS_REGION}" ]; then
+            set -- "$@" --region "${AWS_REGION}"
+        fi
+        if [ -n "${ZONES}" ]; then
+            set -- "$@" --zones "${ZONES}"
+        fi
+        if [ -n "${KUBERNETES_VERSION}" ]; then
+            set -- "$@" --version "${KUBERNETES_VERSION}"
+        fi
+        if [ -n "${CONFIG_FILE}" ]; then
+            set -- "$@" --config-file "${CONFIG_FILE}"
+        fi
+        if [ -n "${VPC_PRIVATE_SUBNETS}" ]; then
+            set -- "$@" --vpc-private-subnets "${VPC_PRIVATE_SUBNETS}"
+        fi
+        if [ -n "${VPC_PUBLIC_SUBNETS}" ]; then
+            set -- "$@" --vpc-public-subnets "${VPC_PUBLIC_SUBNETS}"
+        fi
+        if [ -n "${NODE_TYPE}" ]; then
+            set -- "$@" --node-type "${NODE_TYPE}"
+        fi
+        if [ "${NODES_MIN}" != "0" ]; then
+            set -- "$@" --nodes-min "${NODES_MIN}"
+        fi
+        if [ "${NODES_MAX}" != "0" ]; then
+            set -- "$@" --nodes-max "${NODES_MAX}"
+        fi
+        if [ "${SSH_ACCESS}" == "true" ]; then
+            set -- "$@" --ssh-access
+        fi
+        if [ -n "${SSH_PUBLIC_KEY}" ]; then
+            set -- "$@" --ssh-public-key "${SSH_PUBLIC_KEY}"
+        fi
+        if [ -n "${TAGS}" ]; then
+            set -- "$@" --tags "${TAGS}"
+        fi
+        set -- "$@" --verbose ${VERBOSE}
+        set -x
+        eksctl create cluster "$@"
+        set +x
+      no_output_timeout: << parameters.no-output-timeout >>
+  - run:
+      name: Verify cluster
+      command: |
+        CLUSTER_NAME="<< parameters.cluster-name >>"
+        AWS_REGION="<< parameters.aws-region >>"
+        VERBOSE="<< parameters.verbose >>"
+        if [ -n "${CLUSTER_NAME}" ]; then
+            set -- "$@" --name "${CLUSTER_NAME}"
+        fi
+        if [ -n "${AWS_REGION}" ]; then
+            set -- "$@" --region "${AWS_REGION}"
+        fi
+        set -- "$@" --verbose ${VERBOSE}
+        set -x
+        eksctl get cluster --name=<< parameters.cluster-name >> "$@"
+        set +x

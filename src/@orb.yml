@@ -1,8 +1,9 @@
+
 version: 2.1
 
 description: >
-  An orb to simplify deployments to
-  Amazon Elastic Container Service for Kubernetes (Amazon EKS)
+  An orb for working with Amazon Elastic Container Service for Kubernetes (Amazon EKS)
 
 orbs:
   aws-cli: circleci/aws-cli@0.1.9
+  kubernetes: circleci/kubernetes@0.1.0
