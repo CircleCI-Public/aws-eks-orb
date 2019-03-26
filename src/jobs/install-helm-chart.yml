@@ -1,0 +1,57 @@
+description: |
+  Installs a helm chart into the EKS cluster.
+
+executor: << parameters.executor >>
+
+parameters:
+  executor:
+    description: |
+      Executor to use for this job.
+    type: executor
+    default: python
+  cluster-name:
+    description: |
+      The name of the EKS cluster.
+    type: string
+  chart-name:
+    description: |
+      The name of the helm chart to be installed.
+    type: string
+  release-name:
+    description: |
+      Specify a name for the release.
+    type: string
+    default: ""
+  namespace:
+    description: |
+      The kubernetes namespace that should be used.
+    type: string
+    default: ""
+  wait:
+    description: |
+      Whether to wait for the installation to be complete
+    type: boolean
+    default: true
+  aws-region:
+    description: |
+      AWS region that the EKS cluster is in.
+    type: string
+    default: ""
+  aws-profile:
+    description: |
+      The AWS profile to be used. If not specified, the configured default
+      profile for your AWS CLI installation will be used.
+    type: string
+    default: ""
+
+steps:
+  - update-kubeconfig-with-authenticator:
+      cluster-name: << parameters.cluster-name >>
+      aws-region: << parameters.aws-region >>
+      aws-profile: << parameters.aws-profile >>
+      install-kubectl: true
+  - install-helm-chart:
+      chart-name: << parameters.chart-name >>
+      release-name: << parameters.release-name >>
+      namespace: << parameters.namespace >>
+      wait: << parameters.wait >>

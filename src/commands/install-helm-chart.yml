@@ -1,0 +1,48 @@
+description: |
+  Installs a helm chart.
+  Requirements: helm should be installed on the cluster.
+
+parameters:
+  chart-name:
+    description: |
+      Name of the helm chart to be installed
+    type: string
+  release-name:
+    description: |
+      Specify a name for the release.
+    type: string
+    default: ""
+  namespace:
+    description: |
+      The kubernetes namespace that should be used.
+    type: string
+    default: ""
+  wait:
+    description: |
+      Whether to wait for the installation to be complete
+    type: boolean
+    default: true
+
+steps:
+  - install-helm-client
+  - run:
+      name: Update repository
+      command: |
+        helm repo update
+  - run:
+      name: Install chart
+      command: |
+        RELEASE_NAME="<< parameters.release-name >>"
+        NAMESPACE="<< parameters.namespace >>"
+        WAIT="<< parameters.wait >>"
+        if [ -n "${RELEASE_NAME}" ]; then
+          set -- "$@" --name "${RELEASE_NAME}"
+        fi
+        if [ -n "${NAMESPACE}" ]; then
+          set -- "$@" --namespace="${NAMESPACE}"
+        fi
+        if [ "${WAIT}" == "true" ]; then
+          set -- "$@" --wait
+        fi
+        set -- "$@"
+        helm install << parameters.chart-name >> "$@"

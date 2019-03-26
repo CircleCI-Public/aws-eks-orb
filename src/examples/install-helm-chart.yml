@@ -1,0 +1,30 @@
+description: |
+  Create an eks cluster together with the required VPC-related
+  resources, test it, and tear it down.
+
+usage:
+  version: 2.1
+
+  orbs:
+    aws-eks: circleci/aws-eks@volatile
+    kubernetes: circleci/kubernetes@0.2.0
+
+  workflows:
+    deployment:
+      jobs:
+        - aws-eks/create-cluster:
+            cluster-name: my-eks-helm-demo
+        - aws-eks/install-helm:
+            cluster-name: my-eks-helm-demo
+            requires:
+              - aws-eks/create-cluster
+        - aws-eks/install-helm-chart:
+            cluster-name: my-eks-helm-demo
+            chart-name: stable/grafana
+            release-name: grafana-release
+            requires:
+              - aws-eks/install-helm
+        - aws-eks/delete-cluster:
+            cluster-name: my-eks-helm-demo
+            requires:
+              - aws-eks/install-helm-chart

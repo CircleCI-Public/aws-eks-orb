@@ -1,0 +1,35 @@
+description: |
+  Installs helm onto the EKS cluster.
+  Note: Currently this does not set up a secure helm installation.
+
+executor: << parameters.executor >>
+
+parameters:
+  executor:
+    description: |
+      Executor to use for this job.
+    type: executor
+    default: python
+  cluster-name:
+    description: |
+      The name of the EKS cluster.
+    type: string
+  aws-region:
+    description: |
+      AWS region that the EKS cluster is in.
+    type: string
+    default: ""
+  aws-profile:
+    description: |
+      The AWS profile to be used. If not specified, the configured default
+      profile for your AWS CLI installation will be used.
+    type: string
+    default: ""
+
+steps:
+  - update-kubeconfig-with-authenticator:
+      cluster-name: << parameters.cluster-name >>
+      aws-region: << parameters.aws-region >>
+      aws-profile: << parameters.aws-profile >>
+      install-kubectl: true
+  - install-helm-on-cluster

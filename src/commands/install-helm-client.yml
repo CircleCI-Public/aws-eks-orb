@@ -1,0 +1,19 @@
+description: |
+  Install the helm client
+
+steps:
+  - run:
+      name: Install the helm client
+      command: |
+        if which helm > /dev/null; then
+          echo "helm is already installed"
+          circleci step halt
+        fi
+        INSTALL_SCRIPT="https://raw.githubusercontent.com/helm/helm/master/scripts/get"
+        curl "${INSTALL_SCRIPT}" > get_helm.sh
+        chmod 700 get_helm.sh
+        ./get_helm.sh
+  - run:
+      name: Init the helm client
+      command: |
+        helm init --client-only
