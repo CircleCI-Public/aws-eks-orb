@@ -1,22 +1,42 @@
-description: >
-  Deletes cluster and resources that were created for it.
+description: |
+  Deletes EKS cluster and resources that were created for it.
   The cluster must have been created with the create-cluster command of the orb.
 
 parameters:
   cluster-name:
     description: |
-      Name of the k8s cluster
+      Name of the EKS cluster
+    type: string
+  config-file:
+    description: |
+      Use this to specify a file if you wish to load configuration from it.
     type: string
     default: ""
   aws-region:
     description: |
-      AWS region that the k8s cluster will be created in.
+      AWS region that the EKS cluster will be created in.
       If no value is specified, the cluster will be created in the us-west-2 region.
+    type: string
+    default: ""
+  aws-profile:
+    description: |
+      The AWS profile to be used. If not specified, the configured default
+      profile for your AWS CLI installation will be used.
     type: string
     default: ""
   wait:
     description: |
       Whether to wait for deletion of all resources before exiting
+    type: boolean
+    default: false
+  cfn-role-arn:
+    description: |
+      Specify an IAM role to be used by CloudFormation to call AWS API on your behalf
+    type: string
+    default: ""
+  show-eksctl-command:
+    description: |
+      Whether to show the eksctl command used.
     type: boolean
     default: false
   verbose:
@@ -28,32 +48,54 @@ parameters:
       When set to 5, sensitive information such as credentials may be displayed in the log output.
     type: integer
     default: 3
+  aws-max-polling-wait-time:
+    description: |
+      Max wait time in any AWS polling operations
+    type: string
+    default: "20m0s"
   no-output-timeout:
     description: |
       Elapsed time that the cluster creation command can run without output.
       The string is a decimal with unit suffix, such as “20m”, “1.25h”, “5s” (default: 20 minutes)
     type: string
-    default: "20m"
+    default: "30m"
 
 steps:
+  - install-eksctl
   - run:
       name: Delete eks cluster and associated resources
       command: |
         CLUSTER_NAME="<< parameters.cluster-name >>"
+        CONFIG_FILE="<< parameters.config-file >>"
         AWS_REGION="<< parameters.aws-region >>"
+        AWS_PROFILE="<< parameters.aws-profile >>"
         WAIT="<< parameters.wait >>"
+        CFN_ROLE_ARN="<< parameters.cfn-role-arn >>"
         VERBOSE="<< parameters.verbose >>"
+        AWS_MAX_POLLING_WAIT_TIME="<< parameters.aws-max-polling-wait-time >>"
         if [ -n "${CLUSTER_NAME}" ]; then
-            set -- "$@" --name "${CLUSTER_NAME}"
+          set -- "$@" --name="${CLUSTER_NAME}"
+        fi
+        if [ -n "${CONFIG_FILE}" ]; then
+          set -- "$@" --config-file="${CONFIG_FILE}"
         fi
         if [ -n "${AWS_REGION}" ]; then
-            set -- "$@" --region "${AWS_REGION}"
+          set -- "$@" --region="${AWS_REGION}"
+        fi
+        if [ -n "${AWS_PROFILE}" ]; then
+          set -- "$@" --profile="${AWS_PROFILE}"
         fi
         if [ "${WAIT}" == "true" ]; then
-            set -- "$@" --wait
+          set -- "$@" --wait
         fi
-        set -- "$@" --verbose ${VERBOSE}
-        set -x
+        if [ -n "${CFN_ROLE_ARN}" ]; then
+          set -- "$@" --cfn-role-arn="${CFN_ROLE_ARN}"
+        fi
+        if [ -n "${AWS_MAX_POLLING_WAIT_TIME}" ]; then
+          set -- "$@" --timeout="${AWS_MAX_POLLING_WAIT_TIME}"
+        fi
+        set -- "$@" --verbose=${VERBOSE}
+        <<# parameters.show-eksctl-command >>set -x<</ parameters.show-eksctl-command >>
         eksctl delete cluster "$@"
-        set +x
+        <<# parameters.show-eksctl-command >>set +x<</ parameters.show-eksctl-command >>
       no_output_timeout: << parameters.no-output-timeout >>

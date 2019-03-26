@@ -6,4 +6,4 @@ description: >
 
 orbs:
   aws-cli: circleci/aws-cli@0.1.9
-  kubernetes: circleci/kubernetes@0.1.0
+  kubernetes: circleci/kubernetes@0.2.0
