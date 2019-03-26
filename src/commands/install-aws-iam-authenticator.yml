@@ -1,13 +1,8 @@
-description: >
+description: |
   Install the AWS IAM Authenticator for Kubernetes
+  Requirements: curl, amd64 architecture
 
 parameters:
-  platform:
-    description: |
-      The platform on which to install the AWS IAM Authenticator
-    type: enum
-    default: "linux"
-    enum: ["linux", "darwin"]
   release-tag:
     description: |
       Use this to specify a tag to select which published release of the AWS IAM Authenticator,
@@ -27,16 +22,21 @@ steps:
           exit 0
         fi
 
-        RELEASE_TAG="<< parameters.release-tag >>"
-        if [ -n "${RELEASE_TAG}" ]; then
-          DOWNLOAD_URL=$(curl -s "https://api.github.com/repos/kubernetes-sigs/aws-iam-authenticator/releases/tags/${RELEASE_TAG}" \
-            | grep << parameters.platform >> | awk '/browser_download_url/ {print $2}' | sed 's/"//g')
-        else
-          DOWNLOAD_URL=$(curl -s "https://api.github.com/repos/kubernetes-sigs/aws-iam-authenticator/releases/latest" \
-           | grep << parameters.platform >> | awk '/browser_download_url/ {print $2}' | sed 's/"//g')
+        PLATFORM="linux"
+        if [ -n "$(uname | grep "Darwin")" ]; then
+          PLATFORM="darwin"
         fi
 
-        curl -L -o aws-iam-authenticator $DOWNLOAD_URL
+        RELEASE_TAG="<< parameters.release-tag >>"
+        if [ -n "${RELEASE_TAG}" ]; then
+          DOWNLOAD_URL=$(curl -s --retry 5 "https://api.github.com/repos/kubernetes-sigs/aws-iam-authenticator/releases/tags/${RELEASE_TAG}" \
+            | grep "${PLATFORM}" | awk '/browser_download_url/ {print $2}' | sed 's/"//g')
+        else
+          DOWNLOAD_URL=$(curl -s --retry 5 "https://api.github.com/repos/kubernetes-sigs/aws-iam-authenticator/releases/latest" \
+           | grep "${PLATFORM}" | awk '/browser_download_url/ {print $2}' | sed 's/"//g')
+        fi
+
+        curl -L -o aws-iam-authenticator "$DOWNLOAD_URL"
 
         chmod +x ./aws-iam-authenticator
 
