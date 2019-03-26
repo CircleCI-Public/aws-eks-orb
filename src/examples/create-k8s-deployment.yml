@@ -1,0 +1,47 @@
+description: |
+  Create a kubernetes deployment.
+
+usage:
+  version: 2.1
+
+  orbs:
+    aws-eks: circleci/aws-eks@volatile
+    kubernetes: circleci/kubernetes@0.2.0
+
+  jobs:
+    create-deployment:
+      executor: aws-eks/python
+      parameters:
+        cluster-name:
+          description: |
+            Name of the EKS cluster
+          type: string
+      steps:
+        - checkout
+        - aws-eks/create-or-update-resource:
+            resource-file-path: "tests/nginx-deployment/deployment.yaml"
+            resource-name: "deployment/nginx-deployment"
+            update-kubeconfig-with-authenticator: true
+            cluster-name: << parameters.cluster-name >>
+            install-kubectl: true
+
+  workflows:
+    deployment:
+      jobs:
+        - aws-eks/create-cluster:
+            cluster-name: eks-demo-deployment
+        - create-deployment:
+            cluster-name: eks-demo-deployment
+            requires:
+              - aws-eks/create-cluster
+        - aws-eks/update-container-image:
+            cluster-name: eks-demo-deployment
+            resource-name: "deployment/nginx-deployment"
+            container-image-updates: "nginx=nginx:1.9.1"
+            record: true
+            requires:
+              - create-deployment
+        - aws-eks/delete-cluster:
+            cluster-name: eks-demo-deployment
+            requires:
+              - aws-eks/update-container-image

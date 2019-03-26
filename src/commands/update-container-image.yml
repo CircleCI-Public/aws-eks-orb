@@ -1,0 +1,161 @@
+description: |
+  Updates existing container image(s) of resources on the EKS cluster using the
+  `kubectl set image` command.
+
+parameters:
+  resource-file-path:
+    description: |
+      Path to file used to update the resource.
+      Either resource-file-path or resource-name need to be specified.
+    type: string
+    default: ""
+  resource-name:
+    description: |
+      Resource name in the format TYPE/NAME e.g. deployment/nginx-deployment
+      Either resource-file-path or resource-name need to be specified.
+      This is required if get-rollout-status is set to true.
+    type: string
+    default: ""
+  container-image-updates:
+    description: |
+      Specify a list of container image updates
+      (space-delimited name value pairs in the form
+      CONTAINER_NAME_1=CONTAINER_IMAGE_1 ... CONTAINER_NAME_N=CONTAINER_IMAGE_N)
+      to be applied to the resource via `kubectl set image`.
+      e.g. "busybox=busybox nginx=nginx:1.9.1"
+    type: string
+  namespace:
+    description: |
+      The kubernetes namespace that should be used.
+    type: string
+    default: ""
+  record:
+    description: |
+      Whether to record the update
+    type: boolean
+    default: false
+  get-rollout-status:
+    description: |
+      Get the status of the rollout.
+      This can only be used for resource types that are valid
+      for usage with `kubectl rollout` subcommands.
+    type: boolean
+    default: false
+  watch-rollout-status:
+    description: |
+      Whether to watch the status of the latest rollout until it's done.
+      Only effective if get-rollout-status is set to true.
+    type: boolean
+    default: true
+  pinned-revision-to-watch:
+    description: |
+      Pin a specific revision to be watched and abort watching if it is rolled
+      over by another revision.
+      Only effective if get-rollout-status is set to true.
+    type: string
+    default: ""
+  watch-timeout:
+    description: |
+      The length of time to wait before ending the watch, zero means never.
+      Any other values should contain a corresponding time unit (e.g. 1s, 2m, 3h).
+      Only effective if get-rollout-status is set to true.
+    type: string
+    default: ""
+  update-kubeconfig-with-authenticator:
+    description: |
+      Whether to update kubeconfig with the AWS IAM authenticator.
+    type: boolean
+    default: false
+  cluster-name:
+    description: |
+      The name of the cluster on which the resources are being updated.
+    type: string
+    default: ""
+  aws-region:
+    description: |
+      The AWS region that the cluster is in. If not specified, the configured default
+      region for your AWS CLI installation will be used.
+    type: string
+    default: ""
+  aws-profile:
+    description: |
+      The AWS profile to be used. If not specified, the configured default
+      profile for your AWS CLI installation will be used.
+    type: string
+    default: ""
+  install-kubectl:
+    description: |
+      Whether to install kubectl.
+    type: boolean
+    default: false
+  authenticator-release-tag:
+    description: |
+      Specifies which release-tag version of the authenticator to install.
+    type: string
+    default: ""
+  dry-run:
+    description: |
+      Whether the kubectl command will be executed in dry-run mode.
+    type: boolean
+    default: false
+  show-kubectl-command:
+    description: |
+      Whether to show the kubectl command used.
+    type: boolean
+    default: false
+
+steps:
+  - when:
+      condition: << parameters.update-kubeconfig-with-authenticator >>
+      steps:
+        - update-kubeconfig-with-authenticator:
+            cluster-name: << parameters.cluster-name >>
+            aws-region: << parameters.aws-region >>
+            aws-profile: << parameters.aws-profile >>
+            install-kubectl: << parameters.install-kubectl >>
+            authenticator-release-tag: << parameters.authenticator-release-tag >>
+  - unless:
+      condition: << parameters.update-kubeconfig-with-authenticator >>
+      steps:
+        - when:
+            condition: << parameters.install-kubectl >>
+            steps:
+              - kubernetes/install
+  - run:
+      name: Update the container image(s) for the resource
+      command: |
+        RESOURCE_FILE_PATH="<< parameters.resource-file-path >>"
+        RESOURCE_NAME="<< parameters.resource-name >>"
+        CONTAINER_IMAGE_UPDATES="<< parameters.container-image-updates >>"
+        NAMESPACE="<< parameters.namespace >>"
+        RECORD="<< parameters.record >>"
+        DRY_RUN="<< parameters.dry-run >>"
+        if [ -n "${RESOURCE_FILE_PATH}" ]; then
+          set -- "$@" -f
+          set -- "$@" "${RESOURCE_FILE_PATH}"
+        elif [ -n "${RESOURCE_NAME}" ]; then
+          set -- "$@" "${RESOURCE_NAME}"
+        else
+          echo "Error: The update-container-image command requires either resource-file-path or resource-name to be specified."
+          exit 1
+        fi
+        if [ -n "${CONTAINER_IMAGE_UPDATES}" ]; then
+          set -- "$@" "${CONTAINER_IMAGE_UPDATES}"
+        fi
+        if [ -n "${NAMESPACE}" ]; then
+          set -- "$@" --namespace="${NAMESPACE}"
+        fi
+        set -- "$@" "--record=${RECORD}"
+        set -- "$@" "--dry-run=${DRY_RUN}"
+        <<# parameters.show-kubectl-command >>set -x<</ parameters.show-kubectl-command >>
+        kubectl set image "$@"
+        <<# parameters.show-kubectl-command >>set +x<</ parameters.show-kubectl-command >>
+  - when:
+      condition: << parameters.get-rollout-status >>
+      steps:
+        - get-rollout-status:
+            deployment-name: << parameters.resource-name >>
+            namespace: << parameters.namespace >>
+            watch-rollout-status: << parameters.watch-rollout-status >>
+            pinned-revision-to-watch: << parameters.pinned-revision-to-watch >>
+            watch-timeout: << parameters.watch-timeout >>
