@@ -355,7 +355,7 @@ workflows:
             - orb-tools/pack
       - orb-tools/trigger-integration-workflow:
           name: trigger-integration-dev
-          ssh-fingerprints: ef:c0:76:3f:9d:d7:f8:14:40:a4:6e:9c:63:e7:75:9f
+          ssh-fingerprints: 2a:7f:74:c8:92:7a:a6:42:05:c8:6f:06:62:24:bc:ba
           tag: integration
           requires:
             - orb-tools/publish-dev
