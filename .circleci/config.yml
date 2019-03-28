@@ -548,7 +548,6 @@ workflows:
           executor: aws-eks/python
           region: "ap-southeast-1"
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
-          get-rollout-status: true
           requires:
             - setup-cluster-kubectl
           filters: *integration_test_filters
