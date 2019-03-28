@@ -323,7 +323,7 @@ jobs:
             RELEASE_CLUSTER_IP=$(kubectl get services | grep << parameters.release-name >> | awk '{print $3'})
 
             # Use SSH to test accessing Grafana from within the cluster through the cluster ip
-            ssh -i -q /tmp/workspace/keys/eks_id_rsa ec2-user@$NODE_EXTERNAL_IP curl -s $RELEASE_CLUSTER_IP | grep login
+            ssh -q -i /tmp/workspace/keys/eks_id_rsa ec2-user@$NODE_EXTERNAL_IP curl -s $RELEASE_CLUSTER_IP | grep login
       - run:
           name: Test port forwarding
           command: |
