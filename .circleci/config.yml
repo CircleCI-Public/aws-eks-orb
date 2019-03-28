@@ -323,7 +323,7 @@ jobs:
             RELEASE_CLUSTER_IP=$(kubectl get services | grep << parameters.release-name >> | awk '{print $3'})
 
             # Use SSH to test accessing Grafana from within the cluster through the cluster ip
-            ssh -i /tmp/workspace/keys/eks_id_rsa ec2-user@$NODE_EXTERNAL_IP curl $RELEASE_CLUSTER_IP | grep login
+            ssh -i -q /tmp/workspace/keys/eks_id_rsa ec2-user@$NODE_EXTERNAL_IP curl -s $RELEASE_CLUSTER_IP | grep login
       - run:
           name: Test port forwarding
           command: |
@@ -332,7 +332,7 @@ jobs:
             sleep 10
             # Test accessing Grafana from the build container through the port-forwarding setup
             set -x
-            curl http://localhost:3000 | grep login
+            curl -s http://localhost:3000 | grep login
             set +x
   delete-cluster:
     parameters:
@@ -548,6 +548,7 @@ workflows:
           executor: aws-eks/python
           region: "ap-southeast-1"
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
+          get-rollout-status: true
           requires:
             - setup-cluster-kubectl
           filters: *integration_test_filters
@@ -557,6 +558,7 @@ workflows:
           aws-region: "ap-southeast-1"
           resource-name: "deployment/nginx-deployment"
           container-image-updates: "nginx=nginx:1.9.1"
+          get-rollout-status: true
           record: true
           requires:
             - create-deployment
