@@ -56,7 +56,7 @@ parameters:
   no-output-timeout:
     description: |
       Elapsed time that the cluster creation command can run without output.
-      The string is a decimal with unit suffix, such as “20m”, “1.25h”, “5s” (default: 20 minutes)
+      The string is a decimal with unit suffix, such as “20m”, “1.25h”, “5s” (default: 30 minutes)
     type: string
     default: "30m"
 

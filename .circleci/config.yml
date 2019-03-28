@@ -83,7 +83,6 @@ jobs:
           cluster-name: << parameters.cluster-name >>
           tags: name=eksorb,purpose=eksorbtest
           verbose: 3
-          no-output-timeout: 20m
       - quick-cluster-tests
   setup-cluster-with-many-params:
     parameters:
@@ -122,7 +121,6 @@ jobs:
           aws-max-polling-wait-time: "25m"
           tags: "name=cci_orbs,purpose=orb_test"
           verbose: 3
-          no-output-timeout: 20m
           show-eksctl-command: true
       - quick-cluster-tests
   setup-cluster-with-ssh:
@@ -146,26 +144,15 @@ jobs:
           command: |
             mkdir -p /tmp/keys
             ssh-keygen -t rsa -N "" -f /tmp/keys/eks_id_rsa
+            chmod 600 /tmp/keys/eks_id_rsa
             chmod 644 /tmp/keys/eks_id_rsa.pub
             ls -al /tmp/keys
       - aws-eks/create-cluster:
           cluster-name: << parameters.cluster-name >>
-          aws-profile: default
-          nodegroup-name: "orbtest-ng-ssh"
-          node-type: "m5.large"
           aws-region: << parameters.region >>
           zones: "<< parameters.zones >>"
-          nodes: 4
-          nodes-min: 3
-          nodes-max: 4
-          node-volume-size: 30
-          node-volume-type: "gp2"
-          max-pods-per-node: 25
           ssh-access: true
           ssh-public-key: "/tmp/keys/eks_id_rsa.pub"
-          node-private-networking: false
-          node-labels: "nodevoltype=st1,nodepurpose=testing"
-          node-zones: "ap-southeast-2b"
           asg-access: false
           external-dns-access: false
           full-ecr-access: false
@@ -173,9 +160,13 @@ jobs:
           aws-max-polling-wait-time: "25m"
           tags: "name=cci_orbs,purpose=orb_test"
           verbose: 3
-          no-output-timeout: 20m
+          no-output-timeout: 50m
           show-eksctl-command: true
       - quick-cluster-tests
+      - persist_to_workspace:
+          root: /tmp
+          paths:
+            - keys
   test-update-kubeconfig:
     parameters:
       executor:
@@ -298,6 +289,51 @@ jobs:
             python test.py
       - store_artifacts:
           path: /tmp/artifacts
+  test-ssh-access:
+    parameters:
+      executor:
+        type: executor
+      region:
+        type: string
+        default: ""
+      cluster-name:
+        type: string
+      release-name:
+        type: string
+    executor: << parameters.executor >>
+    steps:
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          aws-region: << parameters.region >>
+          install-kubectl: true
+      - attach_workspace:
+          at: /tmp/workspace
+      - aws-eks/install-helm-on-cluster
+      - aws-eks/install-helm-chart:
+          chart-name: stable/grafana
+          release-name: << parameters.release-name >>
+      - run:
+          name: Test SSH access
+          command: |
+            # Get external IP of one node
+            NODE_EXTERNAL_IP=$(kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="ExternalIP")].address}' | awk '{print $1}')
+            mkdir -p ~/.ssh
+            ssh-keyscan -H $NODE_EXTERNAL_IP > ~/.ssh/known_hosts
+            ssh -i /tmp/workspace/keys/eks_id_rsa ec2-user@$NODE_EXTERNAL_IP whoami | grep ec2-user
+            RELEASE_CLUSTER_IP=$(kubectl get services | grep << parameters.release-name >> | awk '{print $3'})
+
+            # Use SSH to test accessing Grafana from within the cluster through the cluster ip
+            ssh -i /tmp/workspace/keys/eks_id_rsa ec2-user@$NODE_EXTERNAL_IP curl $RELEASE_CLUSTER_IP | grep login
+      - run:
+          name: Test port forwarding
+          command: |
+            export POD_NAME=$(kubectl get pods --namespace default -l "app=grafana,release=<< parameters.release-name >>" -o jsonpath="{.items[0].metadata.name}")
+            nohup kubectl --namespace default port-forward $POD_NAME 3000 &
+            sleep 10
+            # Test accessing Grafana from the build container through the port-forwarding setup
+            set -x
+            curl http://localhost:3000 | grep login
+            set +x
   delete-cluster:
     parameters:
       executor:
@@ -407,6 +443,16 @@ workflows:
           requires:
             - setup-cluster-custom-values-ssh
           filters: *integration_test_filters
+      - test-ssh-access:
+          executor:
+            name: aws-eks/python
+            tag: "3.6"
+          region: "ap-southeast-2"
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
+          release-name: grafana-release
+          requires:
+            - test-cluster-custom-values-ssh
+          filters: *integration_test_filters
       - test-authenticator:
           name: test-authenticator-options
           executor: aws-eks/python2
@@ -465,7 +511,7 @@ workflows:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
           region: "ap-southeast-2"
           requires:
-            - test-cluster-custom-values-ssh
+            - test-ssh-access
           filters: *integration_test_filters
   integration-tests-helm-jobs:
     jobs:

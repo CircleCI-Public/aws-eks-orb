@@ -217,9 +217,9 @@ parameters:
   no-output-timeout:
     description: |
       Elapsed time that the cluster creation command can run on CircleCI without output.
-      The string is a decimal with unit suffix, such as “20m”, “1.25h”, “5s” (default: 20 minutes)
+      The string is a decimal with unit suffix, such as “20m”, “1.25h”, “5s” (default: 45 minutes)
     type: string
-    default: "30m"
+    default: "45m"
 
 steps:
   - install-eksctl
