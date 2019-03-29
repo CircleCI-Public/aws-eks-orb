@@ -9,7 +9,7 @@ description: |
 steps:
   - install-helm-client
   - run:
-      name: Create new service account manifest for tiller to use
+      name: Create config for giving tiller access to the cluster
       command: |
         cat \<<-EOF > helm-rbac.yaml
         ---

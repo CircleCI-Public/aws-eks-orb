@@ -1,5 +1,5 @@
 description: |
-  Deletes EKS cluster and resources that were created for it.
+  Deletes the EKS cluster and resources that were created for it.
   The cluster must have been created with the create-cluster command of the orb.
 
 parameters:
@@ -56,14 +56,14 @@ parameters:
   no-output-timeout:
     description: |
       Elapsed time that the cluster creation command can run without output.
-      The string is a decimal with unit suffix, such as “20m”, “1.25h”, “5s” (default: 30 minutes)
+      The string is a decimal with unit suffix, such as “20m”, “1.25h”, “5s”
     type: string
     default: "30m"
 
 steps:
   - install-eksctl
   - run:
-      name: Delete eks cluster and associated resources
+      name: Delete EKS cluster and associated resources
       command: |
         CLUSTER_NAME="<< parameters.cluster-name >>"
         CONFIG_FILE="<< parameters.config-file >>"

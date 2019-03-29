@@ -318,12 +318,12 @@ jobs:
             # Get external IP of one node
             NODE_EXTERNAL_IP=$(kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="ExternalIP")].address}' | awk '{print $1}')
             mkdir -p ~/.ssh
-            ssh-keyscan -H $NODE_EXTERNAL_IP > ~/.ssh/known_hosts
+            ssh-keyscan -H $NODE_EXTERNAL_IP > ~/.ssh/known_hosts 2> /dev/null
             ssh -i /tmp/workspace/keys/eks_id_rsa ec2-user@$NODE_EXTERNAL_IP whoami | grep ec2-user
             RELEASE_CLUSTER_IP=$(kubectl get services | grep << parameters.release-name >> | awk '{print $3'})
 
             # Use SSH to test accessing Grafana from within the cluster through the cluster ip
-            ssh -q -i /tmp/workspace/keys/eks_id_rsa ec2-user@$NODE_EXTERNAL_IP curl -s $RELEASE_CLUSTER_IP | grep login
+            ssh -i /tmp/workspace/keys/eks_id_rsa ec2-user@$NODE_EXTERNAL_IP curl -s $RELEASE_CLUSTER_IP | grep login
       - run:
           name: Test port forwarding
           command: |
@@ -331,9 +331,7 @@ jobs:
             nohup kubectl --namespace default port-forward $POD_NAME 3000 &
             sleep 10
             # Test accessing Grafana from the build container through the port-forwarding setup
-            set -x
             curl -s http://localhost:3000 | grep login
-            set +x
   delete-cluster:
     parameters:
       executor:

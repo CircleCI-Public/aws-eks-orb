@@ -9,9 +9,7 @@ parameters:
     default: ""
   aws-region:
     description: |
-      AWS region that the eks cluster will be created in.
-      If no value is specified, the cluster will be created in the
-      eksctl default region.
+      AWS region that the EKS cluster will be created in.
     type: string
     default: ""
   aws-profile:
@@ -78,13 +76,13 @@ parameters:
     default: -1
   nodes-min:
     description: |
-      Sets the minimum numbers of nodes in the Auto Scaling Group, if a number other than -1 is set as the value.
+      Sets the minimum number of nodes in the Auto Scaling Group, if a number other than -1 is set as the value.
       Otherwise the default as determined by eksctl will be used.
     type: integer
     default: -1
   nodes-max:
     description: |
-      Sets the maximum numbers of nodes in the Auto Scaling Group, if a number other than -1 is set as the value.
+      Sets the maximum number of nodes in the Auto Scaling Group, if a number other than -1 is set as the value.
       Otherwise the default as determined by eksctl will be used.
     type: integer
     default: -1
@@ -156,7 +154,7 @@ parameters:
     default: true
   vpc-cidr:
     description: |
-      Specify ipNet global CIDR to use for VPC.
+      Specify global CIDR to use for VPC.
       e.g. 192.168.0.0/16
     type: string
     default: ""
@@ -186,8 +184,6 @@ parameters:
   tags:
     description: |
       A list of key-value pairs used to tag the AWS resources (e.g. "Owner=John Doe,Team=Some Team")
-      Note: Until https://github.com/weaveworks/eksctl/issues/25 is resolved, tags cannot be
-      applied to the EKS cluster itself, but can be applied to most of the other resources.
     type: string
     default: ""
   show-eksctl-command:
@@ -217,7 +213,7 @@ parameters:
   no-output-timeout:
     description: |
       Elapsed time that the cluster creation command can run on CircleCI without output.
-      The string is a decimal with unit suffix, such as “20m”, “1.25h”, “5s” (default: 45 minutes)
+      The string is a decimal with unit suffix, such as “20m”, “1.25h”, “5s”
     type: string
     default: "45m"
 
@@ -228,7 +224,7 @@ steps:
       steps:
         - kubernetes/install
   - run:
-      name: Create EKS cluster with vpc
+      name: Create EKS cluster and associated resources
       command: |
         CLUSTER_NAME="<< parameters.cluster-name >>"
         AWS_REGION="<< parameters.aws-region >>"

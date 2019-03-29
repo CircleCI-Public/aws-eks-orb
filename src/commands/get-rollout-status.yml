@@ -4,9 +4,9 @@ description: |
   for usage with `kubectl rollout` subcommands.
 
 parameters:
-  deployment-name:
+  resource-name:
     description: |
-      Deployment name in the format TYPE/NAME e.g. deployment/nginx-deployment
+      Resource name in the format TYPE/NAME e.g. deployment/nginx-deployment
     type: string
   namespace:
     description: |
@@ -38,15 +38,15 @@ parameters:
 
 steps:
   - run:
-      name: Show the deployment rollout status
+      name: Show the resource rollout status
       command: |
-        DEPLOYMENT_NAME="<< parameters.deployment-name >>"
+        RESOURCE_NAME="<< parameters.resource-name >>"
         NAMESPACE="<< parameters.namespace >>"
         WATCH_ROLLOUT_STATUS="<< parameters.watch-rollout-status >>"
         PINNED_REVISION_TO_WATCH="<< parameters.pinned-revision-to-watch >>"
         WATCH_TIMEOUT="<< parameters.watch-timeout >>"
-        if [ -n "${DEPLOYMENT_NAME}" ]; then
-          set -- "$@" "${DEPLOYMENT_NAME}"
+        if [ -n "${RESOURCE_NAME}" ]; then
+          set -- "$@" "${RESOURCE_NAME}"
         fi
         if [ -n "${NAMESPACE}" ]; then
           set -- "$@" "--namespace=${NAMESPACE}"
@@ -64,12 +64,12 @@ steps:
         kubectl rollout status "$@"
         <<# parameters.show-kubectl-command >>set +x<</ parameters.show-kubectl-command >>
   - run:
-      name: Verify the k8s deployment
+      name: Get a description of the resource
       command: |
         NAMESPACE="<< parameters.namespace >>"
         if [ -n "${NAMESPACE}" ]; then
           set -- "$@" "--namespace=${NAMESPACE}"
         fi
         <<# parameters.show-kubectl-command >>set -x<</ parameters.show-kubectl-command >>
-        kubectl describe << parameters.deployment-name >> "$@"
+        kubectl describe << parameters.resource-name >> "$@"
         <<# parameters.show-kubectl-command >>set +x<</ parameters.show-kubectl-command >>
