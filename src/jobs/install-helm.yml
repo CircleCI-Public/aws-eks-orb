@@ -1,6 +1,7 @@
 description: |
   Installs helm onto the EKS cluster.
-  Note: Currently this does not set up a secure helm installation.
+  Note: Not for production use; currently this does not apply
+  any security configurations and gives Tiller admin access to the entire cluster.
 
 executor: << parameters.executor >>
 
@@ -9,7 +10,7 @@ parameters:
     description: |
       Executor to use for this job.
     type: executor
-    default: python
+    default: python3
   cluster-name:
     description: |
       The name of the EKS cluster.

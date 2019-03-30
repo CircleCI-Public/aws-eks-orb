@@ -8,7 +8,7 @@ parameters:
     description: |
       Executor to use for this job.
     type: executor
-    default: python
+    default: python3
   cluster-name:
     description: |
       Name of the EKS cluster to be created

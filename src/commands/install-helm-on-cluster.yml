@@ -1,8 +1,7 @@
 description: |
   Install helm into an existing eks cluster.
-  Note: Currently this does not apply any security configurations
-  and gives Tiller admin access to the entire cluster.
-  For further reading see https://github.com/helm/helm/blob/master/docs/securing_installation.md
+  Note: Not for production use; currently this does not apply
+  any security configurations and gives Tiller admin access to the entire cluster.
 
   Requirements: kubectl, updated kubeconfig
 

@@ -1,12 +1,11 @@
 description: |
-  Create an eks cluster together with the required VPC-related
-  resources, test it, and tear it down.
+  Test installing a helm chart on a cluster.
 
 usage:
   version: 2.1
 
   orbs:
-    aws-eks: circleci/aws-eks@volatile
+    aws-eks: circleci/aws-eks@0.0.1
     kubernetes: circleci/kubernetes@0.2.0
 
   workflows:

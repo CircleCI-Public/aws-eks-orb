@@ -5,12 +5,12 @@ usage:
   version: 2.1
 
   orbs:
-    aws-eks: circleci/aws-eks@volatile
+    aws-eks: circleci/aws-eks@0.0.1
     kubernetes: circleci/kubernetes@0.2.0
 
   jobs:
     create-deployment:
-      executor: aws-eks/python
+      executor: aws-eks/python3
       parameters:
         cluster-name:
           description: |
