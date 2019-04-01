@@ -308,9 +308,11 @@ jobs:
           install-kubectl: true
       - attach_workspace:
           at: /tmp/workspace
-      - aws-eks/install-helm-on-cluster
+      - aws-eks/install-helm-on-cluster:
+          service-account: tiller-test
+          enable-cluster-wide-admin-access: true
       - aws-eks/install-helm-chart:
-          chart-name: stable/grafana
+          chart: stable/grafana
           release-name: << parameters.release-name >>
       - run:
           name: Test SSH access
@@ -519,12 +521,13 @@ workflows:
           filters: *integration_test_filters
       - aws-eks/install-helm:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-helm
+          enable-cluster-wide-admin-access: true
           requires:
             - setup-cluster-helm
           filters: *integration_test_filters
       - aws-eks/install-helm-chart:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-helm
-          chart-name: stable/grafana
+          chart: stable/grafana
           release-name: grafana-release
           requires:
             - aws-eks/install-helm

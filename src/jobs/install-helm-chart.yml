@@ -13,18 +13,63 @@ parameters:
     description: |
       The name of the EKS cluster.
     type: string
-  chart-name:
+  chart:
     description: |
-      The name of the helm chart to be installed.
+      Specify for installation a chart reference (e.g. stable/mariadb),
+      or a path to a packaged chart (e.g. ./nginx-1.2.3.tgz),
+      or a path to an unpacked chart directory (e.g. ./nginx)
+      or an absolute URL (e.g. https://example.com/charts/nginx-1.2.3.tgz)
     type: string
   release-name:
     description: |
       Specify a name for the release.
     type: string
     default: ""
+  values-to-override:
+    description: |
+      Override values in a chart using the --set flag of the helm install
+      command. Format: key1=val1,key2=val2
+    type: string
+    default: ""
   namespace:
     description: |
       The kubernetes namespace that should be used.
+    type: string
+    default: ""
+  tls:
+    description: |
+      Enable TLS for the request
+    type: boolean
+    default: false
+  tls-ca-cert:
+    description: |
+      Path to TLS CA certificate file
+    type: string
+    default: ""
+  tls-cert:
+    description: |
+      Path to TLS certificate file
+    type: string
+    default: ""
+  tls-hostname:
+    description: |
+      The server name used to verify the hostname on the returned
+      certificates from the server
+    type: string
+    default: ""
+  tls-key:
+    description: |
+      Path to TLS key file
+    type: string
+    default: ""
+  tls-verify:
+    description: |
+      Enable TLS for request and verify remote
+    type: boolean
+    default: false
+  tiller-namespace:
+    description: |
+      Specify the namespace of Tiller
     type: string
     default: ""
   wait:
@@ -51,7 +96,15 @@ steps:
       aws-profile: << parameters.aws-profile >>
       install-kubectl: true
   - install-helm-chart:
-      chart-name: << parameters.chart-name >>
+      chart: << parameters.chart >>
       release-name: << parameters.release-name >>
+      values-to-override: << parameters.values-to-override >>
       namespace: << parameters.namespace >>
+      tls: << parameters.tls >>
+      tls-ca-cert: << parameters.tls-ca-cert >>
+      tls-cert: << parameters.tls-cert >>
+      tls-hostname: << parameters.tls-hostname >>
+      tls-key: << parameters.tls-key >>
+      tls-verify: << parameters.tls-verify >>
+      tiller-namespace: << parameters.tiller-namespace >>
       wait: << parameters.wait >>
