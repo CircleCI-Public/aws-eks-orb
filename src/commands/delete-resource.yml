@@ -60,8 +60,9 @@ parameters:
   grace-period:
     description: |
       Period of time in seconds given to the resource to terminate gracefully.
-    type: string
-    default: ""
+      A value of "-1" will be ignored.
+    type: integer
+    default: -1
   ignore-not-found:
     description: |
       If true, treats "resource not found" as a successful delete.
@@ -178,8 +179,8 @@ steps:
         if [ "${FORCE}" == "true" ]; then
           set -- "$@" --force=true
         fi
-        if [ -n "${GRACE_PERIOD}" ]; then
-            set -- "$@" --grace-period="${GRACE_PERIOD}"
+        if [ "${GRACE_PERIOD}" != "-1" ]; then
+          set -- "$@" --grace-period="${GRACE_PERIOD}"
         fi
         if [ "${IGNORE_NOT_FOUND}" == "true" ]; then
           set -- "$@" --ignore-not-found=true

@@ -28,8 +28,9 @@ parameters:
     description: |
       Specify time in seconds to wait for any individual Kubernetes operation
       (like Jobs for hooks)
-    type: string
-    default: ""
+      A value of -1 will be ignored.
+    type: integer
+    default: -1
   namespace:
     description: |
       The kubernetes namespace that should be used.
