@@ -108,4 +108,4 @@ steps:
         if [ -n "${TILLER_NAMESPACE}" ]; then
           set -- "$@" --tiller-namespace "${TILLER_NAMESPACE}"
         fi
-        helm delete "$@" << parameters.release-name >> 
+        helm delete "$@" << parameters.release-name >>
