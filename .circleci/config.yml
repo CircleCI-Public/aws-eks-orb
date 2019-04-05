@@ -4,7 +4,7 @@ integration_test_filters: &integration_test_filters
   branches:
     ignore: /.*/
   tags:
-    only: /integration-.*/
+    only: /(integration|master)-.*/
 
 orbs:
   aws-eks: sandbox/aws-eks@dev:alpha
@@ -404,8 +404,18 @@ workflows:
           filters:
             branches:
               ignore: master
-  integration-tests-commands:
+      - orb-tools/trigger-integration-workflow:
+          name: trigger-integration-master
+          ssh-fingerprints: 2a:7f:74:c8:92:7a:a6:42:05:c8:6f:06:62:24:bc:ba
+          tag: master
+          requires:
+            - orb-tools/publish-dev
+          filters:
+            branches:
+              only: master
+  integration-tests:
     jobs:
+      # jobs to test various commands
       - setup-cluster:
           name: setup-cluster-defaults
           executor: aws-eks/python2
@@ -519,8 +529,7 @@ workflows:
           requires:
             - test-ssh-access
           filters: *integration_test_filters
-  integration-tests-helm-jobs:
-    jobs:
+      # jobs to test helm usage
       - aws-eks/create-cluster:
           name: setup-cluster-helm
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-helm
@@ -552,14 +561,14 @@ workflows:
           requires:
             - aws-eks/delete-helm-release
           filters: *integration_test_filters
-  integration-tests-kubectl-jobs:
-    jobs:
+      # jobs to test kubectl usage
       - aws-eks/create-cluster:
           name: setup-cluster-kubectl
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
           aws-region: "ap-southeast-1"
           filters: *integration_test_filters
       - create-deployment:
+          name: create-deployment-kubectl
           executor: aws-eks/python
           region: "ap-southeast-1"
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
@@ -582,7 +591,7 @@ workflows:
                 now: true
                 wait: true
           requires:
-            - create-deployment
+            - create-deployment-kubectl
           filters: *integration_test_filters
       - aws-eks/delete-cluster:
           name: delete-cluster-kubectl
@@ -591,3 +600,48 @@ workflows:
           requires:
             - update-container-image-kubectl
           filters: *integration_test_filters
+      # Jobs to promote the orb to production
+      - orb-tools/dev-promote-prod:
+          name: dev-promote-patch
+          orb-name: sandbox/aws-eks
+          requires:
+            - delete-cluster-defaults
+            - delete-cluster-custom-values
+            - delete-cluster-custom-values-ssh
+            - delete-cluster-helm
+            - delete-cluster-kubectl
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /master-patch.*/
+      - orb-tools/dev-promote-prod:
+          name: dev-promote-minor
+          release: minor
+          orb-name: sandbox/aws-eks
+          requires:
+            - delete-cluster-defaults
+            - delete-cluster-custom-values
+            - delete-cluster-custom-values-ssh
+            - delete-cluster-helm
+            - delete-cluster-kubectl
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /master-minor.*/
+      - orb-tools/dev-promote-prod:
+          name: dev-promote-major
+          release: major
+          orb-name: sandbox/aws-eks
+          requires:
+            - delete-cluster-defaults
+            - delete-cluster-custom-values
+            - delete-cluster-custom-values-ssh
+            - delete-cluster-helm
+            - delete-cluster-kubectl
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /master-major.*/

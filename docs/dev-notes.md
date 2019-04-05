@@ -14,6 +14,7 @@ The following [environment variables](https://circleci.com/docs/2.0/env-vars/#se
 | `AWS_SECRET_ACCESS_KEY`        | Picked up by the AWS CLI              |
 | `AWS_DEFAULT_REGION`           | Picked up by the AWS CLI              |
 | `AWS_RESOURCE_NAME_PREFIX`     | Prefix for some AWS resources created in tests. This is used just to make the project more portable.                |
+| `CIRCLECI_API_KEY`             | Used by the `queue` orb          |
 | `CIRCLE_TOKEN`                 | Used to publish the orb          |
 | `SKIP_TEST_ENV_CREATION`       | Set this to true when you want to skip EKS cluster creation to facilitate testing |
 | `SKIP_TEST_ENV_TEARDOWN`       | Set this to true when you want to skip EKS cluster teardown to facilitate testing |
