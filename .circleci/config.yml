@@ -519,7 +519,7 @@ workflows:
           name: setup-cluster-helm
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-helm
           filters: *integration_test_filters
-      - aws-eks/install-helm:
+      - aws-eks/install-helm-on-cluster:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-helm
           enable-cluster-wide-admin-access: true
           requires:
@@ -530,13 +530,21 @@ workflows:
           chart: stable/grafana
           release-name: grafana-release
           requires:
-            - aws-eks/install-helm
+            - aws-eks/install-helm-on-cluster
+          filters: *integration_test_filters
+      - aws-eks/delete-helm-release:
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-helm
+          release-name: grafana-release
+          purge: true
+          timeout: 600
+          requires:
+            - aws-eks/install-helm-chart
           filters: *integration_test_filters
       - aws-eks/delete-cluster:
           name: delete-cluster-helm
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-helm
           requires:
-            - aws-eks/install-helm-chart
+            - aws-eks/delete-helm-release
           filters: *integration_test_filters
   integration-tests-kubectl-jobs:
     jobs:
@@ -560,6 +568,13 @@ workflows:
           container-image-updates: "nginx=nginx:1.9.1"
           get-rollout-status: true
           record: true
+          post-steps:
+            - aws-eks/delete-resource:
+                cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
+                resource-types: "deployments"
+                resource-names: "nginx-deployment"
+                now: true
+                wait: true
           requires:
             - create-deployment
           filters: *integration_test_filters

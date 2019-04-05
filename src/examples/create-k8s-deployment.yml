@@ -41,6 +41,12 @@ usage:
             record: true
             requires:
               - create-deployment
+            post-steps:
+              - aws-eks/delete-resource:
+                  cluster-name: eks-demo-deployment
+                  resource-types: "deployment"
+                  resource-names: "nginx-deployment"
+                  wait: true
         - aws-eks/delete-cluster:
             cluster-name: eks-demo-deployment
             requires:

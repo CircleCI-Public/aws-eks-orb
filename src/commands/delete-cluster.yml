@@ -1,6 +1,10 @@
 description: |
   Deletes the EKS cluster and resources that were created for it.
   The cluster must have been created with the create-cluster command of the orb.
+  It is recommended to delete any kubernetes resources that were deployed to the
+  cluster (e.g. resources involving an AWS Elastic Load Balancer)
+  before running the delete-cluster command, so that resources can be fully
+  removed.
 
 parameters:
   cluster-name:
