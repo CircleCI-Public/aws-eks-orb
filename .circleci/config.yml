@@ -10,6 +10,7 @@ orbs:
   aws-eks: sandbox/aws-eks@dev:alpha
   cli: circleci/circleci-cli@0.1.2
   orb-tools: circleci/orb-tools@7.3.0
+  queue: eddiewebb/queue@1.1.2
   kubernetes: circleci/kubernetes@0.2.0
 
 executors:
@@ -381,14 +382,19 @@ jobs:
 workflows:
   lint_pack-validate_publish-dev:
     jobs:
-      - orb-tools/lint
+      - orb-tools/lint:
       - orb-tools/pack:
           requires:
             - orb-tools/lint
+      - queue/block_workflow:
+          consider-branch: false
+          time: '60'
+          requires:
+            - orb-tools/pack
       - orb-tools/publish-dev:
           orb-name: sandbox/aws-eks
           requires:
-            - orb-tools/pack
+            - queue/block_workflow
       - orb-tools/trigger-integration-workflow:
           name: trigger-integration-dev
           ssh-fingerprints: 2a:7f:74:c8:92:7a:a6:42:05:c8:6f:06:62:24:bc:ba
