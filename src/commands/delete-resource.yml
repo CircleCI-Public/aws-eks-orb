@@ -146,7 +146,7 @@ steps:
             steps:
               - kubernetes/install
   - run:
-      name: Create/update the k8s resource
+      name: Delete the k8s resource(s)
       command: |
         RESOURCE_FILE_PATH="<< parameters.resource-file-path >>"
         RESOURCE_TYPES="<< parameters.resource-types >>"
