@@ -399,6 +399,8 @@ workflows:
           name: trigger-integration-dev
           ssh-fingerprints: 2a:7f:74:c8:92:7a:a6:42:05:c8:6f:06:62:24:bc:ba
           tag: integration
+          use-git-diff: false
+          static-release-type: minor
           requires:
             - orb-tools/publish-dev
           filters:
@@ -408,6 +410,8 @@ workflows:
           name: trigger-integration-master
           ssh-fingerprints: 2a:7f:74:c8:92:7a:a6:42:05:c8:6f:06:62:24:bc:ba
           tag: master
+          use-git-diff: false
+          static-release-type: minor
           requires:
             - orb-tools/publish-dev
           filters:
