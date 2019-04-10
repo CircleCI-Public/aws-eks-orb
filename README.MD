@@ -7,7 +7,7 @@ Here are some features that the AWS EKS orb provides:
 - Setting up and tearing down of EKS clusters via the `create-cluster` and `delete-cluster` commands / jobs
 - Allowing `kubectl` and other tools that access `kubeconfig` (like `helm`) to work with an EKS cluster via the `update-kubeconfig-with-authenticator` command
 - Updating deployments with container image updates via the `update-container-image` command / job
-- Installing helm and helm charts (See: `install-helm` and `install-helm-chart`)
+- Installing helm and helm charts (See: `install-helm-on-cluster` and `install-helm-chart`)
 
 ## Usage
 

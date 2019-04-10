@@ -121,5 +121,4 @@ steps:
         if [ "${WAIT}" == "true" ]; then
           set -- "$@" --wait
         fi
-        set -- "$@"
         helm install << parameters.chart >> "$@"
