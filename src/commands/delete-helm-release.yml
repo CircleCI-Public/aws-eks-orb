@@ -1,0 +1,111 @@
+description: |
+  Deletes a helm release.
+  Requirements: helm should be installed on the cluster.
+
+parameters:
+  release-name:
+    description: |
+      Specify the release to be deleted.
+    type: string
+  purge:
+    description: |
+      Whether to remove the release from the store and make its name free for
+      later use
+    type: boolean
+    default: false
+  timeout:
+    description: |
+      Specify time in seconds to wait for any individual Kubernetes operation
+      (like Jobs for hooks)
+      A value of -1 will be ignored.
+    type: integer
+    default: -1
+  namespace:
+    description: |
+      The kubernetes namespace that should be used.
+    type: string
+    default: ""
+  tls:
+    description: |
+      Enable TLS for the request
+    type: boolean
+    default: false
+  tls-ca-cert:
+    description: |
+      Path to TLS CA certificate file
+    type: string
+    default: ""
+  tls-cert:
+    description: |
+      Path to TLS certificate file
+    type: string
+    default: ""
+  tls-hostname:
+    description: |
+      The server name used to verify the hostname on the returned
+      certificates from the server
+    type: string
+    default: ""
+  tls-key:
+    description: |
+      Path to TLS key file
+    type: string
+    default: ""
+  tls-verify:
+    description: |
+      Enable TLS for request and verify remote
+    type: boolean
+    default: false
+  tiller-namespace:
+    description: |
+      Specify the namespace of Tiller
+    type: string
+    default: ""
+
+steps:
+  - install-helm-client
+  - run:
+      name: Delete helm release
+      command: |
+        RELEASE_NAME="<< parameters.release-name >>"
+        PURGE="<< parameters.purge >>"
+        TIMEOUT="<< parameters.timeout >>"
+        NAMESPACE="<< parameters.namespace >>"
+        TLS="<< parameters.tls >>"
+        TLS_CA_CERT="<< parameters.tls-ca-cert >>"
+        TLS_CERT="<< parameters.tls-cert >>"
+        TLS_HOSTNAME="<< parameters.tls-hostname >>"
+        TLS_KEY="<< parameters.tls-key >>"
+        TLS_VERIFY="<< parameters.tls-verify >>"
+        TILLER_NAMESPACE="<< parameters.tiller-namespace >>"
+        if [ "${PURGE}" == "true" ]; then
+          set -- "$@" --purge
+        fi
+        if [ "${TIMEOUT}" != "-1" ]; then
+          set -- "$@" --timeout="${TIMEOUT}"
+        fi
+        if [ -n "${NAMESPACE}" ]; then
+          set -- "$@" --namespace="${NAMESPACE}"
+        fi
+        if [ "${TLS}" == "true" ]; then
+          set -- "$@" --tls
+        fi
+        if [ -n "${TLS_CA_CERT}" ]; then
+          set -- "$@" --tls-ca-cert="${TLS_CA_CERT}"
+        fi
+        if [ -n "${TLS_CERT}" ]; then
+          set -- "$@" --tls-cert="${TLS_CERT}"
+        fi
+        if [ -n "${TLS_HOSTNAME}" ]; then
+          set -- "$@" --tls-hostname="${TLS_HOSTNAME}"
+        fi
+        if [ -n "${TLS_KEY}" ]; then
+          set -- "$@" --tls-key="${TLS_KEY}"
+        fi
+        if [ "${TLS_VERIFY}" == "true" ]; then
+          set -- "$@" --tls-verify
+        fi
+        if [ -n "${TILLER_NAMESPACE}" ]; then
+          set -- "$@" --tiller-namespace "${TILLER_NAMESPACE}"
+        fi
+        helm delete "$@" << parameters.release-name >>

@@ -1,0 +1,201 @@
+description: |
+  Delete kubernetes resource(s).
+
+parameters:
+  resource-file-path:
+    description: |
+      Path to file used to describe the resource.
+      Should not be set when the "resource-types" parameter is specified.
+    type: string
+    default: ""
+  resource-types:
+    description: |
+      Specify what is to be deleted in the form of resource types.
+      This parameter is meant to be combined with either the
+      "resource-names" or the "label-selector" parameter.
+      e.g. use the value "pods,services" for "resource-types" and
+      the value "name=myLabel" for "label-selector" to delete pods and services
+      with the label name=myLabel.
+      e.g. use the value "pods,services" for "resource-types" and
+      the value "baz foo" for "resource-names" to delete pods and services
+      the match the names "baz" and "foo".
+
+      Should not be set when the "resource-file-path" parameter is specified.
+    type: string
+    default: ""
+  resource-names:
+    description: |
+      Specifies the names of resource(s) to be deleted.
+      Effective only when the resource-types parameter is specified.
+      Cannot be used together with the label-selector parameter.
+    type: string
+    default: ""
+  label-selector:
+    description: |
+      Use a label selector on the resource(s) to be deleted.
+      Effective only when the resource-types parameter is specified.
+      Cannot be used together with the resource-names parameter.
+    type: string
+    default: ""
+  all:
+    description: |
+      If true, deletes all resources including uninitialized ones, in the
+      namespace of the specified resource types.
+    type: boolean
+    default: false
+  cascade:
+    description: |
+      If true, cascades the deletion of the resources managed by this resource.
+      (e.g. Pods created by a ReplicationController)
+    type: boolean
+    default: true
+  force:
+    description: |
+      Only used when "0" is specified for grace-period. If true, immediately remove
+      resources from API and bypass graceful deletion. Note that immediate deletion of
+      some resources may result in inconsistency or data loss and requires
+      confirmation.
+    type: boolean
+    default: false
+  grace-period:
+    description: |
+      Period of time in seconds given to the resource to terminate gracefully.
+      A value of "-1" will be ignored.
+    type: integer
+    default: -1
+  ignore-not-found:
+    description: |
+      If true, treats "resource not found" as a successful delete.
+      (Note: unlike the kubectl command, this does not default to true
+      when the "all" parameter value is set to true)
+    type: boolean
+    default: false
+  now:
+    description: |
+      If true, resources are signaled for immediate shutdown.
+    type: boolean
+    default: false
+  wait:
+    description: |
+      If true, wait for resources to be gone before returning. This waits for finalizers.
+    type: boolean
+    default: true
+  namespace:
+    description: |
+      The kubernetes namespace that should be used.
+    type: string
+    default: ""
+  update-kubeconfig-with-authenticator:
+    description: |
+      Whether to update kubeconfig with the AWS IAM authenticator.
+    type: boolean
+    default: false
+  cluster-name:
+    description: |
+      The name of the cluster where the resource is to be managed.
+    type: string
+    default: ""
+  aws-region:
+    description: |
+      The AWS region that the cluster is in. If not specified, the configured default
+      region for your AWS CLI installation will be used.
+    type: string
+    default: ""
+  aws-profile:
+    description: |
+      The AWS profile to be used. If not specified, the configured default
+      profile for your AWS CLI installation will be used.
+    type: string
+    default: ""
+  install-kubectl:
+    description: |
+      Whether to install kubectl.
+    type: boolean
+    default: false
+  authenticator-release-tag:
+    description: |
+      Specifies which release-tag version of the authenticator to install.
+    type: string
+    default: ""
+  dry-run:
+    description: |
+      Whether the kubectl command will be executed in dry-run mode.
+    type: boolean
+    default: false
+  show-kubectl-command:
+    description: |
+      Whether to show the kubectl command used.
+    type: boolean
+    default: false
+
+steps:
+  - when:
+      condition: << parameters.update-kubeconfig-with-authenticator >>
+      steps:
+        - update-kubeconfig-with-authenticator:
+            cluster-name: << parameters.cluster-name >>
+            aws-region: << parameters.aws-region >>
+            aws-profile: << parameters.aws-profile >>
+            install-kubectl: << parameters.install-kubectl >>
+            authenticator-release-tag: << parameters.authenticator-release-tag >>
+  - unless:
+      condition: << parameters.update-kubeconfig-with-authenticator >>
+      steps:
+        - when:
+            condition: << parameters.install-kubectl >>
+            steps:
+              - kubernetes/install
+  - run:
+      name: Delete the k8s resource(s)
+      command: |
+        RESOURCE_FILE_PATH="<< parameters.resource-file-path >>"
+        RESOURCE_TYPES="<< parameters.resource-types >>"
+        RESOURCE_NAMES="<< parameters.resource-names >>"
+        LABEL_SELECTOR="<< parameters.label-selector >>"
+        ALL="<< parameters.all >>"
+        CASCADE="<< parameters.cascade >>"
+        FORCE="<< parameters.force >>"
+        GRACE_PERIOD="<< parameters.grace-period >>"
+        IGNORE_NOT_FOUND="<< parameters.ignore-not-found >>"
+        NOW="<< parameters.now >>"
+        WAIT="<< parameters.wait >>"
+        NAMESPACE="<< parameters.namespace >>"
+        DRY_RUN="<< parameters.dry-run >>"
+        if [ -n "${RESOURCE_FILE_PATH}" ]; then
+          set -- "$@" -f
+          set -- "$@" "${RESOURCE_FILE_PATH}"
+        elif [ -n "${RESOURCE_TYPES}" ]; then
+          set -- "$@" "${RESOURCE_TYPES}"
+          if [ -n "${RESOURCE_NAMES}" ]; then
+            set -- "$@" ${RESOURCE_NAMES}
+          elif [ -n "${LABEL_SELECTOR}" ]; then
+            set -- "$@" -l
+            set -- "$@" "${LABEL_SELECTOR}"
+          fi
+        fi
+        if [ "${ALL}" == "true" ]; then
+          set -- "$@" --all=true
+        fi
+        if [ "${FORCE}" == "true" ]; then
+          set -- "$@" --force=true
+        fi
+        if [ "${GRACE_PERIOD}" != "-1" ]; then
+          set -- "$@" --grace-period="${GRACE_PERIOD}"
+        fi
+        if [ "${IGNORE_NOT_FOUND}" == "true" ]; then
+          set -- "$@" --ignore-not-found=true
+        fi
+        if [ "${NOW}" == "true" ]; then
+          set -- "$@" --now=true
+        fi
+        if [ -n "${NAMESPACE}" ]; then
+            set -- "$@" --namespace="${NAMESPACE}"
+        fi
+        if [ "${DRY_RUN}" == "true" ]; then
+          set -- "$@" --dry-run
+        fi
+        set -- "$@" --wait="${WAIT}"
+        set -- "$@" --cascade="${CASCADE}"
+        <<# parameters.show-kubectl-command >>set -x<</ parameters.show-kubectl-command >>
+        kubectl delete "$@"
+        <<# parameters.show-kubectl-command >>set +x<</ parameters.show-kubectl-command >>

@@ -1,0 +1,12 @@
+description: |
+  CircleCI convenience image for Python.
+parameters:
+  tag:
+    type: string
+    default: latest
+    description: |
+      Version of the CircleCI Python convenience image to use. For full list,
+      see https://hub.docker.com/r/circleci/python/tags
+      A version of Python supported by the AWS CLI is required.
+docker:
+  - image: circleci/python:<<parameters.tag>>

@@ -1,0 +1,4 @@
+description: |
+  CircleCI convenience image for Python 3.
+docker:
+  - image: circleci/python:3

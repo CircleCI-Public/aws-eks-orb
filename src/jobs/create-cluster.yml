@@ -1,0 +1,91 @@
+description: |
+  Creates an EKS cluster and required resources (e.g. VPC) using the eksctl tool.
+
+executor: << parameters.executor >>
+
+parameters:
+  executor:
+    description: |
+      Executor to use for this job.
+    type: executor
+    default: python3
+  cluster-name:
+    description: |
+      Name of the EKS cluster to be created
+    type: string
+    default: ""
+  aws-region:
+    description: |
+      AWS region that the EKS cluster will be created in.
+    type: string
+    default: ""
+  aws-profile:
+    description: |
+      The AWS profile to be used. If not specified, the configured default
+      profile for your AWS CLI installation will be used.
+    type: string
+    default: ""
+  ssh-access:
+    description: |
+      Control SSH access for nodes
+    type: boolean
+    default: false
+  ssh-public-key:
+    description: |
+      SSH public key to use for nodes (import from local path, or use existing EC2 key pair which
+      must not resolve to a local file path)
+      e.g. my_eks_node_id.pub
+      "~/.ssh/id_rsa.pub" will be taken as the path if a value is not specified.
+    type: string
+    default: ""
+  tags:
+    description: |
+      A list of key-value pairs used to tag the AWS resources (e.g. "Owner=John Doe,Team=Some Team")
+    type: string
+    default: ""
+  show-eksctl-command:
+    description: |
+      Whether to show the eksctl command used.
+    type: boolean
+    default: false
+  verbose:
+    description: |
+      Set a value from 0 to 5 to control the verbosity level of the log output (the higher, the more verbose).
+      Use 0 to silence, 4 for debugging and 5 for debugging with AWS debug logging.
+      The logging verbosity level is set to 3 by default.
+      When set to 4 and above, verbose details of AWS resources will be displayed in the log output.
+      When set to 5, sensitive information such as credentials may be displayed in the log output.
+    type: integer
+    default: 3
+  aws-max-polling-wait-time:
+    description: |
+      Max wait time in any AWS polling operations
+    type: string
+    default: "20m0s"
+  no-output-timeout:
+    description: |
+      Elapsed time that the cluster creation command can run on CircleCI without output.
+      The string is a decimal with unit suffix, such as “20m”, “1.25h”, “5s”
+    type: string
+    default: "45m"
+  authenticator-release-tag:
+    description: |
+      Specifies which release-tag version of the authenticator to install.
+    type: string
+    default: ""
+
+steps:
+  - install-aws-iam-authenticator:
+      release-tag: << parameters.authenticator-release-tag >>
+  - create-cluster:
+      cluster-name: << parameters.cluster-name >>
+      aws-region: << parameters.aws-region >>
+      aws-profile: << parameters.aws-profile >>
+      ssh-access: << parameters.ssh-access >>
+      ssh-public-key: << parameters.ssh-public-key >>
+      tags: << parameters.tags >>
+      show-eksctl-command: << parameters.show-eksctl-command >>
+      verbose: << parameters.verbose >>
+      skip-kubectl-install: false
+      aws-max-polling-wait-time: << parameters.aws-max-polling-wait-time >>
+      no-output-timeout: << parameters.no-output-timeout >>

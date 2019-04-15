@@ -1,0 +1,129 @@
+description: |
+  Install helm into an existing eks cluster.
+  Note: Parameters like tiller-tls need to be set to
+  apply security configurations to the tiller configuration.
+
+  Requirements: kubectl, updated kubeconfig
+
+parameters:
+  tiller-tls:
+    description: |
+      Install Tiller with TLS enabled
+    type: boolean
+    default: false
+  tiller-tls-cert:
+    description: |
+      The path to TLS certificate file to install with Tiller
+    type: string
+    default: ""
+  tiller-tls-hostname:
+    description: |
+      The server name used to verify the hostname on the returned
+      certificates from Tiller
+    type: string
+    default: ""
+  tiller-tls-key:
+    description: |
+      The path to TLS key file to install with Tiller
+    type: string
+    default: ""
+  tiller-tls-verify:
+    description: |
+      Install Tiller with TLS enabled and to verify remote certificates
+    type: boolean
+    default: false
+  tiller-ca-cert:
+    description: |
+      The path to CA root certificate
+    type: string
+    default: ""
+  tiller-namespace:
+    description: |
+      Specify the namespace of Tiller
+    type: string
+    default: ""
+  service-account:
+    description: |
+      Name of service account for Tiller to use.
+      Note: A role binding which specifies a role
+      and a service account with the specified name, must
+      be created in advance, unless
+      enable-cluster-wide-admin-access is set to true.
+    type: string
+    default: ""
+  enable-cluster-wide-admin-access:
+    description: |
+      Allow tiller to have admin access to the entire EKS cluster
+      by creating a role binding with a cluster-admin role
+      and a service account with name as specified by the service-account
+      parameter or defaulting to "tiller".
+      Note: This is a convenience option but is typically not advisable
+      in a production cluster for security reasons.
+    type: boolean
+    default: false
+  wait:
+    description: |
+      Block until Tiller is running and ready to receive requests
+    type: boolean
+    default: true
+
+steps:
+  - install-helm-client
+  - when:
+      condition: << parameters.enable-cluster-wide-admin-access >>
+      steps:
+        - run:
+            name: Create service account with cluster-admin role for Tiller
+            command: |
+              SERVICE_ACCOUNT="<< parameters.service-account >>"
+              if [ -z "${SERVICE_ACCOUNT}" ]; then
+                SERVICE_ACCOUNT="tiller"
+              fi
+              kubectl create serviceaccount ${SERVICE_ACCOUNT}\
+                --namespace kube-system
+              kubectl create clusterrolebinding tiller-clusterrolebinding \
+                --clusterrole=cluster-admin \
+                --serviceaccount=kube-system:${SERVICE_ACCOUNT}
+  - run:
+      name: Install tiller into the cluster
+      command: |
+        TILLER_TLS="<< parameters.tiller-tls >>"
+        TILLER_TLS_CERT="<< parameters.tiller-tls-cert >>"
+        TILLER_TLS_HOSTNAME="<< parameters.tiller-tls-hostname >>"
+        TILLER_TLS_KEY="<< parameters.tiller-tls-key >>"
+        TILLER_TLS_VERIFY="<< parameters.tiller-tls-verify >>"
+        TILLER_CA_CERT="<< parameters.tiller-ca-cert >>"
+        WAIT="<< parameters.wait >>"
+        SERVICE_ACCOUNT="<< parameters.service-account >>"
+        TILLER_NAMESPACE="<< parameters.tiller-namespace >>"
+        ENABLE_CLUSTER_ADMIN_ACCESS="<< parameters.enable-cluster-wide-admin-access >>"
+        if [ "${TILLER_TLS}" == "true" ]; then
+          set -- "$@" --tiller-tls
+        fi
+        if [ -n "${TILLER_TLS_CERT}" ]; then
+          set -- "$@" --tiller-tls-cert "${TILLER_TLS_CERT}"
+        fi
+        if [ -n "${TILLER_TLS_HOSTNAME}" ]; then
+          set -- "$@" --tiller-tls-hostname "${TILLER_TLS_HOSTNAME}"
+        fi
+        if [ -n "${TILLER_TLS_KEY}" ]; then
+          set -- "$@" --tiller-tls-key "${TILLER_TLS_KEY}"
+        fi
+        if [ "${TILLER_TLS_VERIFY}" == "true" ]; then
+          set -- "$@" --tiller-tls-verify
+        fi
+        if [ -n "${TILLER_CA_CERT}" ]; then
+          set -- "$@" --tiller-ca-cert "${TILLER_CA_CERT}"
+        fi
+        if [ -n "${SERVICE_ACCOUNT}" ]; then
+          set -- "$@" --service-account "${SERVICE_ACCOUNT}"
+        elif [ "${ENABLE_CLUSTER_ADMIN_ACCESS}" == "true" ]; then
+            set -- "$@" --service-account tiller
+        fi
+        if [ -n "${TILLER_NAMESPACE}" ]; then
+          set -- "$@" --tiller-namespace "${TILLER_NAMESPACE}"
+        fi
+        if [ "${WAIT}" == "true" ]; then
+          set -- "$@" --wait
+        fi
+        helm init "$@"
