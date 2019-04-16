@@ -641,6 +641,11 @@ workflows:
     jobs:
       - hold-for-approval:
           type: approval
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^(major|minor|patch)-release-v\d+\.\d+\.\d+$/
       - promote-orb-into-production:
           orb-name: sandbox/aws-eks
           orb-ref: dev:${CIRCLE_SHA1:0:7}
