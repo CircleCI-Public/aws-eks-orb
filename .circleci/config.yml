@@ -386,13 +386,16 @@ jobs:
           cluster-name: << parameters.cluster-name >>
           install-kubectl: true
           show-kubectl-command: true
-  dummy-pre-approval-job:
+  pre-orb-promotion-check:
     executor: aws-eks/python2
     steps:
+      - checkout
       - run:
-          name: Dummy job
+          name: Check that this is a master branch commit
           command: |
-            echo "This is a dummy job"
+            git clone "$CIRCLE_REPOSITORY_URL" repository
+            cd repository
+            git branch --contains ${CIRCLE_SHA1} | grep "master"
   promote-orb-into-production:
     parameters:
       orb-name:
@@ -652,13 +655,12 @@ workflows:
   # The tag is expected to have been applied manually.
   production-orb-publishing:
     jobs:
-      # Workflow doesn't get triggered if the approval job is the 1st one
-      - dummy-pre-approval-job:
+      - pre-orb-promotion-check:
           filters: *orb_promotion_filters
       - hold-for-approval:
           type: approval
           requires:
-            - dummy-pre-approval-job
+            - pre-orb-promotion-check
           filters: *orb_promotion_filters
       - promote-orb-into-production:
           orb-name: sandbox/aws-eks
