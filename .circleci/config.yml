@@ -13,7 +13,7 @@ orb_promotion_filters: &orb_promotion_filters
     only: /^(major|minor|patch)-release-v\d+\.\d+\.\d+$/
 
 orbs:
-  aws-eks: sandbox/aws-eks@dev:alpha
+  aws-eks: circleci/aws-eks@dev:alpha
   cli: circleci/circleci-cli@0.1.2
   orb-tools: circleci/orb-tools@7.3.0
   queue: eddiewebb/queue@1.1.2
@@ -439,7 +439,7 @@ workflows:
           requires:
             - orb-tools/pack
       - orb-tools/publish-dev:
-          orb-name: sandbox/aws-eks
+          orb-name: circleci/aws-eks
           requires:
             - queue/block_workflow
       - orb-tools/trigger-integration-workflow:
@@ -663,7 +663,7 @@ workflows:
             - pre-orb-promotion-check
           filters: *orb_promotion_filters
       - promote-orb-into-production:
-          orb-name: sandbox/aws-eks
+          orb-name: circleci/aws-eks
           orb-ref: dev:${CIRCLE_SHA1:0:7}
           requires:
             - hold-for-approval
