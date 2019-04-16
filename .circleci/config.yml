@@ -634,29 +634,15 @@ workflows:
           requires:
             - update-container-image-kubectl
           filters: *integration_test_filters
-      - orb-tools/publish-dev:
-          orb-name: sandbox/aws-eks
-          publish-alpha-version: false
-          sha-version-ref: dev-rc:${CIRCLE_SHA1:0:7}
-          requires:
-            - delete-cluster-defaults
-            - delete-cluster-custom-values
-            - delete-cluster-custom-values-ssh
-            - delete-cluster-helm
-            - delete-cluster-kubectl
-          filters: *integration_test_filters
   # Tag-triggered workflow to promote a dev orb into production.
   # The tag is expected to have been applied manually.
-  # To ensure that the promoted orb had cleared the integration tests,
-  # only dev orbs with a version matching dev-rc:${CIRCLE_SHA1:0:7} will
-  # be promoted into production.
   production-orb-publishing:
     jobs:
       - hold-for-approval:
           type: approval
       - promote-orb-into-production:
           orb-name: sandbox/aws-eks
-          orb-ref: dev-rc:${CIRCLE_SHA1:0:7}
+          orb-ref: dev:${CIRCLE_SHA1:0:7}
           requires:
             - hold-for-approval
           filters:
