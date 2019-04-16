@@ -303,6 +303,7 @@ jobs:
         type: string
     executor: << parameters.executor >>
     steps:
+      - cluster-setup-check
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
           aws-region: << parameters.region >>
@@ -379,6 +380,36 @@ jobs:
           cluster-name: << parameters.cluster-name >>
           install-kubectl: true
           show-kubectl-command: true
+  promote-orb-into-production:
+    parameters:
+      orb-name:
+        type: string
+        description: |
+          Semver-less name of the orb to be promoted into production
+      orb-ref:
+        type: string
+        description: >
+          Version information of the orb to be promoted into production
+    executor: cli/default
+    steps:
+      - checkout
+      - run:
+          name: Promote dev orb to production
+          command: |
+            RELEASE_TYPE=''
+            if [[ "${CIRCLE_TAG}" =~ major-release-* ]]; then
+              RELEASE_TYPE='major'
+            elif [[ "${CIRCLE_TAG}" =~ minor-release-* ]]; then
+              RELEASE_TYPE='minor'
+            elif [[ "${CIRCLE_TAG}" =~ patch-release-* ]]; then
+              RELEASE_TYPE='patch'
+            fi
+            if [ -n "${RELEASE_TYPE}" ]; then
+              circleci orb publish promote \
+              <<parameters.orb-name>>@<<parameters.orb-ref>> \
+              ${RELEASE_TYPE} --token \
+              ${CIRCLE_TOKEN}
+            fi
 workflows:
   lint_pack-validate_publish-dev:
     jobs:
@@ -400,7 +431,7 @@ workflows:
           ssh-fingerprints: 2a:7f:74:c8:92:7a:a6:42:05:c8:6f:06:62:24:bc:ba
           tag: integration
           use-git-diff: false
-          static-release-type: minor
+          static-release-type: patch
           requires:
             - orb-tools/publish-dev
           filters:
@@ -411,7 +442,7 @@ workflows:
           ssh-fingerprints: 2a:7f:74:c8:92:7a:a6:42:05:c8:6f:06:62:24:bc:ba
           tag: master
           use-git-diff: false
-          static-release-type: minor
+          static-release-type: patch
           requires:
             - orb-tools/publish-dev
           filters:
@@ -604,48 +635,24 @@ workflows:
           requires:
             - update-container-image-kubectl
           filters: *integration_test_filters
-      # Jobs to promote the orb to production
-      - orb-tools/dev-promote-prod:
-          name: dev-promote-patch
-          orb-name: sandbox/aws-eks
-          requires:
-            - delete-cluster-defaults
-            - delete-cluster-custom-values
-            - delete-cluster-custom-values-ssh
-            - delete-cluster-helm
-            - delete-cluster-kubectl
+  # Tag-triggered workflow to promote a dev orb into production.
+  # The tag is expected to have been applied manually.
+  production-orb-publishing:
+    jobs:
+      - hold-for-approval:
+          type: approval
           filters:
             branches:
               ignore: /.*/
             tags:
-              only: /master-patch.*/
-      - orb-tools/dev-promote-prod:
-          name: dev-promote-minor
-          release: minor
+              only: /^(major|minor|patch)-release-v\d+\.\d+\.\d+$/
+      - promote-orb-into-production:
           orb-name: sandbox/aws-eks
+          orb-ref: dev:${CIRCLE_SHA1:0:7}
           requires:
-            - delete-cluster-defaults
-            - delete-cluster-custom-values
-            - delete-cluster-custom-values-ssh
-            - delete-cluster-helm
-            - delete-cluster-kubectl
+            - hold-for-approval
           filters:
             branches:
               ignore: /.*/
             tags:
-              only: /master-minor.*/
-      - orb-tools/dev-promote-prod:
-          name: dev-promote-major
-          release: major
-          orb-name: sandbox/aws-eks
-          requires:
-            - delete-cluster-defaults
-            - delete-cluster-custom-values
-            - delete-cluster-custom-values-ssh
-            - delete-cluster-helm
-            - delete-cluster-kubectl
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /master-major.*/
+              only: /^(major|minor|patch)-release-v\d+\.\d+\.\d+$/
