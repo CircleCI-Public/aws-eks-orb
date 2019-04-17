@@ -404,7 +404,7 @@ jobs:
           Semver-less name of the orb to be promoted into production
       orb-ref:
         type: string
-        description: >
+        description: |
           Version information of the orb to be promoted into production
     executor: cli/default
     steps:
@@ -440,6 +440,7 @@ workflows:
             - orb-tools/pack
       - orb-tools/publish-dev:
           orb-name: circleci/aws-eks
+          context: orb-publishing
           requires:
             - queue/block_workflow
       - orb-tools/trigger-integration-workflow:
@@ -665,6 +666,7 @@ workflows:
       - promote-orb-into-production:
           orb-name: circleci/aws-eks
           orb-ref: dev:${CIRCLE_SHA1:0:7}
+          context: orb-publishing
           requires:
             - hold-for-approval
           filters: *orb_promotion_filters

@@ -6,7 +6,7 @@ The notes here are primarily targeted at internal (CircleCI) contributors to the
 
 ### Required Project Environment Variables
 
-The following [environment variables](https://circleci.com/docs/2.0/env-vars/#setting-an-environment-variable-in-a-project) must be set for the project on CircleCI via the project settings page, before the project can be built successfully.
+The following [project environment variables](https://circleci.com/docs/2.0/env-vars/#setting-an-environment-variable-in-a-project) must be set for the project on CircleCI via the project settings page, before the project can be built successfully.
 
 | Variable                       | Description                      |
 | -------------------------------| ---------------------------------|
@@ -15,9 +15,17 @@ The following [environment variables](https://circleci.com/docs/2.0/env-vars/#se
 | `AWS_DEFAULT_REGION`           | Picked up by the AWS CLI              |
 | `AWS_RESOURCE_NAME_PREFIX`     | Prefix for some AWS resources created in tests. This is used just to make the project more portable.                |
 | `CIRCLECI_API_KEY`             | Used by the `queue` orb          |
-| `CIRCLE_TOKEN`                 | Used to publish the orb          |
 | `SKIP_TEST_ENV_CREATION`       | Set this to true when you want to skip EKS cluster creation to facilitate testing. The `test-ssh-access` job will be skipped when this is enabled. Note: This env var is only effective for the clusters that are created via `aws-eks` orb commands and not `aws-eks` orb jobs. |
 | `SKIP_TEST_ENV_TEARDOWN`       | Set this to true when you want to skip EKS cluster teardown to facilitate testing. Note: this is only effective for the clusters that are created via `aws-eks` orb commands and not `aws-eks` orb jobs. |
+
+### Required Context and Context Environment Variables
+
+The `orb-publishing` context is referenced in the build. In particular, the following [context environment variables](https://circleci.com/docs/2.0/env-vars/#setting-an-environment-variable-in-a-context) must be set in the `orb-publishing` context, before the project can be built successfully.
+
+| Variable                       | Description                      |
+| -------------------------------| ---------------------------------|
+| `CIRCLE_TOKEN`                 | CircleCI API token used to publish the orb  |
+
 
 ### AWS Resource Cleanup
 
