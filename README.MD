@@ -27,6 +27,8 @@ See the [orb registry listing](http://circleci.com/orbs/registry/orb/circleci/aw
 
 Full usage examples can be found on the AWS EKS orb's page in the orb registry, [here](https://circleci.com/orbs/registry/orb/circleci/aws-eks#usage-examples).
 
+A demo project is also available [here](https://github.com/CircleCI-Public/circleci-demo-aws-eks).
+
 ```
 version: 2.1
 
