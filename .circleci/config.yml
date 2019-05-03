@@ -15,6 +15,7 @@ orb_promotion_filters: &orb_promotion_filters
 orbs:
   aws-eks: circleci/aws-eks@dev:alpha
   cli: circleci/circleci-cli@0.1.2
+  helm: circleci/helm@0.1.0
   orb-tools: circleci/orb-tools@7.3.0
   queue: eddiewebb/queue@1.1.2
   kubernetes: circleci/kubernetes@0.2.0
@@ -316,10 +317,10 @@ jobs:
           install-kubectl: true
       - attach_workspace:
           at: /tmp/workspace
-      - aws-eks/install-helm-on-cluster:
+      - helm/install-helm-on-cluster:
           service-account: tiller-test
           enable-cluster-wide-admin-access: true
-      - aws-eks/install-helm-chart:
+      - helm/install-helm-chart:
           chart: stable/grafana
           release-name: << parameters.release-name >>
       - run:
