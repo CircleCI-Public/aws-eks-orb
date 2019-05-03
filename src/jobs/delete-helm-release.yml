@@ -90,7 +90,7 @@ steps:
       aws-region: << parameters.aws-region >>
       aws-profile: << parameters.aws-profile >>
       install-kubectl: true
-  - delete-helm-release:
+  - helm/delete-helm-release:
       release-name: << parameters.release-name >>
       purge: << parameters.purge >>
       timeout: << parameters.timeout >>
