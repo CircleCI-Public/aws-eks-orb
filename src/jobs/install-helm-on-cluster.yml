@@ -93,7 +93,7 @@ steps:
       aws-region: << parameters.aws-region >>
       aws-profile: << parameters.aws-profile >>
       install-kubectl: true
-  - install-helm-on-cluster:
+  - helm/install-helm-on-cluster:
       tiller-tls: << parameters.tiller-tls >>
       tiller-tls-cert: << parameters.tiller-tls-cert >>
       tiller-tls-hostname: << parameters.tiller-tls-hostname >>

@@ -1,5 +1,6 @@
 description: |
   Installs a helm chart into the EKS cluster.
+  Requirements: helm should be installed on the cluster.
 
 executor: << parameters.executor >>
 
@@ -95,7 +96,7 @@ steps:
       aws-region: << parameters.aws-region >>
       aws-profile: << parameters.aws-profile >>
       install-kubectl: true
-  - install-helm-chart:
+  - helm/install-helm-chart:
       chart: << parameters.chart >>
       release-name: << parameters.release-name >>
       values-to-override: << parameters.values-to-override >>
