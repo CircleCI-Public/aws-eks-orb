@@ -18,7 +18,7 @@ orbs:
   helm: circleci/helm@0.1.0
   orb-tools: circleci/orb-tools@7.3.0
   queue: eddiewebb/queue@1.1.2
-  kubernetes: circleci/kubernetes@0.2.0
+  kubernetes: circleci/kubernetes@dev:alpha
 
 executors:
   macos:
@@ -247,24 +247,24 @@ jobs:
             cat kube-config.test | grep << parameters.cluster-name >>
             sleep 10
             curl http://localhost:8080/api/
-      - aws-eks/create-or-update-resource:
+      - kubernetes/create-or-update-resource:
             resource-file-path: "tests/kubernetes-dashboard/kubernetes-dashboard.yaml"
             get-rollout-status: true
             namespace: kube-system
             resource-name: "deployment/kubernetes-dashboard"
-      - aws-eks/create-or-update-resource:
+      - kubernetes/create-or-update-resource:
             resource-file-path: "tests/kubernetes-dashboard/influxdb-heapster.yaml"
             get-rollout-status: true
             namespace: kube-system
             resource-name: "deployment/heapster"
-      - aws-eks/create-or-update-resource:
+      - kubernetes/create-or-update-resource:
             resource-file-path: "tests/kubernetes-dashboard/influxdb.yaml"
             get-rollout-status: true
             namespace: kube-system
             resource-name: "deployment/monitoring-influxdb"
-      - aws-eks/create-or-update-resource:
+      - kubernetes/create-or-update-resource:
             resource-file-path: "tests/kubernetes-dashboard/heapster-rbac.yaml"
-      - aws-eks/create-or-update-resource:
+      - kubernetes/create-or-update-resource:
             resource-file-path: "tests/kubernetes-dashboard/eks-admin-service-account.yaml"
       - run:
           name: Verify kubernetes dashboard
@@ -378,14 +378,14 @@ jobs:
     executor: << parameters.executor >>
     steps:
       - checkout
-      - aws-eks/create-or-update-resource:
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          aws-region: << parameters.region >>
+          install-kubectl: true
+      - kubernetes/create-or-update-resource:
           resource-file-path: "tests/nginx-deployment/deployment.yaml"
           resource-name: "deployment/nginx-deployment"
           get-rollout-status: true
-          update-kubeconfig-with-authenticator: true
-          aws-region: << parameters.region >>
-          cluster-name: << parameters.cluster-name >>
-          install-kubectl: true
           show-kubectl-command: true
   pre-orb-promotion-check:
     executor: aws-eks/python2
@@ -638,8 +638,7 @@ workflows:
           get-rollout-status: true
           record: true
           post-steps:
-            - aws-eks/delete-resource:
-                cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
+            - kubernetes/delete-resource:
                 resource-types: "deployments"
                 resource-names: "nginx-deployment"
                 now: true

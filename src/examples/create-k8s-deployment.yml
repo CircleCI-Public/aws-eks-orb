@@ -5,8 +5,8 @@ usage:
   version: 2.1
 
   orbs:
-    aws-eks: circleci/aws-eks@0.0.1
-    kubernetes: circleci/kubernetes@0.2.0
+    aws-eks: circleci/aws-eks@0.1.0
+    kubernetes: circleci/kubernetes@0.3.0
 
   jobs:
     create-deployment:
@@ -18,12 +18,13 @@ usage:
           type: string
       steps:
         - checkout
-        - aws-eks/create-or-update-resource:
-            resource-file-path: "tests/nginx-deployment/deployment.yaml"
-            resource-name: "deployment/nginx-deployment"
-            update-kubeconfig-with-authenticator: true
+        - aws-eks/update-kubeconfig-with-authenticator:
             cluster-name: << parameters.cluster-name >>
             install-kubectl: true
+        - kubernetes/create-or-update-resource:
+            resource-file-path: "tests/nginx-deployment/deployment.yaml"
+            resource-name: "deployment/nginx-deployment"
+            get-rollout-status: true
 
   workflows:
     deployment:
@@ -42,8 +43,7 @@ usage:
             requires:
               - create-deployment
             post-steps:
-              - aws-eks/delete-resource:
-                  cluster-name: eks-demo-deployment
+              - kubernetes/delete-resource:
                   resource-types: "deployment"
                   resource-names: "nginx-deployment"
                   wait: true
