@@ -6,7 +6,7 @@ Here are some features that the AWS EKS orb provides:
 
 - Setting up and tearing down of EKS clusters via the `create-cluster` and `delete-cluster` commands / jobs
 - Allowing `kubectl` and other tools that access `kubeconfig` (like `helm`) to work with an EKS cluster via the `update-kubeconfig-with-authenticator` command
-- Updating deployments with container image updates via the `update-container-image` command / job
+- Updating deployments with container image updates via the `update-container-image` job
 - Installing helm and helm charts (See: `install-helm-on-cluster` and `install-helm-chart`)
 
 ## Usage
@@ -33,8 +33,8 @@ A demo project is also available [here](https://github.com/CircleCI-Public/circl
 version: 2.1
 
 orbs:
-  aws-eks: circleci/aws-eks@0.0.1
-  kubernetes: circleci/kubernetes@0.2.0
+  aws-eks: circleci/aws-eks@0.1.0
+  kubernetes: circleci/kubernetes@0.3.0
 
 jobs:
   create-deployment:
@@ -46,12 +46,14 @@ jobs:
         type: string
     steps:
       - checkout
-      - aws-eks/create-or-update-resource:
-          resource-file-path: "tests/nginx-deployment/deployment.yaml"
-          resource-name: "deployment/nginx-deployment"
-          update-kubeconfig-with-authenticator: true
+      - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
           install-kubectl: true
+      - kubernetes/create-or-update-resource:
+          resource-file-path: "tests/nginx-deployment/deployment.yaml"
+          resource-name: "deployment/nginx-deployment"
+          get-rollout-status: true
+          show-kubectl-command: true
 
 workflows:
   deployment:
