@@ -147,11 +147,6 @@ parameters:
       Set to true to enable full access to ECR.
     type: boolean
     default: false
-  storage-class:
-    description: |
-      If true (default) then a default StorageClass of type gp2 provisioned by EBS will be created.
-    type: boolean
-    default: true
   vpc-cidr:
     description: |
       Specify global CIDR to use for VPC.
@@ -254,7 +249,6 @@ steps:
         ASG_ACCESS="<< parameters.asg-access >>"
         EXTERNAL_DNS_ACCESS="<< parameters.external-dns-access >>"
         FULL_ECR_ACCESS="<< parameters.full-ecr-access >>"
-        STORAGE_CLASS="<< parameters.storage-class >>"
         VPC_CIDR="<< parameters.vpc-cidr >>"
         VPC_PRIVATE_SUBNETS="<< parameters.vpc-private-subnets >>"
         VPC_PUBLIC_SUBNETS="<< parameters.vpc-public-subnets >>"
@@ -346,9 +340,6 @@ steps:
         fi
         if [ "${FULL_ECR_ACCESS}" == "true" ]; then
           set -- "$@" --full-ecr-access
-        fi
-        if [ -n "${STORAGE_CLASS}" ]; then
-          set -- "$@" --storage-class="${STORAGE_CLASS}"
         fi
         if [ -n "${VPC_CIDR}" ]; then
           set -- "$@" --vpc-cidr="${VPC_CIDR}"
