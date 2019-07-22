@@ -340,7 +340,7 @@ steps:
         fi
         if [ "${FULL_ECR_ACCESS}" == "true" ]; then
           set -- "$@" --full-ecr-access
-        fi       
+        fi
         if [ -n "${VPC_CIDR}" ]; then
           set -- "$@" --vpc-cidr="${VPC_CIDR}"
         fi
