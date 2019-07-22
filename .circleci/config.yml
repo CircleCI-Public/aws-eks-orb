@@ -124,7 +124,6 @@ jobs:
           node-ami-family: "AmazonLinux2"
           node-private-networking: false
           node-labels: "nodeowner=cci,nodepurpose=testing"
-          storage-class: true
           vpc-cidr: "192.168.0.0/16"
           aws-max-polling-wait-time: "25m"
           tags: "name=cci_orbs,purpose=orb_test"
@@ -164,7 +163,6 @@ jobs:
           asg-access: false
           external-dns-access: false
           full-ecr-access: false
-          storage-class: true
           aws-max-polling-wait-time: "25m"
           tags: "name=cci_orbs,purpose=orb_test"
           verbose: 3
