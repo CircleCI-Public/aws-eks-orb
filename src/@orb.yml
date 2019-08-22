@@ -6,6 +6,6 @@ description: |
   Project homepage: https://github.com/CircleCI-Public/aws-eks-orb
 
 orbs:
-  aws-cli: circleci/aws-cli@0.1.13
+  aws-cli: circleci/aws-cli@0.1
   helm: circleci/helm@0.1.0
   kubernetes: circleci/kubernetes@0.3.0
