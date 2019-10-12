@@ -19,10 +19,10 @@ parameters:
   aws-region:
     description: |
       AWS region for the EKS cluster.
-      If no value is specifeid, uses `$AWS_REGION` environment variable.
+      If no value is specifeid, uses `$AWS_DEFAULT_REGION` environment variable.
       By default, AWS will create the cluster in the us-west-2 region.
     type: string
-    default: "${AWS_REGION}"
+    default: "${AWS_DEFAULT_REGION}"
   aws-profile:
     description: |
       The AWS profile to be used. If not specified, the configured default
