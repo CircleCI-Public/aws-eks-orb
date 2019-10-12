@@ -9,15 +9,17 @@ parameters:
     default: ""
   aws-region:
     description: |
-      AWS region that the EKS cluster will be created in.
+      AWS region for the EKS cluster.
+      If no value is specifeid, uses `$AWS_REGION` environment variable.
+      By default, AWS will create the cluster in the us-west-2 region.
     type: string
-    default: ""
+    default: "${AWS_REGION}"
   aws-profile:
     description: |
       The AWS profile to be used. If not specified, the configured default
       profile for your AWS CLI installation will be used.
     type: string
-    default: ""
+    default: "${AWS_PROFILE}"
   zones:
     description: |
       The AWS availability zones to be used  e.g. us-east-1a,us-east-1b,us-east-1d
