@@ -1,5 +1,5 @@
 description: |
-  Deletes an EKS cluster together with the associated VPC resourcs on AWS,
+  Deletes an EKS cluster together with the associated VPC resources on AWS,
   using the eksctl tool. The cluster should have been created with eksctl
   as well.
 
