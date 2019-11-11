@@ -3,8 +3,8 @@ version: 2.1
 
 description: |
   An orb for working with Amazon Elastic Container Service for Kubernetes (Amazon EKS).
-  Project homepage: https://github.com/CircleCI-Public/aws-eks-orb
-
+display:
+  home_url: https://github.com/CircleCI-Public/aws-eks-orb
 orbs:
   aws-cli: circleci/aws-cli@0.1.13
   helm: circleci/helm@0.1.0
