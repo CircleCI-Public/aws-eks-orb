@@ -30,14 +30,17 @@ steps:
         RELEASE_TAG="<< parameters.release-tag >>"
         RELEASE_URL="https://api.github.com/repos/kubernetes-sigs/aws-iam-authenticator/releases/latest"
 
+        VERSION=$(curl -Ls --fail --retry 3 -o /dev/null -w %{url_effective} "https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/latest" | sed 's:.*/::')
         if [ -n "${RELEASE_TAG}" ]; then
-          RELEASE_URL="https://api.github.com/repos/kubernetes-sigs/aws-iam-authenticator/releases/tags/${RELEASE_TAG}"
+          VERSION="${RELEASE_TAG}"
         fi
 
-        DOWNLOAD_URL=$(curl -s --retry 5 "${RELEASE_URL}" \
-            | grep "${PLATFORM}" | awk '/browser_download_url/ {print $2}' | sed 's/"//g')
+        # extract version number
+        VERSION_NUMBER=$(echo $VERSION | cut -c 2-)
 
-        curl -L -o aws-iam-authenticator "$DOWNLOAD_URL"
+        DOWNLOAD_URL="https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/${VERSION}/aws-iam-authenticator_${VERSION_NUMBER}_${PLATFORM}_amd64"
+
+        curl -L --fail --retry 3 -o aws-iam-authenticator "$DOWNLOAD_URL"
 
         chmod +x ./aws-iam-authenticator
 
