@@ -30,15 +30,19 @@ steps:
         RELEASE_TAG="<< parameters.release-tag >>"
         RELEASE_URL="https://api.github.com/repos/kubernetes-sigs/aws-iam-authenticator/releases/latest"
 
+        FILENAME="aws-iam-authenticator"
         VERSION=$(curl -Ls --fail --retry 3 -o /dev/null -w %{url_effective} "https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/latest" | sed 's:.*/::')
         if [ -n "${RELEASE_TAG}" ]; then
           VERSION="${RELEASE_TAG}"
+          if [ "${VERSION}" == "v0.3.0" ]; then
+            FILENAME="heptio-authenticator-aws"
+          fi
         fi
 
         # extract version number
         VERSION_NUMBER=$(echo $VERSION | cut -c 2-)
 
-        DOWNLOAD_URL="https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/${VERSION}/aws-iam-authenticator_${VERSION_NUMBER}_${PLATFORM}_amd64"
+        DOWNLOAD_URL="https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/${VERSION}/${FILENAME}_${VERSION_NUMBER}_${PLATFORM}_amd64"
 
         curl -L --fail --retry 3 -o aws-iam-authenticator "$DOWNLOAD_URL"
 
