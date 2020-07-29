@@ -602,7 +602,7 @@ workflows:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-helm
           release-name: grafana-release
           purge: true
-          timeout: 600
+          timeout: "600"
           requires:
             - aws-eks/install-helm-chart
           filters: *integration_test_filters

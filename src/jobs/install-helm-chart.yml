@@ -78,6 +78,21 @@ parameters:
       Whether to wait for the installation to be complete
     type: boolean
     default: true
+  update-repositories:
+    description: |
+      Choose to update repositories by running helm repo update.
+    type: boolean
+    default: true
+  helm-version:
+    type: string
+    default: "v2.16.9"
+    description: the helm client version to install. e.g. v2.4.0
+  no-output-timeout:
+    description: |
+      Elapsed time that the helm command can run on CircleCI without output.
+      The string is a decimal with unit suffix, such as “20m”, “1.25h”, “5s”
+    type: string
+    default: "30m"
   aws-region:
     description: |
       AWS region that the EKS cluster is in.
@@ -97,10 +112,12 @@ steps:
       aws-profile: << parameters.aws-profile >>
       install-kubectl: true
   - helm/install-helm-chart:
+      helm-version: << parameters.helm-version >>
       chart: << parameters.chart >>
       release-name: << parameters.release-name >>
       values-to-override: << parameters.values-to-override >>
       namespace: << parameters.namespace >>
+      update-repositories: << parameters.update-repositories >>
       tls: << parameters.tls >>
       tls-ca-cert: << parameters.tls-ca-cert >>
       tls-cert: << parameters.tls-cert >>
@@ -109,3 +126,4 @@ steps:
       tls-verify: << parameters.tls-verify >>
       tiller-namespace: << parameters.tiller-namespace >>
       wait: << parameters.wait >>
+      no-output-timeout: << parameters.no-output-timeout >>
