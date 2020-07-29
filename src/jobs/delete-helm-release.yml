@@ -20,17 +20,24 @@ parameters:
     type: string
   purge:
     description: |
+      Effective for helm 2 commands only (purging is the default in helm 3)
       Whether to remove the release from the store and make its name free for
       later use
     type: boolean
     default: false
+  keep-history:
+    description: |
+      Effective for helm 3 commands only.
+      Retains release history.
+    type: boolean
+    default: false
   timeout:
     description: |
-      Specify time in seconds to wait for any individual Kubernetes operation
-      (like Jobs for hooks)
-      A value of -1 will be ignored.
-    type: integer
-    default: -1
+      Specify a timeout value that will be passed as a --timeout argument
+      to the helm command. For helm 3, the unit of the duration must
+      be specified e.g. '300s'.
+    type: string
+    default: ""
   namespace:
     description: |
       The kubernetes namespace that should be used.
@@ -72,6 +79,16 @@ parameters:
       Specify the namespace of Tiller
     type: string
     default: ""
+  helm-version:
+    type: string
+    default: "v2.16.9"
+    description: the helm client version to install. e.g. v2.4.0
+  no-output-timeout:
+    description: |
+      Elapsed time that the helm command can run on CircleCI without output.
+      The string is a decimal with unit suffix, such as “20m”, “1.25h”, “5s”
+    type: string
+    default: "30m"
   aws-region:
     description: |
       AWS region that the EKS cluster is in.
@@ -91,8 +108,10 @@ steps:
       aws-profile: << parameters.aws-profile >>
       install-kubectl: true
   - helm/delete-helm-release:
+      helm-version: << parameters.helm-version >>
       release-name: << parameters.release-name >>
       purge: << parameters.purge >>
+      keep-history: << parameters.keep-history >>
       timeout: << parameters.timeout >>
       namespace: << parameters.namespace >>
       tls: << parameters.tls >>
@@ -102,3 +121,4 @@ steps:
       tls-key: << parameters.tls-key >>
       tls-verify: << parameters.tls-verify >>
       tiller-namespace: << parameters.tiller-namespace >>
+      no-output-timeout: << parameters.no-output-timeout >>
