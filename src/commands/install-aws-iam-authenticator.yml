@@ -37,6 +37,9 @@ steps:
           if [ "${VERSION}" == "v0.3.0" ]; then
             FILENAME="heptio-authenticator-aws"
           fi
+        else
+          # Pin the latest as version v0.5.1 temporarily
+          VERSION="v0.5.1"
         fi
 
         # extract version number
