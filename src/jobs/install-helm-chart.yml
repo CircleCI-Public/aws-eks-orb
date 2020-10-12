@@ -104,6 +104,11 @@ parameters:
       profile for your AWS CLI installation will be used.
     type: string
     default: ""
+  authenticator-release-tag:
+    description: |
+      Specifies which release-tag version of the authenticator to install.
+    type: string
+    default: ""
 
 steps:
   - update-kubeconfig-with-authenticator:
@@ -111,6 +116,7 @@ steps:
       aws-region: << parameters.aws-region >>
       aws-profile: << parameters.aws-profile >>
       install-kubectl: true
+      authenticator-release-tag: << parameters.authenticator-release-tag >>
   - helm/install-helm-chart:
       helm-version: << parameters.helm-version >>
       chart: << parameters.chart >>

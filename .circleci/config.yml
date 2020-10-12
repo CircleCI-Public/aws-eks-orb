@@ -608,6 +608,7 @@ workflows:
           filters: *integration_test_filters
       - aws-eks/delete-cluster:
           name: delete-cluster-helm
+          authenticator-release-tag: 'v0.5.0'
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-helm
           wait: true
           requires:
