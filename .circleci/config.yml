@@ -15,7 +15,7 @@ orb_promotion_filters: &orb_promotion_filters
 orbs:
   aws-eks: circleci/aws-eks@dev:alpha
   cli: circleci/circleci-cli@0.1.2
-  helm: circleci/helm@0.1.0
+  helm: circleci/helm@1.0.1
   orb-tools: circleci/orb-tools@7.3.0
   queue: eddiewebb/queue@1.1.2
   kubernetes: circleci/kubernetes@0.4.0
