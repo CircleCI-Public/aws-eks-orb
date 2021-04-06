@@ -7,6 +7,6 @@ display:
   home_url: https://aws.amazon.com/eks/
   source_url: https://github.com/CircleCI-Public/aws-eks-orb
 orbs:
-  aws-cli: circleci/aws-cli@1.2.1
+  aws-cli: circleci/aws-cli@2.0.0
   helm: circleci/helm@1.0.1
   kubernetes: circleci/kubernetes@0.11.0
