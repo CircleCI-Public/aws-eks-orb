@@ -40,7 +40,7 @@ jobs:
           command: sudo mv /tmp/eksctl /usr/local/bin
       - run:
           name: Verify install
-          command: eskctl version
+          command: sudo eskctl version
 
 workflows:
   integration-and-deploy:
