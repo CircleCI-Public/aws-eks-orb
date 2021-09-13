@@ -10,4 +10,5 @@ steps:
   - run:
       environment:
         PARAM_AWS_EKSCTL_CLI_VERSION: <<parameters.version>>
-      name: Install Amazon EKSCTL 
+      name: Install Amazon EKSCTL
+      command: <<include(scripts/setup.sh)>>
