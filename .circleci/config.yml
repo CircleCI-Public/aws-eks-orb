@@ -31,7 +31,7 @@ jobs:
         type: executor
     executor: << parameters.executor >>
     steps:
-       - aws-eks/setup
+       - setup
 workflows:
   integration-and-deploy:
     jobs:
