@@ -1,4 +1,4 @@
-description: Install the Amazon eksctl command line utility.  This command should be ran before invoking the eskctl cli. 
+description: Install the Amazon eksctl command line utility.  This command should be ran before invoking the eskctl cli.
 
 parameters:
   version:

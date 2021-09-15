@@ -34,7 +34,7 @@ jobs:
         type: executor
     executor: << parameters.executor >>
     steps:
-       - aws-eks/setup
+      - aws-eks/setup
 workflows:
   test-pack:
     unless: << pipeline.parameters.run-integration-tests >>
