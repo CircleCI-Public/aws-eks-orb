@@ -15,8 +15,8 @@ else
 	exit 1
 fi
 
-if ! command -v gh >/dev/null 2>&1; then
-	echo "Installing the GitHub CLI"
+if ! command -v eksctl >/dev/null 2>&1; then
+	echo "Installing the AWS eksctl CLI"
 	case $SYS_ENV_PLATFORM in
 		linux_x86)
             curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
