@@ -30,8 +30,8 @@ if ! command -v eksctl >/dev/null 2>&1; then
 	esac
 	# Validate install.
 	echo
-	echo "AWS eksctl CLI installed"
 	command -v eksctl
+	echo "AWS eksctl CLI installed"
 else
 	echo "AWS eksctl CLI is already installed."
 fi
