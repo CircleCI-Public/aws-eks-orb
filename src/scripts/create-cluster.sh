@@ -170,7 +170,7 @@ if [ -n "${CLUSTER_NAME}" ]; then
     if [ -n "${AWS_PROFILE}" ]; then
     set -- "$@" --profile="${AWS_PROFILE}"
     fi
-    set -- "$@" --verbose ${VERBOSE}
+    set -- "$@" --verbose "${VERBOSE}"
 
     if [ "${SHOW_EKSCTL_COMMAND}" == "1" ]; then
     set -x

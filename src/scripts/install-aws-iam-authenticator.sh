@@ -18,12 +18,13 @@ if [ -n "${RELEASE_TAG}" ]; then
     fi
 fi
 # extract version number
-VERSION_NUMBER=$(echo $VERSION | cut -c 2-)
+VERSION_NUMBER=$(echo "$VERSION" | cut -c 2-)
 DOWNLOAD_URL="https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/${VERSION}/${FILENAME}_${VERSION_NUMBER}_${PLATFORM}_amd64"
+echo DOWNLOAD_URL
 curl -L --fail --retry 3 -o aws-iam-authenticator "$DOWNLOAD_URL"
 chmod +x ./aws-iam-authenticator
 SUDO=""
-if [ $(id -u) -ne 0 ] && which sudo > /dev/null ; then
+if [ "$(id -u)" -ne 0 ] && which sudo > /dev/null ; then
     SUDO="sudo"
 fi
 $SUDO mv ./aws-iam-authenticator /usr/local/bin/aws-iam-authenticator
