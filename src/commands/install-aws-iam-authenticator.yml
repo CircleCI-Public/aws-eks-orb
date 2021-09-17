@@ -1,0 +1,18 @@
+description: |
+  Install the AWS IAM Authenticator for Kubernetes
+  Requirements: curl, amd64 architecture
+parameters:
+  release-tag:
+    description: |
+      Use this to specify a tag to select which published release of the AWS IAM Authenticator,
+      as listed on https://github.com/kubernetes-sigs/aws-iam-authenticator/releases,
+      to install. If no value is specified, the latest release will be installed.
+      Note: Release versions earlier than v0.3.0 cannot be specified. Also,
+      pre or alpha releases cannot be specified.
+    type: string
+    default: ""
+
+steps:
+  - run:
+      name: Install the AWS IAM Authenticator for Kubernetes
+      command: <<include(install-aws-iam-authenticator.sh)

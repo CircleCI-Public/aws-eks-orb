@@ -1,0 +1,223 @@
+description: |
+  Creates an EKS cluster and required resources (e.g. VPC) using the eksctl tool.
+parameters:
+  cluster-name:
+    description: |
+      Name of the EKS cluster to be created
+    type: string
+    default: ""
+  aws-region:
+    description: |
+      AWS region that the EKS cluster will be created in.
+    type: string
+    default: ""
+  aws-profile:
+    description: |
+      The AWS profile to be used. If not specified, the configured default
+      profile for your AWS CLI installation will be used.
+    type: string
+    default: ""
+  zones:
+    description: |
+      The AWS availability zones to be used  e.g. us-east-1a,us-east-1b,us-east-1d
+      If no value is specified, the availability zones will be auto-selected.
+    type: string
+    default: ""
+  kubernetes-version:
+    description: |
+      Specify a version of Kubernetes that is supported by eksctl.
+      If no value is specified, the version that eksctl defaults to will be used.
+    type: string
+    default: ""
+  config-file:
+    description: |
+      Use this to specify a file if you wish to load configuration from it.
+    type: string
+    default: ""
+  nodegroup-name:
+    description: |
+      Set this to specify a name for the nodegroup.
+      If unspecified, it will be generated.
+    type: string
+    default: ""
+  without-nodegroup:
+    description: |
+      Set to true to avoid creating initial nodegroup.
+    type: boolean
+    default: false
+  node-private-networking:
+    description: |
+      Set to true to make nodegroup networking private.
+    type: boolean
+    default: false
+  node-type:
+    description: |
+      Set this to specify a node instance type for the node group.
+    type: string
+    default: ""
+  node-ami:
+    description: |
+      Specify this in advanced use cases only.
+      Check the documentation for the --node-ami flag of eksctl for more details.
+    type: string
+    default: ""
+  node-ami-family:
+    description: |
+      Specify this in advanced use cases only.
+      Check the documentation for the --node-ami-family flag of eksctl for more details.
+    type: string
+    default: ""
+  nodes:
+    description: |
+      Sets the total number of nodes (for a static Auto Scaling Group), if a number other than -1 is set as the value.
+      Otherwise the default as determined by eksctl will be used.
+    type: integer
+    default: -1
+  nodes-min:
+    description: |
+      Sets the minimum number of nodes in the Auto Scaling Group, if a number other than -1 is set as the value.
+      Otherwise the default as determined by eksctl will be used.
+    type: integer
+    default: -1
+  nodes-max:
+    description: |
+      Sets the maximum number of nodes in the Auto Scaling Group, if a number other than -1 is set as the value.
+      Otherwise the default as determined by eksctl will be used.
+    type: integer
+    default: -1
+  node-volume-size:
+    description: |
+      Sets the node volume size in GB, if a number other than -1 is set as the value.
+    type: integer
+    default: -1
+  node-volume-type:
+    description: |
+      Specify the node volume type.
+    type: string
+    default: ""
+  max-pods-per-node:
+    description: |
+      Sets the maximum number of pods per node, if a number other than -1 is set as the value.
+      Otherwise the maximum will be automatically set.
+    type: integer
+    default: -1
+  node-security-groups:
+    description: |
+      Specify a comma-delimited list of security groups to be attached to nodes, for allowing
+      extra ingress/egress access from/to pods.
+    type: string
+    default: ""
+  node-labels:
+    description: |
+      Extra labels to add when registering the nodes in the nodegroup, e.g. "partition=backend,nodeclass=hugememory"
+    type: string
+    default: ""
+  node-zones:
+    description: |
+      Specify availability zones for the nodes e.g. us-east-1a,us-east-1b,us-east-1d
+      Zones will be inherited from the cluster if unspecified.
+    type: string
+    default: ""
+  ssh-access:
+    description: |
+      Control SSH access for nodes
+    type: boolean
+    default: false
+  ssh-public-key:
+    description: |
+      SSH public key to use for nodes (import from local path, or use existing EC2 key pair which
+      must not resolve to a local file path)
+      e.g. my_eks_node_id.pub
+      "~/.ssh/id_rsa.pub" will be taken as the path if a value is not specified.
+    type: string
+    default: ""
+  asg-access:
+    description: |
+      Set to true to enable IAM policy for cluster-autoscaler.
+    type: boolean
+    default: false
+  external-dns-access:
+    description: |
+      Set to true to enable IAM policy for external-dns.
+    type: boolean
+    default: false
+  full-ecr-access:
+    description: |
+      Set to true to enable full access to ECR.
+    type: boolean
+    default: false
+  vpc-cidr:
+    description: |
+      Specify global CIDR to use for VPC.
+      e.g. 192.168.0.0/16
+    type: string
+    default: ""
+  vpc-private-subnets:
+    description: |
+      Specify this to re-use private subnets of an existing VPC.
+      e.g. subnet-0ff156e0c4a6d300c,subnet-0426fb4a607393184
+    type: string
+    default: ""
+  vpc-public-subnets:
+    description: |
+      Specify this to re-use public subnets of an existing VPC.
+      e.g. subnet-0ff156e0c4a6d300c,subnet-0426fb4a607393184
+    type: string
+    default: ""
+  vpc-from-kops-cluster:
+    description: |
+      Specify this to re-use a VPC from a given kops cluster.
+      e.g. cluster-1.k8s.local
+    type: string
+    default: ""
+  cfn-role-arn:
+    description: |
+      Specify an IAM role to be used by CloudFormation to call AWS API on your behalf
+    type: string
+    default: ""
+  tags:
+    description: |
+      A list of key-value pairs used to tag the AWS resources (e.g. "Owner=John Doe,Team=Some Team")
+    type: string
+    default: ""
+  show-eksctl-command:
+    description: |
+      Whether to show the eksctl command used.
+    type: boolean
+    default: false
+  verbose:
+    description: |
+      Set a value from 0 to 5 to control the verbosity level of the log output (the higher, the more verbose).
+      Use 0 to silence, 4 for debugging and 5 for debugging with AWS debug logging.
+      The logging verbosity level is set to 3 by default.
+      When set to 4 and above, verbose details of AWS resources will be displayed in the log output.
+      When set to 5, sensitive information such as credentials may be displayed in the log output.
+    type: integer
+    default: 3
+  skip-kubectl-install:
+    description: |
+      Whether to skip the installation of kubectl.
+    type: boolean
+    default: false
+  aws-max-polling-wait-time:
+    description: |
+      Max wait time in any AWS polling operations
+    type: string
+    default: "20m0s"
+  no-output-timeout:
+    description: |
+      Elapsed time that the cluster creation command can run on CircleCI without output.
+      The string is a decimal with unit suffix, such as “20m”, “1.25h”, “5s”
+    type: string
+    default: "45m"
+
+steps:
+  - aws-eks/setup
+  - unless:
+      condition: << parameters.skip-kubectl-install >>
+      steps:
+        - kubernetes/install
+  - run:
+      name: Create EKS cluster and associated resources
+      command: <<include(scripts/create-cluster.sh)
+      no_output_timeout: << parameters.no-output-timeout >>
