@@ -34,9 +34,9 @@ jobs:
         type: executor
     executor: << parameters.executor >>
     steps:
-      - aws-eks/setup
-      - run:
-         command: command -v eksctl
+      # - aws-eks/setup
+      # - run:
+      #    command: command -v eksctl
 workflows:
   test-pack:
     unless: << pipeline.parameters.run-integration-tests >>
