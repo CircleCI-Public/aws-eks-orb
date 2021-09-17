@@ -219,5 +219,5 @@ steps:
         - kubernetes/install
   - run:
       name: Create EKS cluster and associated resources
-      command: <<include(scripts/create-cluster.sh)
+      command: <<include(scripts/create-cluster.sh)>>
       no_output_timeout: << parameters.no-output-timeout >>

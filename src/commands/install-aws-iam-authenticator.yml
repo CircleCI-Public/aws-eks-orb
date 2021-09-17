@@ -15,4 +15,4 @@ parameters:
 steps:
   - run:
       name: Install the AWS IAM Authenticator for Kubernetes
-      command: <<include(install-aws-iam-authenticator.sh)
+      command: <<include(install-aws-iam-authenticator.sh)>>
