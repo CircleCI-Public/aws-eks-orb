@@ -212,7 +212,7 @@ parameters:
     default: "45m"
 
 steps:
-  - aws-eks/setup
+  - setup
   - unless:
       condition: << parameters.skip-kubectl-install >>
       steps:
