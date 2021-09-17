@@ -10,7 +10,7 @@ fi
 RELEASE_TAG="<< parameters.release-tag >>"
 #RELEASE_URL="https://api.github.com/repos/kubernetes-sigs/aws-iam-authenticator/releases/latest"
 FILENAME="aws-iam-authenticator"
-VERSION=$(curl -Ls --fail --retry 3 -o /dev/null -w %{url_effective} "https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/latest" | sed 's:.*/::')
+VERSION=$(curl -Ls --fail --retry 3 -o /dev/null -w %{url_effective} "https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/latest" | sed 's:.*/::' | sed 's/v//g')
 if [ -n "${RELEASE_TAG}" ]; then
     VERSION="${RELEASE_TAG}"
     if [ "${VERSION}" == "v0.3.0" ]; then
