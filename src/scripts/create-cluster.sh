@@ -146,7 +146,7 @@ fi
 if [ -n "${TAGS}" ]; then
     set -- "$@" --tags="${TAGS}"
 fi
-set -- "$@" --verbose=${VERBOSE}
+set -- "$@" --verbose="${VERBOSE}"
 
 if [ "${SHOW_EKSCTL_COMMAND}" == "1" ]; then
 set -x
