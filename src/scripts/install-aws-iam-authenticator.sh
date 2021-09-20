@@ -4,8 +4,9 @@ if which aws-iam-authenticator > /dev/null; then
     exit 0
 fi
 PLATFORM="linux"
-if uname | grep -q 'Darwin' 
-then
+if [ "$(uname | grep -q "Darwin")" ]; then
+# if uname | grep -q 'Darwin' 
+# then
     PLATFORM="darwin"
 fi
 
