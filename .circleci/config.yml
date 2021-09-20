@@ -7,6 +7,7 @@ orbs:
   kubernetes: circleci/kubernetes@0.12
   orb-tools: circleci/orb-tools@10.0
   shellcheck: circleci/shellcheck@2.0
+  bats: circleci/bats@1.0
 
 
 parameters:
@@ -28,7 +29,7 @@ executors:
       - image: cimg/base:stable
 
 jobs:
-  integration-test-1:
+  integration-test-installs:
     parameters:
       executor:
         type: executor
@@ -40,13 +41,15 @@ jobs:
       - aws-eks/install-aws-iam-authenticator
       - run:
           name: Test aws-iam-authenticator
-          command: aws-iam-authenticator
+          command: command -v aws-iam-authenticator
 
 workflows:
   test-pack:
     unless: << pipeline.parameters.run-integration-tests >>
     jobs:
       - orb-tools/lint # Lint Yaml files
+      - bats/run:
+          path: ./tests
       - orb-tools/pack # Pack orb source
       - shellcheck/check:
           dir: ./src/scripts
@@ -58,6 +61,7 @@ workflows:
           requires:
             - orb-tools/lint
             - orb-tools/pack
+            - bats/run
             - shellcheck/check
       # Trigger an integration workflow to test the
       # dev:${CIRCLE_SHA1:0:7} version of your orb
@@ -68,7 +72,7 @@ workflows:
             - orb-tools/publish-dev
   integration-and-deploy:
     jobs:
-      - integration-test-1:
+      - integration-test-installs:
           context: orb-publisher
           matrix:
             parameters:

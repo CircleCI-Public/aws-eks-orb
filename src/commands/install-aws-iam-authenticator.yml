@@ -14,5 +14,7 @@ parameters:
 
 steps:
   - run:
+      environment:
+        PARAM_RELEASE_TAG: << parameters.release-tag>>
       name: Install the AWS IAM Authenticator for Kubernetes
       command: <<include(scripts/install-aws-iam-authenticator.sh)>>
