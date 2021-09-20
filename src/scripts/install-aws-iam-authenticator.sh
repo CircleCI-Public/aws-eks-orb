@@ -4,9 +4,12 @@ if which aws-iam-authenticator > /dev/null; then
     exit 0
 fi
 PLATFORM="linux"
-if uname | grep -q "Darwin"; then
+# if [ "$(uname | grep -q "Darwin")" ]; then
+if uname | grep -q 'Darwin' 
+then
     PLATFORM="darwin"
 fi
+
 export RELEASE_TAG=${!PARAM_RELEASE_TAG}
 FILENAME="aws-iam-authenticator"
 VERSION=$(curl -Ls --fail --retry 3 -o /dev/null -w "%{url_effective}" "https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/latest" | sed 's:.*/::' | sed 's/v//g')
