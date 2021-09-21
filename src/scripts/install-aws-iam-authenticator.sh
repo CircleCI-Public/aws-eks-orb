@@ -8,10 +8,10 @@ if uname | grep -q 'Darwin'
 then
     PLATFORM="darwin"
 fi
-export RELEASE_TAG=${!PARAM_RELEASE_TAG}
 FILENAME="aws-iam-authenticator"
 VERSION=$(curl -Ls --fail --retry 3 -o /dev/null -w "%{url_effective}" "https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/latest" | sed 's:.*/::' | sed 's/v//g')
-if [ -n "${RELEASE_TAG}" ]; then
+if [ -n "${PARAM_RELEASE_TAG}" ]; then
+    export RELEASE_TAG=${!PARAM_RELEASE_TAG}
     VERSION="${RELEASE_TAG}"
     if [ "${VERSION}" == "0.3.0" ]; then
     FILENAME="heptio-authenticator-aws"
