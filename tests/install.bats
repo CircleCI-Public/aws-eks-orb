@@ -1,9 +1,9 @@
 setup() {
-    rm -rf "$(which aws-iam-authenticator)"
+    sudo rm -rf "$(which aws-iam-authenticator)"
 }
 
 teardown() {
-    rm -rf "$(which aws-iam-authenticator)"
+    sudo rm -rf "$(which aws-iam-authenticator)"
 }
 
 @test "Installs IAM-Authenticator" {
