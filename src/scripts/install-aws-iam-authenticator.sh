@@ -5,8 +5,9 @@ if which aws-iam-authenticator > /dev/null; then
 fi
 PLATFORM="linux"
 # if [ "$(uname | grep -q "Darwin")" ]; then
+###################
 if uname | grep -q 'Darwin' 
-    then
+then
     PLATFORM="darwin"
 fi
 export RELEASE_TAG=${!PARAM_RELEASE_TAG}
