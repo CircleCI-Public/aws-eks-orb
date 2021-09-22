@@ -74,12 +74,16 @@ jobs:
           command: command -v aws-iam-authenticator
   setup-cluster:
     parameters:
-      # executor:
-      #   type: executor
       cluster-name:
         type: string
+    docker:
+      - image: cimg/base:stable
+    # parameters:
+    #   # executor:
+    #   #   type: executor
+    #   cluster-name:
+    #     type: string
     # executor: << parameters.executor >>
-    executor: "docker-x86-debian"
     steps:
       - cluster-setup-check
       - aws-eks/install-aws-iam-authenticator
