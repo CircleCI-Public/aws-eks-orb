@@ -124,11 +124,11 @@ workflows:
             parameters:
               executor: ["docker-x86-debian"]
       - setup-cluster:
-          name: setup-cluster-defaults
+          # name: setup-cluster-defaults
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
-          # matrix:
-          #   parameters:
-          #     executor: ["docker-x86-debian"]
+          matrix:
+            parameters:
+              executor: ["docker-x86-debian"]
 
 
 
