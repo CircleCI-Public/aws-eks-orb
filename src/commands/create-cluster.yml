@@ -218,6 +218,48 @@ steps:
       steps:
         - kubernetes/install
   - run:
+      environment:
+        PARAM_CLUSTER_NAME=<< parameters.cluster-name >>
+        PARAM_AWS_REGION=<< parameters.aws-region >>
+        PARAM_AWS_PROFILE=<< parameters.aws-profile >>
+        PARAM_ZONES=<< parameters.zones >>
+        PARAM_KUBERNETES_VERSION=<< parameters.kubernetes-version >>
+        PARAM_CONFIG_FILE=<< parameters.config-file >>
+        PARAM_VPC_PRIVATE_SUBNETS=<< parameters.vpc-private-subnets >>
+        PARAM_VPC_PUBLIC_SUBNETS=<< parameters.vpc-public-subnets >>
+        PARAM_NODEGROUP_NAME=<< parameters.nodegroup-name >>
+        PARAM_WITHOUT_NODEGROUP=<< parameters.without-nodegroup >>
+        PARAM_NODE_PRIVATE_NETWORKING=<< parameters.node-private-networking >>
+        PARAM_NODE_TYPE=<< parameters.node-type >>
+        PARAM_NODE_AMI=<< parameters.node-ami >>
+        PARAM_NODE_AMI_FAMILY=<< parameters.node-ami-family >>
+        PARAM_NODES=<< parameters.nodes >>
+        PARAM_NODES_MIN=<< parameters.nodes-min >>
+        PARAM_NODES_MAX=<< parameters.nodes-max >>
+        PARAM_NODE_VOLUME_SIZE=<< parameters.node-volume-size >>
+        PARAM_NODE_VOLUME_TYPE=<< parameters.node-volume-type >>
+        PARAM_MAX_PODS_PER_NODE=<< parameters.max-pods-per-node >>
+        PARAM_NODE_SECURITY_GROUPS=<< parameters.node-security-groups >>
+        PARAM_NODE_LABELS=<< parameters.node-labels >>
+        PARAM_NODE_ZONES=<< parameters.node-zones >>
+        PARAM_SSH_ACCESS=<< parameters.ssh-access >>
+        PARAM_SSH_PUBLIC_KEY=<< parameters.ssh-public-key >>
+        PARAM_ASG_ACCESS=<< parameters.asg-access >>
+        PARAM_EXTERNAL_DNS_ACCESS=<< parameters.external-dns-access >>
+        PARAM_FULL_ECR_ACCESS=<< parameters.full-ecr-access >>
+        PARAM_VPC_CIDR=<< parameters.vpc-cidr >>
+        PARAM_VPC_PRIVATE_SUBNETS=<< parameters.vpc-private-subnets >>
+        PARAM_VPC_PUBLIC_SUBNETS=<< parameters.vpc-public-subnets >>
+        PARAM_VPC_FROM_KOPS_CLUSTER=<< parameters.vpc-from-kops-cluster >>
+        PARAM_CFN_ROLE_ARN=<< parameters.cfn-role-arn >>
+        PARAM_TAGS=<< parameters.tags >>
+        PARAM_AWS_MAX_POLLING_WAIT_TIME=<< parameters.aws-max-polling-wait-time >>
+        PARAM_VERBOSE=<< parameters.verbose >>
+        PARAM_SHOW_EKSCTL_COMMAND=<<parameters.show-eksctl-command>>
+        PARAM_CLUSTER_NAME=<< parameters.cluster-name >>
+        PARAM_AWS_REGION=<< parameters.aws-region >>
+        PARAM_AWS_PROFILE=<< parameters.aws-profile >>
+        PARAM_VERBOSE=<< parameters.verbose >>
       name: Create EKS cluster and associated resources
       command: <<include(scripts/create-cluster.sh)>>
       no_output_timeout: << parameters.no-output-timeout >>

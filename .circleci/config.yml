@@ -28,6 +28,36 @@ executors:
     docker:
       - image: cimg/base:stable
 
+commands:
+  cluster-setup-check:
+    steps:
+      - run:
+          name: Check if test env should be set up
+          command: |
+            if [ "${SKIP_TEST_ENV_CREATION}" = "true" ]
+            then
+              circleci step halt
+            fi
+  cluster-teardown-check:
+    steps:
+      - run:
+          name: Check if test env should be destroyed
+          command: |
+            if [ "${SKIP_TEST_ENV_TEARDOWN}" = "true" ]
+            then
+              circleci step halt
+            fi
+  quick-cluster-tests:
+    steps:
+      - run:
+          name: Run some tests on the cluster
+          command: |
+            kubectl get nodes
+            kubectl cluster-info
+            kubectl config view
+            kubectl config get-contexts
+            kubectl get pods --namespace kube-system
+
 jobs:
   integration-test-installs:
     parameters:
@@ -42,6 +72,21 @@ jobs:
       - run:
           name: Test aws-iam-authenticator
           command: command -v aws-iam-authenticator
+  setup-cluster:
+    parameters:
+      executor:
+        type: executor
+      cluster-name:
+        type: string
+    executor: << parameters.executor >>
+    steps:
+      - cluster-setup-check
+      - aws-eks/install-aws-iam-authenticator
+      - aws-eks/create-cluster:
+          cluster-name: << parameters.cluster-name >>
+          tags: name=eksorb,purpose=eksorbtest
+          verbose: 3
+      - quick-cluster-tests
 
 workflows:
   test-pack:
@@ -53,7 +98,7 @@ workflows:
       - orb-tools/pack # Pack orb source
       - shellcheck/check:
           dir: ./src/scripts
-          exclude: SC2148, SC1083, SC2143
+          exclude: SC2148, SC1083
       # Publish development version(s) of the orb.
       - orb-tools/publish-dev:
           orb-name: circleci/aws-eks
@@ -78,3 +123,12 @@ workflows:
           matrix:
             parameters:
               executor: ["docker-x86-debian"]
+      - setup-cluster:
+          name: setup-cluster-defaults
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          matrix:
+            parameters:
+              executor: ["docker-x86-debian"]
+
+
+
