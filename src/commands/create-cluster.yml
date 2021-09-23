@@ -248,18 +248,12 @@ steps:
         PARAM_EXTERNAL_DNS_ACCESS: << parameters.external-dns-access >>
         PARAM_FULL_ECR_ACCESS: << parameters.full-ecr-access >>
         PARAM_VPC_CIDR: << parameters.vpc-cidr >>
-        PARAM_VPC_PRIVATE_SUBNETS: << parameters.vpc-private-subnets >>
-        PARAM_VPC_PUBLIC_SUBNETS: << parameters.vpc-public-subnets >>
         PARAM_VPC_FROM_KOPS_CLUSTER: << parameters.vpc-from-kops-cluster >>
         PARAM_CFN_ROLE_ARN: << parameters.cfn-role-arn >>
         PARAM_TAGS: << parameters.tags >>
         PARAM_AWS_MAX_POLLING_WAIT_TIME: << parameters.aws-max-polling-wait-time >>
         PARAM_VERBOSE: << parameters.verbose >>
         PARAM_SHOW_EKSCTL_COMMAND: <<parameters.show-eksctl-command>>
-        PARAM_CLUSTER_NAME: << parameters.cluster-name >>
-        PARAM_AWS_REGION: << parameters.aws-region >>
-        PARAM_AWS_PROFILE: << parameters.aws-profile >>
-        PARAM_VERBOSE: << parameters.verbose >>
       name: Create EKS cluster and associated resources
       command: <<include(scripts/create-cluster.sh)>>
       no_output_timeout: << parameters.no-output-timeout >>
