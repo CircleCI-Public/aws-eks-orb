@@ -78,6 +78,8 @@ jobs:
         type: executor
       cluster-name:
         type: string
+    environment: 
+      CLUSTER_NAME: << parameters.cluster-name >>
     executor: << parameters.executor >>
     steps:
       - cluster-setup-check
