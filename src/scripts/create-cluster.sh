@@ -1,8 +1,8 @@
 #!/bin/bash
 CLUSTER_NAME="X"
 echo "debug 1"
+echo "debug 2 $PARAM_AWS_REGION"
 AWS_REGION="${!PARAM_AWS_REGION}"
-echo "debug 2"
 AWS_PROFILE="${!PARAM_AWS_PROFILE}"
 echo "debug 3"
 ZONES="${!PARAM_ZONES}"
