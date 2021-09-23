@@ -78,7 +78,7 @@ jobs:
         type: executor
       cluster-name:
         type: string
-    environment: 
+    environment:
       PARAM_CLUSTER_NAME: << parameters.cluster-name >>
     executor: << parameters.executor >>
     steps:
