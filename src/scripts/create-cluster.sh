@@ -1,7 +1,7 @@
 #!/bin/bash
-CLUSTER_NAME="X"
+CLUSTER_NAME=$(eval echo "$PARAM_CLUSTER_NAME")
 echo "debug 1 $CLUSTER_NAME"
-echo "debug 2 $PARAM_AWS_REGION"
+echo "debug 2 $(eval echo "$PARAM_AWS_REGION")"
 AWS_REGION="${!PARAM_AWS_REGION}"
 AWS_PROFILE="${!PARAM_AWS_PROFILE}"
 echo "debug 3"
