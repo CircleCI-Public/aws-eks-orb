@@ -10,7 +10,7 @@ parameters:
     description: |
       AWS region that the EKS cluster will be created in.
     type: string
-    default: "west!!"
+    default: ""
   aws-profile:
     description: |
       The AWS profile to be used. If not specified, the configured default
