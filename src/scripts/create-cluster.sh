@@ -36,13 +36,11 @@ TAGS=$(eval echo "$PARAM_TAGS")
 AWS_MAX_POLLING_WAIT_TIME=$(eval echo "$PARAM_AWS_MAX_POLLING_WAIT_TIM")
 VERBOSE=$(eval echo "$PARAM_VERBOSE")
 SHOW_EKSCTL_COMMAND=$(eval echo "$PARAM_SHOW_EKSCTL_COMMAND")
-CLUSTER_NAME=$(eval echo "$PARAM_CLUSTER_NAME")
-AWS_REGION=$(eval echo "$PARAM_AWS_REGION")
-AWS_PROFILE=$(eval echo "$PARAM_AWS_PROFILE")
-VERBOSE=$(eval echo "$PARAM_VERBOSE")
 
-if [ -n "${!CLUSTER_NAME}" ]; then
-    set -- "$@" --name="${!CLUSTER_NAME}"
+
+if [ -n "$CLUSTER_NAME" ]; then
+    set -- "$@" --name="$CLUSTER_NAME"
+    echo "$@"
 fi
 if [ -n "${!AWS_REGION}" ]; then
     set -- "$@" --region="${!AWS_REGION}"
