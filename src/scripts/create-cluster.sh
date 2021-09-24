@@ -165,7 +165,7 @@ if [ -n "$CLUSTER_NAME" ]; then
     fi
     if [ -n "$AWS_REGION" ]; then
         set -- "$@" --region "$AWS_REGION"
-        echo $AWS_REGION
+        echo "$AWS_REGION"
     fi
     if [ -n "$AWS_PROFILE" ]; then
         set -- "$@" --profile="$AWS_PROFILE"
