@@ -78,8 +78,8 @@ jobs:
         type: executor
       cluster-name:
         type: string
-    environment:
-      PARAM_AWS_REGION: west
+    # environment:
+    #   PARAM_AWS_REGION: west
     executor: << parameters.executor >>
     steps:
       - cluster-setup-check
