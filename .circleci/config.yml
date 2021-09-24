@@ -125,6 +125,7 @@ workflows:
               executor: ["docker-x86-debian"]
       - setup-cluster:
           name: setup-cluster-defaults
+          context: [CPE_ORBS_AWS]
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
           matrix:
             parameters:
