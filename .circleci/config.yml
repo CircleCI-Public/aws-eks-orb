@@ -129,4 +129,4 @@ workflows:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
           matrix:
             parameters:
-              executor: ["docke"]
+              executor: ["docker"]
