@@ -5,8 +5,8 @@ orbs:
   aws-cli: circleci/aws-cli@2.0.3
   helm: circleci/helm@1.2.0
   kubernetes: circleci/kubernetes@0.12
-  orb-tools: circleci/orb-tools@10.0
-  shellcheck: circleci/shellcheck@2.0
+  orb-tools: circleci/orb-tools@10.1.0
+  shellcheck: circleci/shellcheck@2.2.4
   bats: circleci/bats@1.0
 
 
@@ -24,7 +24,7 @@ parameters:
     default: "dev:alpha"
 
 executors:
-  docker-x86-debian:
+  docker:
     docker:
       - image: cimg/base:stable
 
@@ -122,11 +122,11 @@ workflows:
           context: orb-publisher
           matrix:
             parameters:
-              executor: ["docker-x86-debian"]
+              executor: ["docker"]
       - setup-cluster:
           name: setup-cluster-defaults
           context: [CPE_ORBS_AWS]
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
           matrix:
             parameters:
-              executor: ["docker-x86-debian"]
+              executor: ["docke"]
