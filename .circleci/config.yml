@@ -7,6 +7,7 @@ orbs:
   kubernetes: circleci/kubernetes@0.12
   orb-tools: circleci/orb-tools@10.1.0
   shellcheck: circleci/shellcheck@2.2.4
+  browser-tools: circleci/browser-tools@1.2.3
   bats: circleci/bats@1.0
 
 
@@ -67,7 +68,7 @@ jobs:
     steps:
       - aws-eks/setup
       - run:
-         command: command -v eksctl
+          command: command -v eksctl
       - aws-eks/install-aws-iam-authenticator
       - run:
           name: Test aws-iam-authenticator
@@ -126,7 +127,7 @@ workflows:
       - setup-cluster:
           name: setup-cluster-defaults
           context: [CPE_ORBS_AWS]
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-default
           matrix:
             parameters:
               executor: ["docker"]
