@@ -85,8 +85,8 @@ jobs:
       - aws-eks/install-aws-iam-authenticator
       - aws-eks/create-cluster:
           cluster-name: << parameters.cluster-name >>
-          tags: name=eksorb,purpose=eksorbtest
-          verbose: 3
+          # tags: name=eksorb,purpose=eksorbtest
+          verbose: 5
       - quick-cluster-tests
 
 workflows:
