@@ -65,7 +65,7 @@ parameters:
     default: "30m"
 
 steps:
-  - install-eksctl
+  - aws-eks/setup
   - run:
     environment:
       PARAM_CLUSTER_NAME: << parameters.cluster-name >>
