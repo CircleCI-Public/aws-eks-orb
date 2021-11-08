@@ -65,7 +65,7 @@ parameters:
 
 steps:
   - install-eksctl
-  - run: 
+  - run:
       environment:
         PARAM_CLUSTER_NAME: << parameters.cluster-name >>
         PARAM_CONFIG_FILE: << parameters.config-file >>
@@ -78,4 +78,3 @@ steps:
     name: Delete EKS cluster and associated resources
     command: <<include(scripts/delete-cluster.sh)>>
     no_output_timeout: << parameters.no-output-timeout >>
-
