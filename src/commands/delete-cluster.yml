@@ -10,6 +10,7 @@ parameters:
     description: |
       Name of the EKS cluster
     type: string
+    default: ""
   config-file:
     description: |
       Use this to specify a file if you wish to load configuration from it.
@@ -66,15 +67,15 @@ parameters:
 steps:
   - install-eksctl
   - run:
-      environment:
-        PARAM_CLUSTER_NAME: << parameters.cluster-name >>
-        PARAM_CONFIG_FILE: << parameters.config-file >>
-        PARAM_AWS_REGION: << parameters.aws-region >>"
-        PARAM_AWS_PROFILE: << parameters.aws-profile >>"
-        PARAM_WAIT: << parameters.wait >>
-        PARAM_CFN_ROLE_ARN: << parameters.cfn-role-arn >>
-        PARAM_VERBOSE: << parameters.verbose >>
-        PARAM_AWS_MAX_POLLING_WAIT_TIME: << parameters.aws-max-polling-wait-time >>
+    environment:
+      PARAM_CLUSTER_NAME: << parameters.cluster-name >>
+      PARAM_CONFIG_FILE: << parameters.config-file >>
+      PARAM_AWS_REGION: << parameters.aws-region >>"
+      PARAM_AWS_PROFILE: << parameters.aws-profile >>"
+      PARAM_WAIT: << parameters.wait >>
+      PARAM_CFN_ROLE_ARN: << parameters.cfn-role-arn >>
+      PARAM_VERBOSE: << parameters.verbose >>
+      PARAM_AWS_MAX_POLLING_WAIT_TIME: << parameters.aws-max-polling-wait-time >>
     name: Delete EKS cluster and associated resources
     command: <<include(scripts/delete-cluster.sh)>>
     no_output_timeout: << parameters.no-output-timeout >>
