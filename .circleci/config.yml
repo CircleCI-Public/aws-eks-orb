@@ -130,31 +130,31 @@ workflows:
             - shellcheck/check
       # Trigger an integration workflow to test the
       # dev:${CIRCLE_SHA1:0:7} version of your orb
-      # - orb-tools/trigger-integration-tests-workflow:
-      #     name: trigger-integration-dev
-      #     context: orb-publisher
-      #     requires:
-      #       - orb-tools/publish-dev
-  # integration-and-deploy:
-  #   when: << pipeline.parameters.run-integration-tests >>
-  #   jobs:
-      # - integration-test-installs:
-      #     context: orb-publisher
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker"]
-      # - setup-cluster:
-      #     name: setup-cluster-defaults
-      #     context: [CPE_ORBS_AWS]
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker"]
-      # - delete-cluster:
-      #     name: delete-cluster-defaults
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker"]
-      #     requires:
-      #       - test-cluster-defaults
+      - orb-tools/trigger-integration-tests-workflow:
+          name: trigger-integration-dev
+          context: orb-publisher
+          requires:
+            - orb-tools/publish-dev
+  integration-and-deploy:
+    when: << pipeline.parameters.run-integration-tests >>
+    jobs:
+      - integration-test-installs:
+          context: orb-publisher
+          matrix:
+            parameters:
+              executor: ["docker"]
+      - setup-cluster:
+          name: setup-cluster-defaults
+          context: [CPE_ORBS_AWS]
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          matrix:
+            parameters:
+              executor: ["docker"]
+      - delete-cluster:
+          name: delete-cluster-defaults
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          matrix:
+            parameters:
+              executor: ["docker"]
+          requires:
+            - test-cluster-defaults
