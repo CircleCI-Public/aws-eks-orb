@@ -1,0 +1,762 @@
+version: 2.1
+description: |
+    An orb for working with Amazon Elastic Container Service for Kubernetes (Amazon EKS).
+display:
+    home_url: https://aws.amazon.com/eks/
+    source_url: https://github.com/CircleCI-Public/aws-eks-orb
+orbs:
+    aws-cli: circleci/aws-cli@2.0.3
+    helm: circleci/helm@1.2.0
+    kubernetes: circleci/kubernetes@0.12.0
+commands:
+    create-cluster:
+        description: |
+            Creates an EKS cluster and required resources (e.g. VPC) using the eksctl tool.
+        parameters:
+            asg-access:
+                default: false
+                description: |
+                    Set to true to enable IAM policy for cluster-autoscaler.
+                type: boolean
+            aws-max-polling-wait-time:
+                default: 20m0s
+                description: |
+                    Max wait time in any AWS polling operations
+                type: string
+            aws-profile:
+                default: ""
+                description: |
+                    The AWS profile to be used. If not specified, the configured default
+                    profile for your AWS CLI installation will be used.
+                type: string
+            aws-region:
+                default: ""
+                description: |
+                    AWS region that the EKS cluster will be created in.
+                type: string
+            cfn-role-arn:
+                default: ""
+                description: |
+                    Specify an IAM role to be used by CloudFormation to call AWS API on your behalf
+                type: string
+            cluster-name:
+                default: ""
+                description: |
+                    Name of the EKS cluster to be created
+                type: string
+            config-file:
+                default: ""
+                description: |
+                    Use this to specify a file if you wish to load configuration from it.
+                type: string
+            external-dns-access:
+                default: false
+                description: |
+                    Set to true to enable IAM policy for external-dns.
+                type: boolean
+            full-ecr-access:
+                default: false
+                description: |
+                    Set to true to enable full access to ECR.
+                type: boolean
+            kubernetes-version:
+                default: ""
+                description: |
+                    Specify a version of Kubernetes that is supported by eksctl.
+                    If no value is specified, the version that eksctl defaults to will be used.
+                type: string
+            max-pods-per-node:
+                default: -1
+                description: |
+                    Sets the maximum number of pods per node, if a number other than -1 is set as the value.
+                    Otherwise the maximum will be automatically set.
+                type: integer
+            no-output-timeout:
+                default: 45m
+                description: |
+                    Elapsed time that the cluster creation command can run on CircleCI without output.
+                    The string is a decimal with unit suffix, such as “20m”, “1.25h”, “5s”
+                type: string
+            node-ami:
+                default: ""
+                description: |
+                    Specify this in advanced use cases only.
+                    Check the documentation for the --node-ami flag of eksctl for more details.
+                type: string
+            node-ami-family:
+                default: ""
+                description: |
+                    Specify this in advanced use cases only.
+                    Check the documentation for the --node-ami-family flag of eksctl for more details.
+                type: string
+            node-labels:
+                default: ""
+                description: |
+                    Extra labels to add when registering the nodes in the nodegroup, e.g. "partition=backend,nodeclass=hugememory"
+                type: string
+            node-private-networking:
+                default: false
+                description: |
+                    Set to true to make nodegroup networking private.
+                type: boolean
+            node-security-groups:
+                default: ""
+                description: |
+                    Specify a comma-delimited list of security groups to be attached to nodes, for allowing
+                    extra ingress/egress access from/to pods.
+                type: string
+            node-type:
+                default: ""
+                description: |
+                    Set this to specify a node instance type for the node group.
+                type: string
+            node-volume-size:
+                default: -1
+                description: |
+                    Sets the node volume size in GB, if a number other than -1 is set as the value.
+                type: integer
+            node-volume-type:
+                default: ""
+                description: |
+                    Specify the node volume type.
+                type: string
+            node-zones:
+                default: ""
+                description: |
+                    Specify availability zones for the nodes e.g. us-east-1a,us-east-1b,us-east-1d
+                    Zones will be inherited from the cluster if unspecified.
+                type: string
+            nodegroup-name:
+                default: ""
+                description: |
+                    Set this to specify a name for the nodegroup.
+                    If unspecified, it will be generated.
+                type: string
+            nodes:
+                default: -1
+                description: |
+                    Sets the total number of nodes (for a static Auto Scaling Group), if a number other than -1 is set as the value.
+                    Otherwise the default as determined by eksctl will be used.
+                type: integer
+            nodes-max:
+                default: -1
+                description: |
+                    Sets the maximum number of nodes in the Auto Scaling Group, if a number other than -1 is set as the value.
+                    Otherwise the default as determined by eksctl will be used.
+                type: integer
+            nodes-min:
+                default: -1
+                description: |
+                    Sets the minimum number of nodes in the Auto Scaling Group, if a number other than -1 is set as the value.
+                    Otherwise the default as determined by eksctl will be used.
+                type: integer
+            show-eksctl-command:
+                default: false
+                description: |
+                    Whether to show the eksctl command used.
+                type: boolean
+            skip-kubectl-install:
+                default: false
+                description: |
+                    Whether to skip the installation of kubectl.
+                type: boolean
+            ssh-access:
+                default: false
+                description: |
+                    Control SSH access for nodes
+                type: boolean
+            ssh-public-key:
+                default: ""
+                description: |
+                    SSH public key to use for nodes (import from local path, or use existing EC2 key pair which
+                    must not resolve to a local file path)
+                    e.g. my_eks_node_id.pub
+                    "~/.ssh/id_rsa.pub" will be taken as the path if a value is not specified.
+                type: string
+            tags:
+                default: ""
+                description: |
+                    A list of key-value pairs used to tag the AWS resources (e.g. "Owner=John Doe,Team=Some Team")
+                type: string
+            verbose:
+                default: 3
+                description: |
+                    Set a value from 0 to 5 to control the verbosity level of the log output (the higher, the more verbose).
+                    Use 0 to silence, 4 for debugging and 5 for debugging with AWS debug logging.
+                    The logging verbosity level is set to 3 by default.
+                    When set to 4 and above, verbose details of AWS resources will be displayed in the log output.
+                    When set to 5, sensitive information such as credentials may be displayed in the log output.
+                type: integer
+            vpc-cidr:
+                default: ""
+                description: |
+                    Specify global CIDR to use for VPC.
+                    e.g. 192.168.0.0/16
+                type: string
+            vpc-from-kops-cluster:
+                default: ""
+                description: |
+                    Specify this to re-use a VPC from a given kops cluster.
+                    e.g. cluster-1.k8s.local
+                type: string
+            vpc-private-subnets:
+                default: ""
+                description: |
+                    Specify this to re-use private subnets of an existing VPC.
+                    e.g. subnet-0ff156e0c4a6d300c,subnet-0426fb4a607393184
+                type: string
+            vpc-public-subnets:
+                default: ""
+                description: |
+                    Specify this to re-use public subnets of an existing VPC.
+                    e.g. subnet-0ff156e0c4a6d300c,subnet-0426fb4a607393184
+                type: string
+            without-nodegroup:
+                default: false
+                description: |
+                    Set to true to avoid creating initial nodegroup.
+                type: boolean
+            zones:
+                default: ""
+                description: |
+                    The AWS availability zones to be used  e.g. us-east-1a,us-east-1b,us-east-1d
+                    If no value is specified, the availability zones will be auto-selected.
+                type: string
+        steps:
+            - setup
+            - unless:
+                condition: << parameters.skip-kubectl-install >>
+                steps:
+                    - kubernetes/install
+            - run:
+                command: |
+                    #!/bin/bash
+                    CLUSTER_NAME=$(eval echo "$PARAM_CLUSTER_NAME")
+                    AWS_REGION=$(eval echo "$PARAM_AWS_REGION")
+                    AWS_PROFILE=$(eval echo "$PARAM_AWS_PROFILE")
+                    ZONES=$(eval echo "$PARAM_ZONES")
+                    KUBERNETES_VERSION=$(eval echo "$PARAM_KUBERNETES_VERSION")
+                    CONFIG_FILE=$(eval echo "$PARAM_CONFIG_FILE")
+                    VPC_PRIVATE_SUBNETS=$(eval echo "$PARAM_VPC_PRIVATE_SUBNETS")
+                    VPC_PUBLIC_SUBNETS=$(eval echo "$PARAM_VPC_PUBLIC_SUBNETS")
+                    NODEGROUP_NAME=$(eval echo "$PARAM_NODEGROUP_NAME")
+                    WITHOUT_NODEGROUP=$(eval echo "$PARAM_WITHOUT_NODEGROUP")
+                    NODE_PRIVATE_NETWORKING=$(eval echo "$PARAM_NODE_PRIVATE_NETWORKING")
+                    NODE_TYPE=$(eval echo "$PARAM_NODE_TYPE")
+                    NODE_AMI=$(eval echo "$PARAM_NODE_AMI")
+                    NODE_AMI_FAMILY=$(eval echo "$PARAM_NODE_AMI_FAMILY")
+                    NODES=$(eval echo "$PARAM_NODES")
+                    NODES_MIN=$(eval echo "$PARAM_NODES_MIN")
+                    NODES_MAX=$(eval echo "$PARAM_NODES_MAX")
+                    NODE_VOLUME_SIZE=$(eval echo "$PARAM_NODE_VOLUME_SIZE")
+                    NODE_VOLUME_TYPE=$(eval echo "$PARAM_NODE_VOLUME_TYPE")
+                    MAX_PODS_PER_NODE=$(eval echo "$PARAM_MAX_PODS_PER_NODE")
+                    NODE_SECURITY_GROUPS=$(eval echo "$PARAM_NODE_SECURITY_GROUPS")
+                    NODE_LABELS=$(eval echo "$PARAM_NODE_LABELS")
+                    NODE_ZONES=$(eval echo "$PARAM_NODE_ZONES")
+                    SSH_ACCESS=$(eval echo "$PARAM_SSH_ACCESS")
+                    SSH_PUBLIC_KEY=$(eval echo "$PARAM_SSH_PUBLIC_KEY")
+                    ASG_ACCESS=$(eval echo "$PARAM_ASG_ACCESS")
+                    EXTERNAL_DNS_ACCESS=$(eval echo "$PARAM_EXTERNAL_DNS_ACCESS")
+                    FULL_ECR_ACCESS=$(eval echo "$PARAM_FULL_ECR_ACCESS")
+                    VPC_CIDR=$(eval echo "$PARAM_VPC_CIDR")
+                    VPC_PRIVATE_SUBNETS=$(eval echo "$PARAM_VPC_PRIVATE_SUBNETS")
+                    VPC_PUBLIC_SUBNETS=$(eval echo "$PARAM_VPC_PUBLIC_SUBNETS")
+                    VPC_FROM_KOPS_CLUSTER=$(eval echo "$PARAM_VPC_FROM_KOPS_CLUSTER")
+                    CFN_ROLE_ARN=$(eval echo "$PARAM_CFN_ROLE_ARN")
+                    TAGS=$(eval echo "$PARAM_TAGS")
+                    AWS_MAX_POLLING_WAIT_TIME=$(eval echo "$PARAM_AWS_MAX_POLLING_WAIT_TIM")
+                    VERBOSE=$(eval echo "$PARAM_VERBOSE")
+                    SHOW_EKSCTL_COMMAND=$(eval echo "$PARAM_SHOW_EKSCTL_COMMAND")
+
+
+                    if [ -n "$CLUSTER_NAME" ]; then
+                        set -- "$@" --name="$CLUSTER_NAME"
+                    fi
+                    if [ -n "$AWS_REGION" ]; then
+                        set -- "$@" --region="$AWS_REGION"
+                    fi
+                    if [ -n "$AWS_PROFILE" ]; then
+                        set -- "$@" --profile="$AWS_PROFILE"
+                    fi
+                    if [ -n "$ZONES" ]; then
+                        set -- "$@" --zones="$ZONES"
+                    fi
+                    if [ -n "$KUBERNETES_VERSION" ]; then
+                        set -- "$@" --version="$KUBERNETES_VERSION"
+                    fi
+                    if [ -n "$CONFIG_FILE" ]; then
+                        set -- "$@" --config-file="$CONFIG_FILE"
+                    fi
+                    if [ -n "$VPC_PRIVATE_SUBNETS" ]; then
+                        set -- "$@" --vpc-private-subnets="$VPC_PRIVATE_SUBNETS"
+                    fi
+                    if [ -n "$VPC_PUBLIC_SUBNETS" ]; then
+                        set -- "$@" --vpc-public-subnets="$VPC_PUBLIC_SUBNETS"
+                    fi
+                    if [ -n "$NODEGROUP_NAME" ]; then
+                        set -- "$@" --nodegroup-name="$NODEGROUP_NAME"
+                    fi
+                    if [ "$WITHOUT_NODEGROUP" == "1" ]; then
+                        set -- "$@" --without-nodegroup
+                    fi
+                    if [ "$NODE_PRIVATE_NETWORKING" == "1" ]; then
+                        set -- "$@" --node-private-networking
+                    fi
+                    if [ -n "$NODE_TYPE" ]; then
+                        set -- "$@" --node-type="$NODE_TYPE"
+                    fi
+                    if [ -n "$NODE_AMI" ]; then
+                        set -- "$@" --node-ami="$NODE_AMI"
+                    fi
+                    if [ -n "$NODE_AMI_FAMILY" ]; then
+                        set -- "$@" --node-ami-family="$NODE_AMI_FAMILY"
+                    fi
+                    if [ "$NODES" != "-1" ]; then
+                        set -- "$@" --nodes="$NODES"
+                    fi
+                    if [ "$NODES_MIN" != "-1" ]; then
+                        set -- "$@" --nodes-min="$NODES_MIN"
+                    fi
+                    if [ "$NODES_MAX" != "-1" ]; then
+                        set -- "$@" --nodes-max="$NODES_MAX"
+                    fi
+                    if [ "$NODE_VOLUME_SIZE" != "-1" ]; then
+                        set -- "$@" --node-volume-size="$NODE_VOLUME_SIZE"
+                    fi
+                    if [ -n "$NODE_VOLUME_TYPE" ]; then
+                        set -- "$@" --node-volume-type="$NODE_VOLUME_TYPE"
+                    fi
+                    if [ "$MAX_PODS_PER_NODE" != "-1" ]; then
+                        set -- "$@" --max-pods-per-node="$MAX_PODS_PER_NODE"
+                    fi
+                    if [ -n "$NODE_SECURITY_GROUPS" ]; then
+                        set -- "$@" --node-security-groups="$NODE_SECURITY_GROUPS"
+                    fi
+                    if [ -n "$NODE_LABELS" ]; then
+                        set -- "$@" --node-labels="$NODE_LABELS"
+                    fi
+                    if [ -n "$NODE_ZONES" ]; then
+                        set -- "$@" --node-zones="$NODE_ZONES"
+                    fi
+                    if [ "$SSH_ACCESS" == "1" ]; then
+                        set -- "$@" --ssh-access
+                    fi
+                    if [ -n "$SSH_PUBLIC_KEY" ]; then
+                        set -- "$@" --ssh-public-key="$SSH_PUBLIC_KEY"
+                    fi
+                    if [ "$ASG_ACCESS" == "1" ]; then
+                        set -- "$@" --asg-access
+                    fi
+                    if [ "$EXTERNAL_DNS_ACCESS" == "1" ]; then
+                        set -- "$@" --external-dns-access
+                    fi
+                    if [ "$FULL_ECR_ACCESS" == "1" ]; then
+                        set -- "$@" --full-ecr-access
+                    fi
+                    if [ -n "$VPC_CIDR" ]; then
+                        set -- "$@" --vpc-cidr="$VPC_CIDR"
+                    fi
+                    if [ -n "$VPC_PRIVATE_SUBNETS" ]; then
+                        set -- "$@" --vpc-private-subnets="$VPC_PRIVATE_SUBNETS"
+                    fi
+                    if [ -n "$VPC_PUBLIC_SUBNETS" ]; then
+                        set -- "$@" --vpc-public-subnets="$VPC_PUBLIC_SUBNETS"
+                    fi
+                    if [ -n "$VPC_FROM_KOPS_CLUSTER" ]; then
+                        set -- "$@" --vpc-from-kops-cluster="$VPC_FROM_KOPS_CLUSTER"
+                    fi
+                    if [ -n "$CFN_ROLE_ARN" ]; then
+                        set -- "$@" --cfn-role-arn="$CFN_ROLE_ARN"
+                    fi
+                    if [ -n "$AWS_MAX_POLLING_WAIT_TIME" ]; then
+                        set -- "$@" --timeout="$AWS_MAX_POLLING_WAIT_TIME"
+                    fi
+                    if [ -n "$TAGS" ]; then
+                        set -- "$@" --tags="$TAGS"
+                    fi
+                    set -- "$@" --verbose="$VERBOSE"
+
+                    if [ "$SHOW_EKSCTL_COMMAND" == "1" ]; then
+                        set -x
+                    fi
+
+                    eksctl create cluster "$@"
+
+                    if [ "$SHOW_EKSCTL_COMMAND" == "1" ]; then
+                        set +x
+                    fi
+                    # \<<# PARAM_.show-eksctl-command >>set -x\<</ PARAM_.show-eksctl-command >>
+                    # eksctl create cluster "$@"
+                    # \<<# PARAM_.show-eksctl-command >>set +x\<</ PARAM_.show-eksctl-command >>
+
+                    if [ -n "$CLUSTER_NAME" ]; then
+                        echo Verify cluster
+                        if [ -n "$CLUSTER_NAME" ]; then
+                            set -- "$@" --name "$CLUSTER_NAME"
+                        fi
+                        if [ -n "$AWS_REGION" ]; then
+                            set -- "$@" --region "$AWS_REGION"
+                            echo "$AWS_REGION"
+                        fi
+                        if [ -n "$AWS_PROFILE" ]; then
+                            set -- "$@" --profile="$AWS_PROFILE"
+                        fi
+                        set -- "$@" --verbose "$VERBOSE"
+
+                        if [ "$SHOW_EKSCTL_COMMAND" == "1" ]; then
+                            set -x
+                        fi
+                        eksctl get cluster --name="$CLUSTER_NAME" "$@"
+                        if [ "$SHOW_EKSCTL_COMMAND" == "1" ]; then
+                            set +x
+                        fi
+                    fi
+                environment:
+                    PARAM_ASG_ACCESS: << parameters.asg-access >>
+                    PARAM_AWS_MAX_POLLING_WAIT_TIME: << parameters.aws-max-polling-wait-time >>
+                    PARAM_AWS_PROFILE: << parameters.aws-profile >>
+                    PARAM_AWS_REGION: << parameters.aws-region >>
+                    PARAM_CFN_ROLE_ARN: << parameters.cfn-role-arn >>
+                    PARAM_CLUSTER_NAME: << parameters.cluster-name >>
+                    PARAM_CONFIG_FILE: << parameters.config-file >>
+                    PARAM_EXTERNAL_DNS_ACCESS: << parameters.external-dns-access >>
+                    PARAM_FULL_ECR_ACCESS: << parameters.full-ecr-access >>
+                    PARAM_KUBERNETES_VERSION: << parameters.kubernetes-version >>
+                    PARAM_MAX_PODS_PER_NODE: << parameters.max-pods-per-node >>
+                    PARAM_NODE_AMI: << parameters.node-ami >>
+                    PARAM_NODE_AMI_FAMILY: << parameters.node-ami-family >>
+                    PARAM_NODE_LABELS: << parameters.node-labels >>
+                    PARAM_NODE_PRIVATE_NETWORKING: << parameters.node-private-networking >>
+                    PARAM_NODE_SECURITY_GROUPS: << parameters.node-security-groups >>
+                    PARAM_NODE_TYPE: << parameters.node-type >>
+                    PARAM_NODE_VOLUME_SIZE: << parameters.node-volume-size >>
+                    PARAM_NODE_VOLUME_TYPE: << parameters.node-volume-type >>
+                    PARAM_NODE_ZONES: << parameters.node-zones >>
+                    PARAM_NODEGROUP_NAME: << parameters.nodegroup-name >>
+                    PARAM_NODES: << parameters.nodes >>
+                    PARAM_NODES_MAX: << parameters.nodes-max >>
+                    PARAM_NODES_MIN: << parameters.nodes-min >>
+                    PARAM_SHOW_EKSCTL_COMMAND: <<parameters.show-eksctl-command>>
+                    PARAM_SSH_ACCESS: << parameters.ssh-access >>
+                    PARAM_SSH_PUBLIC_KEY: << parameters.ssh-public-key >>
+                    PARAM_TAGS: << parameters.tags >>
+                    PARAM_VERBOSE: << parameters.verbose >>
+                    PARAM_VPC_CIDR: << parameters.vpc-cidr >>
+                    PARAM_VPC_FROM_KOPS_CLUSTER: << parameters.vpc-from-kops-cluster >>
+                    PARAM_VPC_PRIVATE_SUBNETS: << parameters.vpc-private-subnets >>
+                    PARAM_VPC_PUBLIC_SUBNETS: << parameters.vpc-public-subnets >>
+                    PARAM_WITHOUT_NODEGROUP: << parameters.without-nodegroup >>
+                    PARAM_ZONES: << parameters.zones >>
+                name: Create EKS cluster and associated resources
+                no_output_timeout: << parameters.no-output-timeout >>
+    delete-cluster:
+        description: |
+            Deletes the EKS cluster and resources that were created for it.
+            The cluster must have been created with the create-cluster command of the orb.
+            It is recommended to delete any kubernetes resources that were deployed to the
+            cluster (e.g. resources involving an AWS Elastic Load Balancer)
+            before running the delete-cluster command, so that resources can be fully
+            removed.
+        parameters:
+            aws-max-polling-wait-time:
+                default: 20m0s
+                description: |
+                    Max wait time in any AWS polling operations
+                type: string
+            aws-profile:
+                default: ""
+                description: |
+                    The AWS profile to be used. If not specified, the configured default
+                    profile for your AWS CLI installation will be used.
+                type: string
+            aws-region:
+                default: ""
+                description: |
+                    AWS region that the EKS cluster will be created in.
+                    If no value is specified, the cluster will be created in the us-west-2 region.
+                type: string
+            cfn-role-arn:
+                default: ""
+                description: |
+                    Specify an IAM role to be used by CloudFormation to call AWS API on your behalf
+                type: string
+            cluster-name:
+                description: |
+                    Name of the EKS cluster
+                type: string
+            config-file:
+                default: ""
+                description: |
+                    Use this to specify a file if you wish to load configuration from it.
+                type: string
+            no-output-timeout:
+                default: 30m
+                description: |
+                    Elapsed time that the cluster creation command can run without output.
+                    The string is a decimal with unit suffix, such as “20m”, “1.25h”, “5s”
+                type: string
+            show-eksctl-command:
+                default: false
+                description: |
+                    Whether to show the eksctl command used.
+                type: boolean
+            verbose:
+                default: 3
+                description: |
+                    Set a value from 0 to 5 to control the verbosity level of the log output (the higher, the more verbose).
+                    Use 0 to silence, 4 for debugging and 5 for debugging with AWS debug logging.
+                    The logging verbosity level is set to 3 by default.
+                    When set to 4 and above, verbose details of AWS resources will be displayed in the log output.
+                    When set to 5, sensitive information such as credentials may be displayed in the log output.
+                type: integer
+            wait:
+                default: false
+                description: |
+                    Whether to wait for deletion of all resources before exiting
+                type: boolean
+        steps:
+            - install-eksctl
+            - command: |
+                #!/bin/bash
+                CLUSTER_NAME=$(eval echo "$PARAM_CLUSTER_NAME")
+                CONFIG_FILE=$(eval echo "$PARAM_CONFIG_FILE")
+                AWS_REGION=$(eval echo "$PARAM_AWS_REGION")
+                AWS_PROFILE=$(eval echo "$PARAM_AWS_PROFILE")
+                WAIT=$(eval echo "$PARAM_WAIT")
+                CFN_ROLE_ARN=$(eval echo "$PARAM_CFN_ROLE_ARN")
+                VERBOSE=$(eval echo "$PARAM_VERBOSE")
+                AWS_MAX_POLLING_WAIT_TIME=$(eval echo "$PARAM_AWS_MAX_POLLING_WAIT_TIME")
+
+                if [ -n "${CLUSTER_NAME}" ]; then
+                    set -- "$@" --name="${CLUSTER_NAME}"
+                fi
+                if [ -n "${CONFIG_FILE}" ]; then
+                    set -- "$@" --config-file="${CONFIG_FILE}"
+                fi
+                if [ -n "${AWS_REGION}" ]; then
+                    set -- "$@" --region="${AWS_REGION}"
+                fi
+                if [ -n "${AWS_PROFILE}" ]; then
+                    set -- "$@" --profile="${AWS_PROFILE}"
+                fi
+                if [ "${WAIT}" == "true" ]; then
+                    set -- "$@" --wait
+                fi
+                if [ -n "${CFN_ROLE_ARN}" ]; then
+                    set -- "$@" --cfn-role-arn="${CFN_ROLE_ARN}"
+                fi
+                if [ -n "${AWS_MAX_POLLING_WAIT_TIME}" ]; then
+                    set -- "$@" --timeout="${AWS_MAX_POLLING_WAIT_TIME}"
+                fi
+                set -- "$@" --verbose="${VERBOSE}"
+
+                if [ "$SHOW_EKSCTL_COMMAND" == "1" ]; then
+                    set -x
+                fi
+
+                eksctl delete cluster "$@"
+
+                if [ "$SHOW_EKSCTL_COMMAND" == "1" ]; then
+                    set +x
+                fi
+              name: Delete EKS cluster and associated resources
+              no_output_timeout: << parameters.no-output-timeout >>
+              run:
+                environment:
+                    PARAM_AWS_MAX_POLLING_WAIT_TIME: << parameters.aws-max-polling-wait-time >>
+                    PARAM_AWS_PROFILE: << parameters.aws-profile >>"
+                    PARAM_AWS_REGION: << parameters.aws-region >>"
+                    PARAM_CFN_ROLE_ARN: << parameters.cfn-role-arn >>
+                    PARAM_CLUSTER_NAME: << parameters.cluster-name >>
+                    PARAM_CONFIG_FILE: << parameters.config-file >>
+                    PARAM_VERBOSE: << parameters.verbose >>
+                    PARAM_WAIT: << parameters.wait >>
+    install-aws-iam-authenticator:
+        description: |
+            Install the AWS IAM Authenticator for Kubernetes
+            Requirements: curl, amd64 architecture
+        parameters:
+            release-tag:
+                default: ""
+                description: |
+                    Use this to specify a tag to select which published release of the AWS IAM Authenticator,
+                    as listed on https://github.com/kubernetes-sigs/aws-iam-authenticator/releases,
+                    to install. If no value is specified, the latest release will be installed.
+                    Note: Release versions earlier than v0.3.0 cannot be specified. Also,
+                    pre or alpha releases cannot be specified.
+                type: string
+        steps:
+            - run:
+                command: "#!/bin/bash\nif which aws-iam-authenticator > /dev/null; then\n    echo \"AWS IAM Authenticator for Kubernetes is already installed\"\n    exit 0\nfi\nPLATFORM=\"linux\"\nif uname | grep -q 'Darwin' \nthen\n    PLATFORM=\"darwin\"\nfi\nFILENAME=\"aws-iam-authenticator\"\nVERSION=$(curl -Ls --fail --retry 3 -o /dev/null -w \"%{url_effective}\" \"https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/latest\" | sed 's:.*/::' | sed 's/v//g')\nif [ -n \"${PARAM_RELEASE_TAG}\" ]; then\n    export RELEASE_TAG=${!PARAM_RELEASE_TAG}\n    VERSION=\"${RELEASE_TAG}\"\n    if [ \"${VERSION}\" == \"0.3.0\" ]; then\n    FILENAME=\"heptio-authenticator-aws\"\n    fi\nfi\n\nDOWNLOAD_URL=\"https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/v${VERSION}/${FILENAME}_${VERSION}_${PLATFORM}_amd64\"\n\ncurl -L --fail --retry 3 -o aws-iam-authenticator \"$DOWNLOAD_URL\"\nchmod +x ./aws-iam-authenticator\n\nif [ \"$(id -u)\" -ne 0 ] && which sudo > /dev/null ; then\n    SUDO=\"sudo\"\nfi\n$SUDO mv ./aws-iam-authenticator /usr/local/bin/aws-iam-authenticator\n"
+                environment:
+                    PARAM_RELEASE_TAG: << parameters.release-tag>>
+                name: Install the AWS IAM Authenticator for Kubernetes
+    setup:
+        description: Install the Amazon eksctl command line utility.  This command should be ran before invoking the eskctl cli.
+        parameters:
+            version:
+                default: 0.66.0
+                description: Specify the full semver versioned tag to use.
+                type: string
+        steps:
+            - run:
+                command: |
+                    #!/bin/bash
+                    # set smart sudo
+                    if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
+
+                    # Define current platform
+                    if [[ "$(uname -s)" == "Darwin" && "$(uname -m)" == "x86_64" ]]; then
+                    	export SYS_ENV_PLATFORM=macos
+                    elif [[ "$(uname -s)" == "Linux" && "$(uname -m)" == "x86_64" ]]; then
+                    	export SYS_ENV_PLATFORM=linux_x86
+                    elif [[ "$(uname -s)" == "Linux" && "$(uname -m)" == "aarch64" ]]; then
+                    	export SYS_ENV_PLATFORM=linux_arm
+                    else
+                    	echo "This platform appears to be unsupported."
+                    	uname -a
+                    	exit 1
+                    fi
+
+                    if ! command -v eksctl >/dev/null 2>&1; then
+                    	echo "Installing the AWS eksctl CLI"
+                    	case $SYS_ENV_PLATFORM in
+                    		linux_x86)
+                                curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+                                $SUDO mv /tmp/eksctl /usr/local/bin
+                    			;;
+                    		*)
+                    		echo "This orb does not currently support your platform. If you believe it should, please consider opening an issue on the GitHub repository:"
+                    		echo "https://github.com/CircleCI-Public/aws-eks-orb"
+                    		exit 1
+                    	;;
+                    	esac
+                    	# Validate install.
+                    	echo
+                    	command -v eksctl
+                    	echo "AWS eksctl CLI installed"
+                    else
+                    	echo "AWS eksctl CLI is already installed."
+                    fi
+                name: Install Amazon EKSCTL
+    update-kubeconfig-with-authenticator:
+        description: |
+            Allows the stock kubectl client to work with Amazon EKS.
+            Installs the AWS CLI, the AWS IAM Authenticator for Kubernetes and
+            updates the kubectl configuration file to use the AWS IAM Authenticator.
+        parameters:
+            authenticator-release-tag:
+                default: ""
+                description: |
+                    Specifies which release-tag version of the authenticator to install.
+                type: string
+            aws-profile:
+                default: ""
+                description: |
+                    The AWS profile to be used. If not specified, the configured default
+                    profile for your AWS CLI installation will be used.
+                type: string
+            aws-region:
+                default: null
+                description: |
+                    The AWS region that the cluster is in. If not specified, the configured default
+                    region for your AWS CLI installation will be used.
+                type: string
+            cluster-authentication-role-arn:
+                default: ""
+                description: |
+                    To assume a role for cluster authentication, specify an IAM role ARN with
+                    this option. For example, if you created a cluster while assuming an IAM
+                    role, then you must also assume that role to connect to the cluster the
+                    first time.
+                type: string
+            cluster-context-alias:
+                default: ""
+                description: |
+                    Alias for the cluster context name. If a value is not specified,
+                    the cluster context name will be set to match the cluster ARN.
+                type: string
+            cluster-name:
+                description: |
+                    The name of the cluster for which to create a kubeconfig entry.
+                type: string
+            dry-run:
+                default: false
+                description: |
+                    Print the merged kubeconfig to stdout instead of writing it to file.
+                type: boolean
+            install-kubectl:
+                default: false
+                description: |
+                    Whether to install kubectl
+                type: boolean
+            kubeconfig-file-path:
+                default: ""
+                description: |
+                    Specifies a kubeconfig file to append the configuration details to.
+                    By default, the configuration is written to the first file path in the
+                    KUBECONFIG environment variable (if it is set) or the default kubeconfig
+                    path (.kube/config) in your home directory.
+                type: string
+            verbose:
+                default: false
+                description: |
+                    Print more detailed output when writing to the kubeconfig file.
+                type: boolean
+        steps:
+            - when:
+                condition: << parameters.install-kubectl >>
+                steps:
+                    - kubernetes/install
+            - install-aws-iam-authenticator:
+                release-tag: << parameters.authenticator-release-tag >>
+            - aws-cli/install
+            - run:
+                command: |
+                    #!/bin/bash
+                    CLUSTER_NAME=$(eval echo "$PARAM_CLUSTER_NAME")
+                    AWS_REGION=$(eval echo "$PARAM_AWS_REGION")
+                    AWS_PROFILE=$(eval echo "$PARAM_AWS_PROFILE")
+                    KUBECONFIG_FILE_PATH=$(eval echo "$PARAM_KUBECONFIG_FILE_PATH")
+                    ROLE_ARN=$(eval echo "PARAM_ROLE_ARN")
+                    PARAM_CLUSTER_CONTEXT_ALIAS=$(eval echo "$PARAM_CLUSTER_CONTEXT_ALIAS")
+                    PARAM_DRY_RUN=$(eval echo "$PARAM_DRY_RUN")
+                    VERBOSE=$(eval echo "$PARAM_VERBOSE")
+
+                    if [ -n "${CLUSTER_NAME}" ]; then
+                        set -- "$@" --name "${CLUSTER_NAME}"
+                    fi
+                    if [ -n "${AWS_REGION}" ]; then
+                        set -- "$@" --region "${AWS_REGION}"
+                    fi
+                    if [ -n "${AWS_PROFILE}" ]; then
+                        set -- "$@" --profile "${AWS_PROFILE}"
+                    fi
+                    if [ -n "${KUBECONFIG_FILE_PATH}" ]; then
+                        set -- "$@" --kubeconfig "${KUBECONFIG_FILE_PATH}"
+                    fi
+                    if [ -n "${ROLE_ARN}" ]; then
+                        set -- "$@" --role-arn "${ROLE_ARN}"
+                    fi
+                    if [ -n "${CLUSTER_CONTEXT_ALIAS}" ]; then
+                        set -- "$@" --alias "${CLUSTER_CONTEXT_ALIAS}"
+                    fi
+                    if [ "${DRY_RUN}" == "true" ]; then
+                        set -- "$@" --dry-run
+                    fi
+                    if [ "${VERBOSE}" == "true" ]; then
+                        set -- "$@" --verbose
+                    fi
+                    aws eks update-kubeconfig "$@"
+                environment:
+                    PARAM_AWS_PROFILE: << parameters.aws-profile >>
+                    PARAM_AWS_REGION: << parameters.aws-region >>
+                    PARAM_CLUSTER_CONTEXT_ALIAS: << parameters.cluster-context-alias >>
+                    PARAM_CLUSTER_NAME: << parameters.cluster-name >>
+                    PARAM_DRY_RUN: << parameters.dry-run >>
+                    PARAM_KUBECONFIG_FILE_PATH: << parameters.kubeconfig-file-path >>
+                    PARAM_ROLE_ARN: << parameters.cluster-authentication-role-arn >>
+                    PARAM_VERBOSE: << parameters.verbose >>
+                name: Update the kubectl configuration file to use the authenticator
+
