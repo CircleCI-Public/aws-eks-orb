@@ -86,9 +86,28 @@ jobs:
       - aws-eks/create-cluster:
           cluster-name: << parameters.cluster-name >>
           # tags: name=eksorb,purpose=eksorbtest
-          verbose: 5
       - quick-cluster-tests
-
+  delete-cluster:
+    parameters:
+      executor:
+        type: executor
+      region:
+        type: string
+        default: ""
+      cluster-name:
+        type: string
+    executor: << parameters.executor >>
+    steps:
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          aws-region: << parameters.region >>
+      - cluster-teardown-check
+      - aws-eks/delete-cluster:
+          cluster-name: << parameters.cluster-name >>
+          aws-region: << parameters.region >>
+          wait: true
+          verbose: 3
+          no-output-timeout: 20m
 workflows:
   test-pack:
     unless: << pipeline.parameters.run-integration-tests >>
@@ -127,7 +146,15 @@ workflows:
       - setup-cluster:
           name: setup-cluster-defaults
           context: [CPE_ORBS_AWS]
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-default
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
           matrix:
             parameters:
               executor: ["docker"]
+      - delete-cluster:
+          name: delete-cluster-defaults
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          matrix:
+            parameters:
+              executor: ["docker"]
+          requires:
+            - test-cluster-defaults
