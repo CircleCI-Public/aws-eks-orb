@@ -65,10 +65,8 @@ parameters:
     default: "30m"
 
 steps:
+  - setup
   - run:
-      name: Delete EKS cluster and associated resources
-      command: <<include(scripts/delete-cluster.sh)>>
-      no_output_timeout: << parameters.no-output-timeout >>
       environment:
         PARAM_CLUSTER_NAME: << parameters.cluster-name >>
         PARAM_CONFIG_FILE: << parameters.config-file >>
@@ -78,3 +76,6 @@ steps:
         PARAM_CFN_ROLE_ARN: << parameters.cfn-role-arn >>
         PARAM_VERBOSE: << parameters.verbose >>
         PARAM_AWS_MAX_POLLING_WAIT_TIME: << parameters.aws-max-polling-wait-time >>
+      name: Delete EKS cluster and associated resources
+      command: <<include(scripts/delete-cluster.sh)>>
+      no_output_timeout: << parameters.no-output-timeout >>
