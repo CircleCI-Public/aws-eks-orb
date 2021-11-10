@@ -37,6 +37,11 @@ AWS_MAX_POLLING_WAIT_TIME=$(eval echo "$PARAM_AWS_MAX_POLLING_WAIT_TIM")
 VERBOSE=$(eval echo "$PARAM_VERBOSE")
 SHOW_EKSCTL_COMMAND=$(eval echo "$PARAM_SHOW_EKSCTL_COMMAND")
 
+if [[ $(id -u) -ne 0 ]]; then
+    SUDO="sudo"
+else
+    SUDO=""
+fi
 
 if [ -n "$CLUSTER_NAME" ]; then
     set -- "$@" --name="$CLUSTER_NAME"
@@ -149,7 +154,7 @@ if [ "$SHOW_EKSCTL_COMMAND" == "1" ]; then
     set -x
 fi
 
-eksctl create cluster "$@"
+$SUDO eksctl create cluster "$@"
 
 if [ "$SHOW_EKSCTL_COMMAND" == "1" ]; then
     set +x
@@ -175,7 +180,7 @@ if [ -n "$CLUSTER_NAME" ]; then
     if [ "$SHOW_EKSCTL_COMMAND" == "1" ]; then
         set -x
     fi
-    eksctl get cluster --name="$CLUSTER_NAME" "$@"
+    $SUDO eksctl get cluster --name="$CLUSTER_NAME" "$@"
     if [ "$SHOW_EKSCTL_COMMAND" == "1" ]; then
         set +x
     fi
