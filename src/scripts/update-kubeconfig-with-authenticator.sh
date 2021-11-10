@@ -8,12 +8,6 @@ CLUSTER_CONTEXT_ALIAS=$(eval echo "$PARAM_CLUSTER_CONTEXT_ALIAS")
 DRY_RUN=$(eval echo "$PARAM_DRY_RUN")
 VERBOSE=$(eval echo "$PARAM_VERBOSE")
 
-if [[ $(id -u) -ne 0 ]]; then
-    SUDO="sudo"
-else
-    SUDO=""
-fi
-
 if [ -n "${CLUSTER_NAME}" ]; then
     set -- "$@" --name "${CLUSTER_NAME}"
 fi
@@ -38,4 +32,5 @@ fi
 if [ "${VERBOSE}" == "true" ]; then
     set -- "$@" --verbose
 fi
-$SUDO aws eks update-kubeconfig "$@"
+
+aws eks update-kubeconfig "$@"

@@ -91,95 +91,95 @@ jobs:
           # tags: name=eksorb,purpose=eksorbtest
       - quick-cluster-tests
   test-cluster:
-      parameters:
-        executor:
-          type: executor
-        region:
-          type: string
-          default: ""
-        cluster-name:
-          type: string
-      executor: << parameters.executor >>
-      steps:
-        - checkout
-        - kubernetes/install
-        - browser-tools/install-chrome
-        - browser-tools/install-chromedriver
-        # Test various update-kubeconfig options
-        - aws-eks/update-kubeconfig-with-authenticator:
-            cluster-name: << parameters.cluster-name >>
-            aws-region: << parameters.region >>
-            dry-run: true
-            verbose: true
-        - aws-eks/update-kubeconfig-with-authenticator:
-            cluster-name: << parameters.cluster-name >>
-            aws-region: << parameters.region >>
-            kubeconfig-file-path: kube-config.test
-        - aws-eks/update-kubeconfig-with-authenticator:
-            cluster-name: << parameters.cluster-name >>
-            aws-region: << parameters.region >>
-        - quick-cluster-tests
-        - run:
-            name: Run kubectl proxy
-            command: |
-              kubectl proxy --port=8080
-            background: true
-        - run:
-            name: Test kube-config and k8s API
-            command: |
-              cat kube-config.test | grep << parameters.cluster-name >>
-              sleep 10
-              curl http://localhost:8080/api/
-        - kubernetes/create-or-update-resource:
-            resource-file-path: "tests/kubernetes-dashboard/kubernetes-dashboard.yaml"
-            get-rollout-status: true
-            namespace: kube-system
-            resource-name: "deployment/kubernetes-dashboard"
-        - kubernetes/create-or-update-resource:
-            resource-file-path: "tests/kubernetes-dashboard/influxdb-heapster.yaml"
-            get-rollout-status: true
-            namespace: kube-system
-            resource-name: "deployment/heapster"
-        - kubernetes/create-or-update-resource:
-            resource-file-path: "tests/kubernetes-dashboard/influxdb.yaml"
-            get-rollout-status: true
-            namespace: kube-system
-            resource-name: "deployment/monitoring-influxdb"
-        - kubernetes/create-or-update-resource:
-            resource-file-path: "tests/kubernetes-dashboard/heapster-rbac.yaml"
-        - kubernetes/create-or-update-resource:
-            resource-file-path: "tests/kubernetes-dashboard/eks-admin-service-account.yaml"
-        - run:
-            name: Verify kubernetes dashboard
-            command: |
-              kubectl get services --namespace=kube-system
-              kubectl get pods --namespace=kube-system
-              curl -s 'http://localhost:8080/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/login' | grep "kubernetesDashboard"
-        - run:
-            name: Set up python environment for browser-based test
-            command: |
-              sudo pip install selenium
-        - run:
-            name: Load kubernetes dashboard in browser test
-            command: |
-              mkdir -p /tmp/artifacts
-              cat > test.py \<<-EOF
-              import time
-              import os
-              from selenium import webdriver
-              from selenium.webdriver.chrome.options import Options
-              options = Options()
-              options.headless = True
-              driver = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', chrome_options=options)
-              driver.get('http://localhost:8080/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/login');
-              time.sleep(5)
-              driver.save_screenshot("/tmp/artifacts/screenshot.png")
-              driver.quit()
-              EOF
-              chmod +x test.py
-              python test.py
-        - store_artifacts:
-            path: /tmp/artifacts
+    parameters:
+      executor:
+        type: executor
+      region:
+        type: string
+        default: ""
+      cluster-name:
+        type: string
+    executor: << parameters.executor >>
+    steps:
+      - checkout
+      - kubernetes/install
+      - browser-tools/install-chrome
+      - browser-tools/install-chromedriver
+      # Test various update-kubeconfig options
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          aws-region: << parameters.region >>
+          dry-run: true
+          verbose: true
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          aws-region: << parameters.region >>
+          kubeconfig-file-path: kube-config.test
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          aws-region: << parameters.region >>
+      - quick-cluster-tests
+      - run:
+          name: Run kubectl proxy
+          command: |
+            kubectl proxy --port=8080
+          background: true
+      - run:
+          name: Test kube-config and k8s API
+          command: |
+            cat kube-config.test | grep << parameters.cluster-name >>
+            sleep 10
+            curl http://localhost:8080/api/
+      - kubernetes/create-or-update-resource:
+          resource-file-path: "tests/kubernetes-dashboard/kubernetes-dashboard.yaml"
+          get-rollout-status: true
+          namespace: kube-system
+          resource-name: "deployment/kubernetes-dashboard"
+      - kubernetes/create-or-update-resource:
+          resource-file-path: "tests/kubernetes-dashboard/influxdb-heapster.yaml"
+          get-rollout-status: true
+          namespace: kube-system
+          resource-name: "deployment/heapster"
+      - kubernetes/create-or-update-resource:
+          resource-file-path: "tests/kubernetes-dashboard/influxdb.yaml"
+          get-rollout-status: true
+          namespace: kube-system
+          resource-name: "deployment/monitoring-influxdb"
+      - kubernetes/create-or-update-resource:
+          resource-file-path: "tests/kubernetes-dashboard/heapster-rbac.yaml"
+      - kubernetes/create-or-update-resource:
+          resource-file-path: "tests/kubernetes-dashboard/eks-admin-service-account.yaml"
+      - run:
+          name: Verify kubernetes dashboard
+          command: |
+            kubectl get services --namespace=kube-system
+            kubectl get pods --namespace=kube-system
+            curl -s 'http://localhost:8080/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/login' | grep "kubernetesDashboard"
+      - run:
+          name: Set up python environment for browser-based test
+          command: |
+            sudo pip install selenium
+      - run:
+          name: Load kubernetes dashboard in browser test
+          command: |
+            mkdir -p /tmp/artifacts
+            cat > test.py \<<-EOF
+            import time
+            import os
+            from selenium import webdriver
+            from selenium.webdriver.chrome.options import Options
+            options = Options()
+            options.headless = True
+            driver = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', chrome_options=options)
+            driver.get('http://localhost:8080/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/login');
+            time.sleep(5)
+            driver.save_screenshot("/tmp/artifacts/screenshot.png")
+            driver.quit()
+            EOF
+            chmod +x test.py
+            python test.py
+      - store_artifacts:
+          path: /tmp/artifacts
   delete-cluster:
     parameters:
       executor:
@@ -246,6 +246,7 @@ workflows:
       - test-cluster:
           name: test-cluster-defaults
           executor: python
+          context: [CPE_ORBS_AWS]
           region: $AWS_DEFAULT_REGION
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
           requires:
@@ -253,6 +254,7 @@ workflows:
       - delete-cluster:
           name: delete-cluster-defaults
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          context: [CPE_ORBS_AWS]
           matrix:
             parameters:
               executor: ["docker"]

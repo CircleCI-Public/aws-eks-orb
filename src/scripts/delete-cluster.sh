@@ -8,12 +8,6 @@ CFN_ROLE_ARN=$(eval echo "$PARAM_CFN_ROLE_ARN")
 VERBOSE=$(eval echo "$PARAM_VERBOSE")
 AWS_MAX_POLLING_WAIT_TIME=$(eval echo "$PARAM_AWS_MAX_POLLING_WAIT_TIME")
 
-if [[ $(id -u) -ne 0 ]]; then
-    SUDO="sudo"
-else
-    SUDO=""
-fi
-
 if [ -n "${CLUSTER_NAME}" ]; then
     set -- "$@" --name="${CLUSTER_NAME}"
 fi
@@ -41,7 +35,7 @@ if [ "$SHOW_EKSCTL_COMMAND" == "1" ]; then
     set -x
 fi
 
-$SUDO eksctl delete cluster "$@"
+eksctl delete cluster "$@"
 
 if [ "$SHOW_EKSCTL_COMMAND" == "1" ]; then
     set +x
