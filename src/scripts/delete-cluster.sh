@@ -41,7 +41,7 @@ if [ "$SHOW_EKSCTL_COMMAND" == "1" ]; then
     set -x
 fi
 
-eksctl delete cluster "$@"
+$SUDO eksctl delete cluster "$@"
 
 if [ "$SHOW_EKSCTL_COMMAND" == "1" ]; then
     set +x
