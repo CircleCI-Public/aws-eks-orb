@@ -8,6 +8,8 @@ CLUSTER_CONTEXT_ALIAS=$(eval echo "$PARAM_CLUSTER_CONTEXT_ALIAS")
 DRY_RUN=$(eval echo "$PARAM_DRY_RUN")
 VERBOSE=$(eval echo "$PARAM_VERBOSE")
 
+echo $ROLE_ARN >> ./tmp/ROLE_ARN.txt
+
 if [ -n "${CLUSTER_NAME}" ]; then
     set -- "$@" --name "${CLUSTER_NAME}"
 fi
@@ -32,5 +34,7 @@ fi
 if [ "${VERBOSE}" == "true" ]; then
     set -- "$@" --verbose
 fi
+
+echo "$@" >> ./tmp/command.txt
 
 aws eks update-kubeconfig "$@"
