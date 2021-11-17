@@ -162,7 +162,7 @@ jobs:
             sudo apt install pip
             pip install --upgrade pip
             curl -L -O https://files.pythonhosted.org/packages/ad/24/39cab5fbaf425ff522e1e51cce79f94f10f9523f015d2b2251e43f45e8a2/selenium-4.0.0-py3-none-any.whl
-            pip install selenium-4.0.0-py3-none-any.whl 
+            pip install selenium-4.0.0-py3-none-any.whl
       - run:
           name: Load kubernetes dashboard in browser test
           command: |
