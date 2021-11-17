@@ -4,7 +4,7 @@ orbs:
   aws-eks: circleci/aws-eks@<<pipeline.parameters.dev-orb-version>>
   aws-cli: circleci/aws-cli@2.0.3
   helm: circleci/helm@1.2.0
-  kubernetes: circleci/kubernetes@dev:alpha
+  kubernetes: circleci/kubernetes@0.12.1
   orb-tools: circleci/orb-tools@10.1.0
   shellcheck: circleci/shellcheck@2.2.4
   browser-tools: circleci/browser-tools@1.2.3
@@ -158,7 +158,11 @@ jobs:
       - run:
           name: Set up python environment for browser-based test
           command: |
-            sudo pip install selenium
+            sudo apt update
+            sudo apt install pip
+            pip install --upgrade pip
+            curl -L -O https://files.pythonhosted.org/packages/ad/24/39cab5fbaf425ff522e1e51cce79f94f10f9523f015d2b2251e43f45e8a2/selenium-4.0.0-py3-none-any.whl
+            pip install selenium-4.0.0-py3-none-any.whl 
       - run:
           name: Load kubernetes dashboard in browser test
           command: |
@@ -167,17 +171,16 @@ jobs:
             import time
             import os
             from selenium import webdriver
-            from selenium.webdriver.chrome.options import Options
-            options = Options()
-            options.headless = True
-            driver = webdriver.Chrome(executable_path='/usr/local/bin/chromedriver', chrome_options=options)
+            from selenium.webdriver.chrome.service import Service
+            s = Service('/usr/local/bin/chromedriver')
+            driver = webdriver.Chrome(service=s)
             driver.get('http://localhost:8080/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/login');
             time.sleep(5)
             driver.save_screenshot("/tmp/artifacts/screenshot.png")
             driver.quit()
             EOF
             chmod +x test.py
-            python test.py
+            python3 test.py
       - store_artifacts:
           path: /tmp/artifacts
   delete-cluster:
