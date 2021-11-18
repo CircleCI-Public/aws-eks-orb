@@ -8,6 +8,7 @@ CFN_ROLE_ARN=$(eval echo "$PARAM_CFN_ROLE_ARN")
 VERBOSE=$(eval echo "$PARAM_VERBOSE")
 AWS_MAX_POLLING_WAIT_TIME=$(eval echo "$PARAM_AWS_MAX_POLLING_WAIT_TIME")
 
+mkdir -p /tmp/artifacts
 cat > test.txt <<-EOF
 $CLUSTER_NAME
 $CONFIG_FILE
