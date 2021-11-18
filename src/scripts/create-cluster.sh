@@ -153,9 +153,6 @@ eksctl create cluster "$@"
 if [ "$SHOW_EKSCTL_COMMAND" == "1" ]; then
     set +x
 fi
-# <<# PARAM_.show-eksctl-command >>set -x<</ PARAM_.show-eksctl-command >>
-# eksctl create cluster "$@"
-# <<# PARAM_.show-eksctl-command >>set +x<</ PARAM_.show-eksctl-command >>
 
 if [ -n "$CLUSTER_NAME" ]; then
     echo Verify cluster

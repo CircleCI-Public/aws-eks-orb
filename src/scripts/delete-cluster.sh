@@ -3,10 +3,10 @@ CLUSTER_NAME=$(eval echo "$PARAM_CLUSTER_NAME")
 CONFIG_FILE=$(eval echo "$PARAM_CONFIG_FILE")
 AWS_REGION=$(eval echo "$PARAM_AWS_REGION")
 AWS_PROFILE=$(eval echo "$PARAM_AWS_PROFILE")
-WAIT=$(eval echo "$PARAM_WAIT")
+WAIT=$(eval echo "PARAM_WAIT")
 CFN_ROLE_ARN=$(eval echo "$PARAM_CFN_ROLE_ARN")
-VERBOSE=$(eval echo "$PARAM_VERBOSE")
-AWS_MAX_POLLING_WAIT_TIME=$(eval echo "$PARAM_AWS_MAX_POLLING_WAIT_TIME")
+VERBOSE=$(eval echo "PARAM_VERBOSE")
+AWS_MAX_POLLING_WAIT_TIME=$(eval echo "PARAM_AWS_MAX_POLLING_WAIT_TIME")
 
 if [ -n "${CLUSTER_NAME}" ]; then
     set -- "$@" --name="${CLUSTER_NAME}"
@@ -29,7 +29,7 @@ fi
 if [ -n "${AWS_MAX_POLLING_WAIT_TIME}" ]; then
     set -- "$@" --timeout="${AWS_MAX_POLLING_WAIT_TIME}"
 fi
-set -- "$@" --verbose="${VERBOSE}"
+set -- "$@" --verbose=${VERBOSE}
 
 if [ "$SHOW_EKSCTL_COMMAND" == "1" ]; then
     set -x
