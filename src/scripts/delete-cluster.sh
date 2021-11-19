@@ -1,8 +1,8 @@
 #!/bin/bash
 mkdir -p /tmp/artifacts
 
-echo "${!PARAM_CLUSTER_NAME} 
-$PARAM_CONFIG_FILE
+eval echo "$PARAM_CLUSTER_NAME" >> test.txt 
+echo "$PARAM_CONFIG_FILE
 $PARAM_AWS_REGION
 $PARAM_AWS_PROFILE
 $PARAM_WAIT
