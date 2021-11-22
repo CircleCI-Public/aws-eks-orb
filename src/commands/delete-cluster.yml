@@ -21,7 +21,7 @@ parameters:
       AWS region that the EKS cluster will be created in.
       If no value is specified, the cluster will be created in the us-west-2 region.
     type: string
-    default: "us-west-2"
+    default: ""
   aws-profile:
     description: |
       The AWS profile to be used. If not specified, the configured default
