@@ -234,26 +234,26 @@ workflows:
   integration-and-deploy:
     when: << pipeline.parameters.run-integration-tests >>
     jobs:
-      # - integration-test-installs:
-      #     context: orb-publisher
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker"]
-      # - setup-cluster:
-      #     name: setup-cluster-defaults
-      #     context: [CPE_ORBS_AWS]
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker"]
-      # - test-cluster:
-      #     name: test-cluster-defaults
-      #     executor: python
-      #     context: [CPE_ORBS_AWS]
-      #     region: $AWS_DEFAULT_REGION
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
-      #     requires:
-      #       - setup-cluster-defaults
+      - integration-test-installs:
+          context: orb-publisher
+          matrix:
+            parameters:
+              executor: ["docker"]
+      - setup-cluster:
+          name: setup-cluster-defaults
+          context: [CPE_ORBS_AWS]
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          matrix:
+            parameters:
+              executor: ["docker"]
+      - test-cluster:
+          name: test-cluster-defaults
+          executor: python
+          context: [CPE_ORBS_AWS]
+          region: $AWS_DEFAULT_REGION
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          requires:
+            - setup-cluster-defaults
       - delete-cluster:
           name: delete-cluster-defaults
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
@@ -261,5 +261,5 @@ workflows:
           matrix:
             parameters:
               executor: ["docker"]
-          # requires:
-          #   - test-cluster-defaults
+          requires:
+            - test-cluster-defaults
