@@ -70,8 +70,8 @@ steps:
       environment:
         PARAM_CLUSTER_NAME: << parameters.cluster-name >>
         PARAM_CONFIG_FILE: << parameters.config-file >>
-        PARAM_AWS_REGION: << parameters.aws-region >>"
-        PARAM_AWS_PROFILE: << parameters.aws-profile >>"
+        PARAM_AWS_REGION: << parameters.aws-region >>
+        PARAM_AWS_PROFILE: << parameters.aws-profile >>
         PARAM_WAIT: << parameters.wait >>
         PARAM_CFN_ROLE_ARN: << parameters.cfn-role-arn >>
         PARAM_VERBOSE: << parameters.verbose >>
