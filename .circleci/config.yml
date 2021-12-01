@@ -220,7 +220,7 @@ jobs:
           name: Test aws cli
           command: |
             aws configure list
-            aws configure list | grep "<< parameters.profile >>"
+            # aws configure list | grep "<< parameters.profile >>"
             aws configure list | grep "<< parameters.region >>"
       - run:
           name: Test aws-iam-authenticator
@@ -320,12 +320,12 @@ workflows:
               executor: ["docker"]
           requires:
             - setup-cluster-defaults
-      - delete-cluster:
-          name: delete-cluster-defaults
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
-          context: [CPE_ORBS_AWS]
-          matrix:
-            parameters:
-              executor: ["docker"]
-          requires:
-            - test-cluster-defaults
+      # - delete-cluster:
+          # name: delete-cluster-defaults
+          # cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          # context: [CPE_ORBS_AWS]
+          # matrix:
+          #   parameters:
+          #     executor: ["docker"]
+          # requires:
+          #   - test-cluster-defaults
