@@ -308,7 +308,7 @@ workflows:
           matrix:
             parameters:
               executor: ["docker"]
-          requires:
+          # requires:
             # - setup-cluster-defaults
       - test-update-kubeconfig:
           name: test-update-kubeconfig_region
@@ -318,7 +318,7 @@ workflows:
           matrix:
             parameters:
               executor: ["docker"]
-          requires:
+          # requires:
             # - setup-cluster-defaults
       # - delete-cluster:
           # name: delete-cluster-defaults
