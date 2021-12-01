@@ -206,7 +206,7 @@ jobs:
         type: string
       profile:
         type: string
-        default: ""
+        default: "default"
       region:
         type: string
         default: ""
@@ -288,21 +288,21 @@ workflows:
           matrix:
             parameters:
               executor: ["docker"]
-      - setup-cluster:
-          name: setup-cluster-defaults
-          context: [CPE_ORBS_AWS]
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
-          matrix:
-            parameters:
-              executor: ["docker"]
-      - test-cluster:
-          name: test-cluster-defaults
-          executor: python
-          context: [CPE_ORBS_AWS]
-          region: $AWS_DEFAULT_REGION
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
-          requires:
-            - setup-cluster-defaults
+      # - setup-cluster:
+      #     name: setup-cluster-defaults
+      #     context: [CPE_ORBS_AWS]
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+      #     matrix:
+      #       parameters:
+      #         executor: ["docker"]
+      # - test-cluster:
+          # name: test-cluster-defaults
+          # executor: python
+          # context: [CPE_ORBS_AWS]
+          # region: $AWS_DEFAULT_REGION
+          # cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          # requires:
+          #   - setup-cluster-defaults
       - test-authenticator:
           name: test-authenticator
           matrix:
