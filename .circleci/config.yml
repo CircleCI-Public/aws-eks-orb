@@ -303,17 +303,17 @@ workflows:
           # cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
           # requires:
           #   - setup-cluster-defaults
-      - test-authenticator:
-          name: test-authenticator
-          matrix:
-            parameters:
-              executor: ["docker"]
+      # - test-authenticator:
+      #     name: test-authenticator
+      #     matrix:
+      #       parameters:
+      #         executor: ["docker"]
           # requires:
             # - setup-cluster-defaults
       - test-update-kubeconfig:
           name: test-update-kubeconfig_region
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
-          profile: ""
+          profile: "default"
           region: $AWS_DEFAULT_REGION
           matrix:
             parameters:
