@@ -198,6 +198,40 @@ jobs:
             python3 test.py
       - store_artifacts:
           path: /tmp/artifacts
+  test-update-kubeconfig:
+    parameters:
+      executor:
+        type: executor
+      cluster-name:
+        type: string
+      profile:
+        type: string
+        default: ""
+      region:
+        type: string
+        default: ""
+    executor: << parameters.executor >>
+    steps:
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          aws-profile: << parameters.profile >>
+          aws-region: << parameters.region >>
+      - run:
+          name: Test aws cli
+          command: |
+            aws configure list
+            aws configure list | grep "<< parameters.profile >>"
+            aws configure list | grep "<< parameters.region >>"
+      - run:
+          name: Test aws-iam-authenticator
+          command: |
+            aws-iam-authenticator
+      - kubernetes/install
+      - run:
+          name: Test with kubectl
+          command: |
+            cat ~/.kube/config | grep "<< parameters.cluster-name >>"
+            kubectl cluster-info
   delete-cluster:
     parameters:
       executor:
@@ -271,7 +305,16 @@ workflows:
             - setup-cluster-defaults
       - test-authenticator:
           name: test-authenticator
-          release-tag: "v0.5.3"
+          matrix:
+            parameters:
+              executor: ["docker"]
+          requires:
+            - setup-cluster-defaults
+      - test-update-kubeconfig:
+          name: test-update-kubeconfig_region
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          profile: ""
+          region: $AWS_DEFAULT_REGION
           matrix:
             parameters:
               executor: ["docker"]
