@@ -270,13 +270,13 @@ workflows:
           requires:
             - setup-cluster-defaults
       - test-authenticator:
-          name: test-authenticator-options
+          name: test-authenticator
           release-tag: "v0.5.3"
           matrix:
             parameters:
               executor: ["docker"]
           requires:
-            - setup-cluster-defaults            
+            - setup-cluster-defaults
       - delete-cluster:
           name: delete-cluster-defaults
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
