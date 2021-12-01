@@ -63,6 +63,21 @@ commands:
             kubectl get pods --namespace kube-system
 
 jobs:
+  test-authenticator:
+    parameters:
+      executor:
+        type: executor
+      release-tag:
+        type: string
+        default: ""
+    executor: << parameters.executor >>
+    steps:
+      - aws-eks/install-aws-iam-authenticator:
+          release-tag: << parameters.release-tag >>
+      - run:
+          name: Test aws-iam-authenticator
+          command: |
+            aws-iam-authenticator
   integration-test-installs:
     parameters:
       executor:
@@ -254,6 +269,14 @@ workflows:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
           requires:
             - setup-cluster-defaults
+      - test-authenticator:
+          name: test-authenticator-options
+          release-tag: "v0.5.3"
+          matrix:
+            parameters:
+              executor: ["docker"]
+          requires:
+            - setup-cluster-defaults            
       - delete-cluster:
           name: delete-cluster-defaults
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
