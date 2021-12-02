@@ -141,6 +141,49 @@ jobs:
           verbose: 3
           show-eksctl-command: true
       - quick-cluster-tests
+  setup-cluster-with-ssh:
+    parameters:
+      executor:
+        type: executor
+      cluster-name:
+        type: string
+      region:
+        type: string
+        default: ""
+      zones:
+        type: string
+        default: ""
+    executor: << parameters.executor >>
+    steps:
+      - cluster-setup-check
+      - aws-eks/install-aws-iam-authenticator
+      - run:
+          name: Generate ssh keys
+          command: |
+            mkdir -p /tmp/keys
+            ssh-keygen -t rsa -N "" -f /tmp/keys/eks_id_rsa
+            chmod 600 /tmp/keys/eks_id_rsa
+            chmod 644 /tmp/keys/eks_id_rsa.pub
+            ls -al /tmp/keys
+      - aws-eks/create-cluster:
+          cluster-name: << parameters.cluster-name >>
+          aws-region: << parameters.region >>
+          zones: "<< parameters.zones >>"
+          ssh-access: true
+          ssh-public-key: "/tmp/keys/eks_id_rsa.pub"
+          asg-access: false
+          external-dns-access: false
+          full-ecr-access: false
+          aws-max-polling-wait-time: "25m"
+          tags: "name=cci_orbs,purpose=orb_test"
+          verbose: 3
+          no-output-timeout: 50m
+          show-eksctl-command: true
+      - quick-cluster-tests
+      - persist_to_workspace:
+          root: /tmp
+          paths:
+            - keys
   test-cluster:
     parameters:
       executor:
@@ -268,6 +311,51 @@ jobs:
           command: |
             cat ~/.kube/config | grep "<< parameters.cluster-name >>"
             kubectl cluster-info
+  test-ssh-access:
+    parameters:
+      executor:
+        type: executor
+      region:
+        type: string
+        default: ""
+      cluster-name:
+        type: string
+      release-name:
+        type: string
+    executor: << parameters.executor >>
+    steps:
+      - cluster-setup-check
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          aws-region: << parameters.region >>
+          install-kubectl: true
+      - attach_workspace:
+          at: /tmp/workspace
+      - helm/install-helm-on-cluster:
+          service-account: tiller-test
+          enable-cluster-wide-admin-access: true
+      - helm/install-helm-chart:
+          chart: stable/grafana
+          release-name: << parameters.release-name >>
+      - run:
+          name: Test SSH access
+          command: |
+            # Get external IP of one node
+            NODE_EXTERNAL_IP=$(kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="ExternalIP")].address}' | awk '{print $1}')
+            mkdir -p ~/.ssh
+            ssh-keyscan -H $NODE_EXTERNAL_IP > ~/.ssh/known_hosts 2> /dev/null
+            ssh -i /tmp/workspace/keys/eks_id_rsa ec2-user@$NODE_EXTERNAL_IP whoami | grep ec2-user
+            RELEASE_CLUSTER_IP=$(kubectl get services | grep << parameters.release-name >> | awk '{print $3'})
+            # Use SSH to test accessing Grafana from within the cluster through the cluster ip
+            ssh -i /tmp/workspace/keys/eks_id_rsa ec2-user@$NODE_EXTERNAL_IP curl -s $RELEASE_CLUSTER_IP | grep login
+      - run:
+          name: Test port forwarding
+          command: |
+            export POD_NAME=$(kubectl get pods --namespace default -l "app.kubernetes.io/name=grafana" -o jsonpath="{.items[0].metadata.name}")
+            nohup kubectl --namespace default port-forward $POD_NAME 3000 &
+            sleep 10
+            # Test accessing Grafana from the build container through the port-forwarding setup
+            curl -s http://localhost:3000 | grep login
   delete-cluster:
     parameters:
       executor:
@@ -319,78 +407,117 @@ workflows:
   integration-and-deploy:
     when: << pipeline.parameters.run-integration-tests >>
     jobs:
-      # - integration-test-installs:
-      #     context: orb-publisher
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker"]
-      # - setup-cluster:
-      #     name: setup-cluster-defaults
-      #     context: [CPE_ORBS_AWS]
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker"]
-      # - test-cluster:
-      #     name: test-cluster-defaults
-      #     executor: python
-      #     context: [CPE_ORBS_AWS]
-      #     region: $AWS_DEFAULT_REGION
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
-      #     requires:
-      #       - setup-cluster-defaults
-      # - test-authenticator:
-      #     name: test-authenticator
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker"]
-      #     requires:
-      #       - setup-cluster-defaults
-      # - test-update-kubeconfig:
-      #     name: test-update-kubeconfig_region
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
-      #     context: [CPE_ORBS_AWS]
-      #     region: $AWS_DEFAULT_REGION
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker"]
-      #     requires:
-      #       - setup-cluster-defaults
-      # - delete-cluster:
-      #     name: delete-cluster-defaults
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
-      #     context: [CPE_ORBS_AWS]
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker"]
-      #     requires:
-      #       - test-cluster-defaults
-      - setup-cluster-with-many-params:
-          name: setup-cluster-custom-values
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
-          context: [CPE_ORBS_AWS]
-          region: "us-west-2"
+      - integration-test-installs:
+          context: orb-publisher
           matrix:
             parameters:
               executor: ["docker"]
-          zones: "us-west-2a,us-west-2c"
+      - setup-cluster:
+          name: setup-cluster-defaults
+          context: [CPE_ORBS_AWS]
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          matrix:
+            parameters:
+              executor: ["docker"]
       - test-cluster:
-          name: test-cluster-custom-values
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
+          name: test-cluster-defaults
+          executor: python
           context: [CPE_ORBS_AWS]
-          region: "us-west-2"
+          region: $AWS_DEFAULT_REGION
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          requires:
+            - setup-cluster-defaults
+      - test-authenticator:
+          name: test-authenticator
           matrix:
             parameters:
               executor: ["docker"]
           requires:
-            - setup-cluster-custom-values
+            - setup-cluster-defaults
+      - test-update-kubeconfig:
+          name: test-update-kubeconfig_region
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          context: [CPE_ORBS_AWS]
+          region: $AWS_DEFAULT_REGION
+          matrix:
+            parameters:
+              executor: ["docker"]
+          requires:
+            - setup-cluster-defaults
       - delete-cluster:
-          name: delete-cluster-custom-values
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
+          name: delete-cluster-defaults
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
           context: [CPE_ORBS_AWS]
-          region: "us-west-2"
           matrix:
             parameters:
               executor: ["docker"]
           requires:
-            - test-cluster-custom-values
+            - test-cluster-defaults
+      # - setup-cluster-with-many-params:
+      #     name: setup-cluster-custom-values
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
+      #     context: [CPE_ORBS_AWS]
+      #     region: "us-west-2"
+      #     matrix:
+      #       parameters:
+      #         executor: ["docker"]
+      #     zones: "us-west-2a,us-west-2c"
+      # 
+      # - test-cluster:
+      #     name: test-cluster-custom-values
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
+      #     context: [CPE_ORBS_AWS]
+      #     region: "us-west-2"
+      #     matrix:
+      #       parameters:
+      #         executor: ["docker"]
+      #     requires:
+      #       - setup-cluster-custom-values
+      # - delete-cluster:
+      #     name: delete-cluster-custom-values
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
+      #     context: [CPE_ORBS_AWS]
+      #     region: "us-west-2"
+      #     matrix:
+      #       parameters:
+      #         executor: ["docker"]
+      #     requires:
+      #       - test-cluster-custom-values
+      # 
+      # - setup-cluster-with-ssh:
+      #     name: setup-cluster-custom-values-ssh
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
+      #     context: [CPE_ORBS_AWS]
+      #     matrix:
+      #       parameters:
+      #         executor: ["docker"]
+      #     region: "us-west-2"
+      #     zones: "us-west-2b,us-west-2c"
+      # - test-cluster:
+      #     name: test-cluster-custom-values-ssh
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
+      #     context: [CPE_ORBS_AWS]
+      #     matrix:
+      #       parameters:
+      #         executor: ["docker"]
+      #     region: "us-west-2"
+      #     requires:
+      #       - setup-cluster-custom-values-ssh
+      # - test-ssh-access:
+      #     executor: python
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
+      #     context: [CPE_ORBS_AWS]
+      #     region: "us-west-2"
+      #     release-name: grafana-release
+      #     requires:
+      #       - test-cluster-custom-values-ssh
+      # - delete-cluster:
+      #     name: delete-cluster-custom-values-ssh
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
+      #     context: [CPE_ORBS_AWS]
+      #     matrix:
+      #       parameters:
+      #         executor: ["docker"]
+      #     region: "us-west-2"
+      #     requires:
+      #       - test-ssh-access
