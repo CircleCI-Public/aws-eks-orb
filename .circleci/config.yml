@@ -374,7 +374,7 @@ workflows:
           matrix:
             parameters:
               executor: ["docker"]
-          zones: "us-west-2a"
+          zones: "us-west-2a, us-west-2c"
       - test-cluster:
           name: test-cluster-custom-values
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
