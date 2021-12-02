@@ -382,8 +382,8 @@ workflows:
           matrix:
             parameters:
               executor: ["docker"]
-          # requires:
-          #   - setup-cluster-custom-values
+          requires:
+            - setup-cluster-custom-values
       - delete-cluster:
           name: delete-cluster-custom-values
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
@@ -392,5 +392,5 @@ workflows:
           matrix:
             parameters:
               executor: ["docker"]
-          # requires:
-          #   - test-cluster-custom-values
+          requires:
+            - test-cluster-custom-values
