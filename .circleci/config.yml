@@ -206,7 +206,7 @@ jobs:
         type: string
       profile:
         type: string
-        default: "default"
+        default: ""
       region:
         type: string
         default: ""
@@ -220,6 +220,7 @@ jobs:
           name: Test aws cli
           command: |
             aws configure list
+            aws configure list | grep "<< parameters.profile >>"
             aws configure list | grep "<< parameters.region >>"
       - run:
           name: Test aws-iam-authenticator
