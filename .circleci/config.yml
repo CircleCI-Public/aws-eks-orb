@@ -372,14 +372,14 @@ workflows:
             parameters:
               executor: ["docker"]
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
-          region: "ap-southeast-2"
-          zones: "ap-southeast-2b,ap-southeast-2c"
+          region: "us-west-2"
+          zones: "us-west-2-lax-1a"
       - test-cluster:
           name: test-cluster-custom-values
           matrix:
             parameters:
               executor: ["docker"]
-          region: "ap-southeast-2"
+          region: "us-west-2"
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
           requires:
             - setup-cluster-custom-values
@@ -389,6 +389,6 @@ workflows:
             parameters:
               executor: ["docker"]
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
-          region: "ap-southeast-2"
+          region: "us-west-2"
           requires:
             - test-cluster-custom-values
