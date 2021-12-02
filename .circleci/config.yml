@@ -320,75 +320,75 @@ workflows:
   integration-and-deploy:
     when: << pipeline.parameters.run-integration-tests >>
     jobs:
-      # - integration-test-installs:
-      #     context: orb-publisher
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker"]
-      # - setup-cluster:
-      #     name: setup-cluster-defaults
-      #     context: [CPE_ORBS_AWS]
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker"]
-      # - test-cluster:
-          # name: test-cluster-defaults
-          # executor: python
-          # context: [CPE_ORBS_AWS]
-          # region: $AWS_DEFAULT_REGION
-          # cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
-          # requires:
-          #   - setup-cluster-defaults
-      # - test-authenticator:
-      #     name: test-authenticator
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker"]
-          # requires:
-            # - setup-cluster-defaults
-      # - test-update-kubeconfig:
-      #     name: test-update-kubeconfig_region
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
-      #     context: [CPE_ORBS_AWS]
-      #     region: $AWS_DEFAULT_REGION
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker"]
-          # requires:
-            # - setup-cluster-defaults
-      # - delete-cluster:
-          # name: delete-cluster-defaults
-          # cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
-          # context: [CPE_ORBS_AWS]
-          # matrix:
-          #   parameters:
-          #     executor: ["docker"]
-          # requires:
-          #   - test-cluster-defaults
-      - setup-cluster-with-many-params:
-          name: setup-cluster-custom-values
+      - integration-test-installs:
+          context: orb-publisher
           matrix:
             parameters:
               executor: ["docker"]
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
-          region: "us-west-2"
-          # zones: "us-west-2-lax-1a"
+      - setup-cluster:
+          name: setup-cluster-defaults
+          context: [CPE_ORBS_AWS]
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          matrix:
+            parameters:
+              executor: ["docker"]
       - test-cluster:
-          name: test-cluster-custom-values
+          name: test-cluster-defaults
+          executor: python
+          context: [CPE_ORBS_AWS]
+          region: $AWS_DEFAULT_REGION
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          requires:
+            - setup-cluster-defaults
+      - test-authenticator:
+          name: test-authenticator
           matrix:
             parameters:
               executor: ["docker"]
-          region: "us-west-2"
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
           requires:
-            - setup-cluster-custom-values
+            - setup-cluster-defaults
+      - test-update-kubeconfig:
+          name: test-update-kubeconfig_region
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          context: [CPE_ORBS_AWS]
+          region: $AWS_DEFAULT_REGION
+          matrix:
+            parameters:
+              executor: ["docker"]
+          requires:
+            - setup-cluster-defaults
       - delete-cluster:
-          name: delete-cluster-custom-values
+          name: delete-cluster-defaults
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          context: [CPE_ORBS_AWS]
           matrix:
             parameters:
               executor: ["docker"]
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
-          region: "us-west-2"
           requires:
-            - test-cluster-custom-values
+            - test-cluster-defaults
+      # - setup-cluster-with-many-params:
+      #     name: setup-cluster-custom-values
+      #     matrix:
+      #       parameters:
+      #         executor: ["docker"]
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
+      #     region: "us-west-2"
+      #     # zones: "us-west-2-lax-1a"
+      # - test-cluster:
+      #     name: test-cluster-custom-values
+      #     matrix:
+      #       parameters:
+      #         executor: ["docker"]
+      #     region: "us-west-2"
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
+      #     requires:
+      #       - setup-cluster-custom-values
+      # - delete-cluster:
+      #     name: delete-cluster-custom-values
+      #     matrix:
+      #       parameters:
+      #         executor: ["docker"]
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
+      #     region: "us-west-2"
+      #     requires:
+      #       - test-cluster-custom-values
