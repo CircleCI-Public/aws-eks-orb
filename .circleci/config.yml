@@ -294,22 +294,22 @@ workflows:
   test-pack:
     unless: << pipeline.parameters.run-integration-tests >>
     jobs:
-      - orb-tools/lint # Lint Yaml files
-      - bats/run:
-          path: ./tests
-      - orb-tools/pack # Pack orb source
-      - shellcheck/check:
-          dir: ./src/scripts
-          exclude: SC2148, SC1083
+      # - orb-tools/lint # Lint Yaml files
+      # - bats/run:
+      #     path: ./tests
+      # - orb-tools/pack # Pack orb source
+      # - shellcheck/check:
+      #     dir: ./src/scripts
+      #     exclude: SC2148, SC1083
       # Publish development version(s) of the orb.
       - orb-tools/publish-dev:
           orb-name: circleci/aws-eks
           context: orb-publisher # A restricted context containing your private publishing credentials. Will only execute if approved by an authorized user.
-          requires:
-            - orb-tools/lint
-            - orb-tools/pack
-            - bats/run
-            - shellcheck/check
+          # requires:
+          #   - orb-tools/lint
+          #   - orb-tools/pack
+          #   - bats/run
+          #   - shellcheck/check
       # Trigger an integration workflow to test the
       # dev:${CIRCLE_SHA1:0:7} version of your orb
       - orb-tools/trigger-integration-tests-workflow:
@@ -381,8 +381,8 @@ workflows:
               executor: ["docker"]
           region: "ap-southeast-2"
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
-          # requires:
-          #   - setup-cluster-custom-values
+          requires:
+            - setup-cluster-custom-values
       - delete-cluster:
           name: delete-cluster-custom-values
           matrix:
