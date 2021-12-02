@@ -171,7 +171,7 @@ if [ -n "$CLUSTER_NAME" ]; then
     if [ "$SHOW_EKSCTL_COMMAND" == "1" ]; then
         set -x
     fi
-    eksctl get cluster --name="$CLUSTER_NAME" "$@"
+    eksctl get cluster --name="$CLUSTER_NAME"
     if [ "$SHOW_EKSCTL_COMMAND" == "1" ]; then
         set +x
     fi
