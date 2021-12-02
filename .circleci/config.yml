@@ -133,7 +133,6 @@ jobs:
           node-volume-size: 30
           node-volume-type: "gp2"
           max-pods-per-node: 30
-          node-ami: "auto"
           node-ami-family: "AmazonLinux2"
           node-private-networking: false
           node-labels: "nodeowner=cci,nodepurpose=testing"
@@ -375,3 +374,21 @@ workflows:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
           region: "ap-southeast-2"
           zones: "ap-southeast-2b,ap-southeast-2c"
+      - test-cluster:
+          name: test-cluster-custom-values
+          matrix:
+            parameters:
+              executor: ["docker"]
+          region: "ap-southeast-2"
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
+          # requires:
+          #   - setup-cluster-custom-values
+      - delete-cluster:
+          name: delete-cluster-custom-values
+          matrix:
+            parameters:
+              executor: ["docker"]
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
+          region: "ap-southeast-2"
+          requires:
+            - test-cluster-custom-values
