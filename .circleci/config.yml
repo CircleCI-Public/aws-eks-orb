@@ -206,7 +206,7 @@ jobs:
         type: string
       profile:
         type: string
-        default: ""
+        default: "default"
       region:
         type: string
         default: ""
