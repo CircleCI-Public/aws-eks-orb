@@ -369,7 +369,9 @@ workflows:
           #   - test-cluster-defaults
       - setup-cluster-with-many-params:
           name: setup-cluster-custom-values
-          executor: aws-eks/python
+          matrix:
+            parameters:
+              executor: ["docker"]
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
           region: "ap-southeast-2"
           zones: "ap-southeast-2b,ap-southeast-2c"
