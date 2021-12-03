@@ -174,8 +174,7 @@ jobs:
           asg-access: false
           external-dns-access: false
           full-ecr-access: false
-          aws-max-polling-wait-time: "25m"
-          tags: "name=cci_orbs,purpose=orb_test"
+          aws-max-polling-wait-time: "25m"    
           verbose: 3
           no-output-timeout: 50m
           show-eksctl-command: true
