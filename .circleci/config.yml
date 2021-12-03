@@ -174,7 +174,7 @@ jobs:
           asg-access: false
           external-dns-access: false
           full-ecr-access: false
-          aws-max-polling-wait-time: "25m"    
+          aws-max-polling-wait-time: "25m"
           verbose: 3
           no-output-timeout: 50m
           show-eksctl-command: true
