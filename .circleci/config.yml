@@ -502,8 +502,8 @@ workflows:
           context: [CPE_ORBS_AWS]
           region: "us-west-2"
           release-name: grafana-release
-          requires:
-            - test-cluster-custom-values-ssh
+          # requires:
+          #   - test-cluster-custom-values-ssh
       - delete-cluster:
           name: delete-cluster-custom-values-ssh
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
