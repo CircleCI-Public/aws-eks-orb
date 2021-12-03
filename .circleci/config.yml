@@ -468,8 +468,8 @@ workflows:
           context: [CPE_ORBS_AWS]
           region: "us-west-2"
           executor: python
-          requires:
-            - setup-cluster-custom-values
+          # requires:
+          #   - setup-cluster-custom-values
       # - delete-cluster:
       #     name: delete-cluster-custom-values
       #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
