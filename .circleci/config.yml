@@ -462,58 +462,56 @@ workflows:
       #       parameters:
       #         executor: ["docker"]
       #     zones: "us-west-2a,us-west-2c"
-      - test-cluster:
-          name: test-cluster-custom-values
+      # - test-cluster:
+          # name: test-cluster-custom-values
+          # cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
+          # context: [CPE_ORBS_AWS]
+          # region: "us-west-2"
+          # executor: python
+          # requires:
+          #   - setup-cluster-custom-values
+      - delete-cluster:
+          name: delete-cluster-custom-values
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
           context: [CPE_ORBS_AWS]
           region: "us-west-2"
-          executor: python
+          matrix:
+            parameters:
+              executor: ["docker"]
           # requires:
-          #   - setup-cluster-custom-values
-      # - delete-cluster:
-      #     name: delete-cluster-custom-values
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
-      #     context: [CPE_ORBS_AWS]
-      #     region: "us-west-2"
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker"]
-      #     requires:
-      #       - test-cluster-custom-values
-      # - setup-cluster-with-ssh:
-      #     name: setup-cluster-custom-values-ssh
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
-      #     context: [CPE_ORBS_AWS]
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker"]
-      #     region: "us-west-2"
-      #     zones: "us-west-2b,us-west-2c"
-      # - test-cluster:
-      #     name: test-cluster-custom-values-ssh
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
-      #     context: [CPE_ORBS_AWS]
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker"]
-      #     region: "us-west-2"
-      #     requires:
-      #       - setup-cluster-custom-values-ssh
-      # - test-ssh-access:
-      #     executor: python
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
-      #     context: [CPE_ORBS_AWS]
-      #     region: "us-west-2"
-      #     release-name: grafana-release
-      #     requires:
-      #       - test-cluster-custom-values-ssh
-      # - delete-cluster:
-      #     name: delete-cluster-custom-values-ssh
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
-      #     context: [CPE_ORBS_AWS]
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker"]
-      #     region: "us-west-2"
-      #     requires:
-      #       - test-ssh-access
+          #   - test-cluster-custom-values
+      - setup-cluster-with-ssh:
+          name: setup-cluster-custom-values-ssh
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
+          context: [CPE_ORBS_AWS]
+          matrix:
+            parameters:
+              executor: ["docker"]
+          region: "us-west-2"
+          zones: "us-west-2b,us-west-2c"
+      - test-cluster:
+          name: test-cluster-custom-values-ssh
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
+          context: [CPE_ORBS_AWS]
+          executor: python
+          region: "us-west-2"
+          requires:
+            - setup-cluster-custom-values-ssh
+      - test-ssh-access:
+          executor: python
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
+          context: [CPE_ORBS_AWS]
+          region: "us-west-2"
+          release-name: grafana-release
+          requires:
+            - test-cluster-custom-values-ssh
+      - delete-cluster:
+          name: delete-cluster-custom-values-ssh
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
+          context: [CPE_ORBS_AWS]
+          matrix:
+            parameters:
+              executor: ["docker"]
+          region: "us-west-2"
+          requires:
+            - test-ssh-access
