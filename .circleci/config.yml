@@ -469,14 +469,14 @@ workflows:
           # executor: python
           # requires:
           #   - setup-cluster-custom-values
-      - delete-cluster:
-          name: delete-cluster-custom-values
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
-          context: [CPE_ORBS_AWS]
-          region: "us-west-2"
-          matrix:
-            parameters:
-              executor: ["docker"]
+      # - delete-cluster:
+      #     name: delete-cluster-custom-values
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
+      #     context: [CPE_ORBS_AWS]
+      #     region: "us-west-2"
+      #     matrix:
+      #       parameters:
+      #         executor: ["docker"]
           # requires:
           #   - test-cluster-custom-values
       - setup-cluster-with-ssh:
