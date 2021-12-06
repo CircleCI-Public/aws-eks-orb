@@ -423,9 +423,9 @@ workflows:
           context: orb-publisher
           requires:
             - orb-tools/publish-dev
-  integration-and-deploy:
-    when: << pipeline.parameters.run-integration-tests >>
-    jobs:
+  # integration-and-deploy:
+  #   when: << pipeline.parameters.run-integration-tests >>
+  #   jobs:
       # - integration-test-installs:
       #     context: orb-publisher
       #     matrix:
