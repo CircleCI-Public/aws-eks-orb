@@ -534,7 +534,7 @@ workflows:
       #     region: "us-west-2"
       #     requires:
       #       - test-ssh-access
-      - setup-cluster:
+      - setup-cluster-with-many-params:
           name: setup-cluster-kubectl
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-helm
           context: [CPE_ORBS_AWS]
