@@ -377,6 +377,29 @@ jobs:
           wait: true
           verbose: 3
           no-output-timeout: 20m
+  create-deployment:
+    parameters:
+      executor:
+        type: executor
+      region:
+        type: string
+        default: ""
+      cluster-name:
+        description: |
+          Name of the EKS cluster
+        type: string
+    executor: << parameters.executor >>
+    steps:
+      - checkout
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          aws-region: << parameters.region >>
+          install-kubectl: true
+      - kubernetes/create-or-update-resource:
+          resource-file-path: "tests/nginx-deployment/deployment.yaml"
+          resource-name: "deployment/nginx-deployment"
+          get-rollout-status: true
+          show-kubectl-command: true
 workflows:
   test-pack:
     unless: << pipeline.parameters.run-integration-tests >>
@@ -480,38 +503,80 @@ workflows:
       #         executor: ["docker"]
           # requires:
           #   - test-cluster-custom-values
-      - setup-cluster-with-ssh:
-          name: setup-cluster-custom-values-ssh
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
+      # - setup-cluster-with-ssh:
+      #     name: setup-cluster-custom-values-ssh
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
+      #     context: [CPE_ORBS_AWS]
+      #     matrix:
+      #       parameters:
+      #         executor: ["docker"]
+      #     region: "us-west-2"
+      #     zones: "us-west-2b,us-west-2c"
+      # - test-cluster:
+      #     name: test-cluster-custom-values-ssh
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
+      #     context: [CPE_ORBS_AWS]
+      #     executor: python
+      #     region: "us-west-2"
+      #     requires:
+      #       - setup-cluster-custom-values-ssh
+      # - test-ssh-access:
+      #     executor: python
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
+      #     context: [CPE_ORBS_AWS]
+      #     region: "us-west-2"
+      #     release-name: grafana-release
+      #     requires:
+      #       - test-cluster-custom-values-ssh
+      # - delete-cluster:
+      #     name: delete-cluster-custom-values-ssh
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
+      #     context: [CPE_ORBS_AWS]
+      #     matrix:
+      #       parameters:
+      #         executor: ["docker"]
+      #     region: "us-west-2"
+      #     requires:
+      #       - test-ssh-access
+      - aws-eks/create-cluster:
+          name: setup-cluster-kubectl
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-helm
           context: [CPE_ORBS_AWS]
           matrix:
             parameters:
               executor: ["docker"]
           region: "us-west-2"
-          zones: "us-west-2b,us-west-2c"
-      - test-cluster:
-          name: test-cluster-custom-values-ssh
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
-          context: [CPE_ORBS_AWS]
+      - create-deployment:
+          name: create-deployment-kubectl
           executor: python
-          region: "us-west-2"
-          requires:
-            - setup-cluster-custom-values-ssh
-      - test-ssh-access:
-          executor: python
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
           context: [CPE_ORBS_AWS]
           region: "us-west-2"
-          release-name: grafana-release
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
           requires:
-            - test-cluster-custom-values-ssh
-      - delete-cluster:
-          name: delete-cluster-custom-values-ssh
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
+            - setup-cluster-kubectl
+      - aws-eks/update-container-image:
+          name: update-container-image-kubectl
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
           context: [CPE_ORBS_AWS]
-          matrix:
-            parameters:
-              executor: ["docker"]
-          region: "us-west-2"
+          aws-region: "us-west-2"
+          resource-name: "deployment/nginx-deployment"
+          container-image-updates: "nginx=nginx:1.9.1"
+          get-rollout-status: true
+          record: true
+          post-steps:
+            - kubernetes/delete-resource:
+                resource-types: "deployments"
+                resource-names: "nginx-deployment"
+                now: true
+                wait: true
           requires:
-            - test-ssh-access
+            - create-deployment-kubectl
+      - aws-eks/delete-cluster:
+          name: delete-cluster-kubectl
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
+          context: [CPE_ORBS_AWS]
+          aws-region: "us-west-2"
+          wait: true
+          requires:
+            - update-container-image-kubectl
+      
