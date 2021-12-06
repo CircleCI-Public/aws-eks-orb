@@ -541,6 +541,7 @@ workflows:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
           context: [CPE_ORBS_AWS]
           aws-region: "us-west-2"
+          executor: python
       - create-deployment:
           name: create-deployment-kubectl
           executor: python
@@ -552,6 +553,7 @@ workflows:
           name: update-container-image-kubectl
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
           context: [CPE_ORBS_AWS]
+          executor: python
           aws-region: "us-west-2"
           resource-name: "deployment/nginx-deployment"
           container-image-updates: "nginx=nginx:1.9.1"
@@ -569,6 +571,7 @@ workflows:
           name: delete-cluster-kubectl
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
           context: [CPE_ORBS_AWS]
+          executor: python
           aws-region: "us-west-2"
           wait: true
           requires:
