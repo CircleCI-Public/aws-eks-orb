@@ -362,7 +362,7 @@ jobs:
       cluster-name:
         type: string
       wait:
-        type: boolean  
+        type: boolean
     executor: << parameters.executor >>
     steps:
       - aws-eks/update-kubeconfig-with-authenticator:
@@ -556,6 +556,7 @@ workflows:
           name: update-container-image-kubectl
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
           context: [CPE_ORBS_AWS]
+          executor: python
           aws-region: "us-west-2"
           resource-name: "deployment/nginx-deployment"
           container-image-updates: "nginx=nginx:1.9.1"
@@ -580,4 +581,3 @@ workflows:
               executor: ["docker"]
           requires:
             - update-container-image-kubectl
-          
