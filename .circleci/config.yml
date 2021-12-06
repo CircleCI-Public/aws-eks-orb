@@ -545,7 +545,7 @@ workflows:
           matrix:
             parameters:
               executor: ["docker"]
-          region: "us-west-2"
+          aws-region: "us-west-2"
       - create-deployment:
           name: create-deployment-kubectl
           executor: python
@@ -579,4 +579,3 @@ workflows:
           wait: true
           requires:
             - update-container-image-kubectl
-      
