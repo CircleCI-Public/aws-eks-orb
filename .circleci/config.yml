@@ -423,9 +423,9 @@ workflows:
           context: orb-publisher
           requires:
             - orb-tools/publish-dev
-  # integration-and-deploy:
-  #   when: << pipeline.parameters.run-integration-tests >>
-  #   jobs:
+  integration-and-deploy:
+    when: << pipeline.parameters.run-integration-tests >>
+    jobs:
       # - integration-test-installs:
       #     context: orb-publisher
       #     matrix:
@@ -534,44 +534,44 @@ workflows:
       #     region: "us-west-2"
       #     requires:
       #       - test-ssh-access
-      # - setup-cluster-with-many-params:
-      #     name: setup-cluster-kubectl
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-helm
-      #     context: [CPE_ORBS_AWS]
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker"]
-      #     region: "us-west-2"
-      # - create-deployment:
-      #     name: create-deployment-kubectl
-      #     executor: python
-      #     context: [CPE_ORBS_AWS]
-      #     region: "us-west-2"
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
-      #     requires:
-      #       - setup-cluster-kubectl
-      # - aws-eks/update-container-image:
-      #     name: update-container-image-kubectl
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
-      #     context: [CPE_ORBS_AWS]
-      #     aws-region: "us-west-2"
-      #     resource-name: "deployment/nginx-deployment"
-      #     container-image-updates: "nginx=nginx:1.9.1"
-      #     get-rollout-status: true
-      #     record: true
-      #     post-steps:
-      #       - kubernetes/delete-resource:
-      #           resource-types: "deployments"
-      #           resource-names: "nginx-deployment"
-      #           now: true
-      #           wait: true
-      #     requires:
-      #       - create-deployment-kubectl
-      # - delete-cluster:
-      #     name: delete-cluster-kubectl
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
-      #     context: [CPE_ORBS_AWS]
-      #     aws-region: "us-west-2"
-      #     wait: true
-      #     requires:
-      #       - update-container-image-kubectl
+      - setup-cluster-with-many-params:
+          name: setup-cluster-kubectl
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-helm
+          context: [CPE_ORBS_AWS]
+          matrix:
+            parameters:
+              executor: ["docker"]
+          region: "us-west-2"
+      - create-deployment:
+          name: create-deployment-kubectl
+          executor: python
+          context: [CPE_ORBS_AWS]
+          region: "us-west-2"
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
+          requires:
+            - setup-cluster-kubectl
+      - aws-eks/update-container-image:
+          name: update-container-image-kubectl
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
+          context: [CPE_ORBS_AWS]
+          aws-region: "us-west-2"
+          resource-name: "deployment/nginx-deployment"
+          container-image-updates: "nginx=nginx:1.9.1"
+          get-rollout-status: true
+          record: true
+          post-steps:
+            - kubernetes/delete-resource:
+                resource-types: "deployments"
+                resource-names: "nginx-deployment"
+                now: true
+                wait: true
+          requires:
+            - create-deployment-kubectl
+      - delete-cluster:
+          name: delete-cluster-kubectl
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
+          context: [CPE_ORBS_AWS]
+          aws-region: "us-west-2"
+          wait: true
+          requires:
+            - update-container-image-kubectl
