@@ -361,6 +361,8 @@ jobs:
         default: ""
       cluster-name:
         type: string
+      wait:
+        type: boolean  
     executor: << parameters.executor >>
     steps:
       - aws-eks/update-kubeconfig-with-authenticator:
@@ -571,7 +573,11 @@ workflows:
           name: delete-cluster-kubectl
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
           context: [CPE_ORBS_AWS]
-          aws-region: "us-west-2"
+          region: "us-west-2"
           wait: true
+          matrix:
+            parameters:
+              executor: ["docker"]
           requires:
             - update-container-image-kubectl
+          
