@@ -3,13 +3,13 @@ description: |
 executor: << parameters.executor >>
 
 parameters:
-  executor:
-    description: |
-      Executor to use for this job.
-    type: executor
-    default:
-      docker:
-        image: cimg/python:3.10-browsers
+  # executor:
+  #   description: |
+  #     Executor to use for this job.
+  #   type: executor
+  #   default:
+  #     docker:
+  #       image: cimg/python:3.10-browsers
   cluster-name:
     description: |
       The name of the EKS cluster.
