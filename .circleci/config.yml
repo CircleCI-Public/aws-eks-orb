@@ -103,7 +103,6 @@ jobs:
       - aws-eks/install-aws-iam-authenticator
       - aws-eks/create-cluster:
           cluster-name: << parameters.cluster-name >>
-          # tags: name=eksorb,purpose=eksorbtest
       - quick-cluster-tests
   setup-cluster-with-many-params:
     parameters:
@@ -330,9 +329,6 @@ jobs:
           install-kubectl: true
       - attach_workspace:
           at: /tmp/workspace
-      # - helm/install-helm-on-cluster:
-      #     service-account: tiller-test
-      #     enable-cluster-wide-admin-access: true
       - helm/install-helm-chart:
           helm-version: "v3.7.1"
           chart: stable/grafana
@@ -430,11 +426,11 @@ workflows:
   integration-and-deploy:
     when: << pipeline.parameters.run-integration-tests >>
     jobs:
-      # - integration-test-installs:
-      #     context: orb-publisher
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker"]
+      - integration-test-installs:
+          context: orb-publisher
+          matrix:
+            parameters:
+              executor: ["docker"]
       # - setup-cluster:
       #     name: setup-cluster-defaults
       #     context: [CPE_ORBS_AWS]
@@ -538,7 +534,7 @@ workflows:
       #     region: "us-west-2"
       #     requires:
       #       - test-ssh-access
-      - aws-eks/create-cluster:
+      - setup-cluster:
           name: setup-cluster-kubectl
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-helm
           context: [CPE_ORBS_AWS]
@@ -571,7 +567,7 @@ workflows:
                 wait: true
           requires:
             - create-deployment-kubectl
-      - aws-eks/delete-cluster:
+      - delete-cluster:
           name: delete-cluster-kubectl
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
           context: [CPE_ORBS_AWS]
