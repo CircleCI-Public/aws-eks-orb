@@ -572,6 +572,6 @@ workflows:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
           context: [CPE_ORBS_AWS]
           aws-region: "us-west-2"
-          wait: true
+          # wait: true
           requires:
             - update-container-image-kubectl
