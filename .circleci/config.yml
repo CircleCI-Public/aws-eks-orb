@@ -538,7 +538,7 @@ workflows:
       #       - test-ssh-access
       - setup-cluster-with-many-params:
           name: setup-cluster-kubectl
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-helm
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
           context: [CPE_ORBS_AWS]
           matrix:
             parameters:
