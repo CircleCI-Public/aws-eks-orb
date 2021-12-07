@@ -536,20 +536,20 @@ workflows:
       #     region: "us-west-2"
       #     requires:
       #       - test-ssh-access
-      # - aws-eks/create-cluster:
-      #     name: setup-cluster-kubectl
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
-      #     context: [CPE_ORBS_AWS]
-      #     aws-region: "us-west-2"
-      #     executor: python
+      - aws-eks/create-cluster:
+          name: setup-cluster-kubectl
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
+          context: [CPE_ORBS_AWS]
+          aws-region: "us-west-2"
+          executor: python
       - create-deployment:
           name: create-deployment-kubectl
           executor: python
           context: [CPE_ORBS_AWS]
           region: "us-west-2"
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
-          # requires:
-          #   - setup-cluster-kubectl
+          requires:
+            - setup-cluster-kubectl
       - aws-eks/update-container-image:
           name: update-container-image-kubectl
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
