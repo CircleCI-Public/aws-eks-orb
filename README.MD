@@ -34,7 +34,7 @@ version: 2.1
 
 orbs:
   aws-eks: circleci/aws-eks@x.y
-  kubernetes: circleci/kubernetes@0.4.0
+  kubernetes: openbean/kubernetes-orb@1.0.0
 
 jobs:
   create-deployment:
