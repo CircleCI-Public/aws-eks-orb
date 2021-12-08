@@ -30,6 +30,15 @@ executors:
   python3-browsers:
     docker:
       - image: circleci/python:3-browsers
+  python:
+    docker:
+      - image: circleci/python
+  python2:
+    docker:
+      - image: circleci/python:2
+  python3:
+    docker:
+      - image: circleci/python:3
 
 commands:
   cluster-setup-check:
@@ -386,7 +395,7 @@ jobs:
           get-rollout-status: true
           show-kubectl-command: true
   pre-orb-promotion-check:
-    executor: aws-eks/python2
+    executor: python2
     steps:
       - checkout
       - run:
@@ -469,12 +478,12 @@ workflows:
       # jobs to test various commands
       - setup-cluster:
           name: setup-cluster-defaults
-          executor: aws-eks/python2
+          executor: python2
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
           filters: *integration_test_filters
       - setup-cluster-with-many-params:
           name: setup-cluster-custom-values
-          executor: aws-eks/python
+          executor: python
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
           region: "ap-southeast-2"
           zones: "ap-southeast-2b,ap-southeast-2c"
@@ -512,7 +521,7 @@ workflows:
           filters: *integration_test_filters
       - test-ssh-access:
           executor:
-            name: aws-eks/python
+            name: python
             tag: "3.6"
           region: "ap-southeast-2"
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
@@ -522,7 +531,7 @@ workflows:
           filters: *integration_test_filters
       - test-authenticator:
           name: test-authenticator-options
-          executor: aws-eks/python2
+          executor: python2
           release-tag: "v0.5.0"
           requires:
             - setup-cluster-defaults
@@ -536,7 +545,7 @@ workflows:
           filters: *integration_test_filters
       - test-update-kubeconfig:
           name: test-update-kubeconfig_region
-          executor: aws-eks/python2
+          executor: python2
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
           profile: ""
           region: $AWS_DEFAULT_REGION
@@ -545,7 +554,7 @@ workflows:
           filters: *integration_test_filters
       - test-update-kubeconfig:
           name: test-update-kubeconfig_defaults
-          executor: aws-eks/python3
+          executor: python3
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
           requires:
             - setup-cluster-defaults
@@ -559,14 +568,14 @@ workflows:
           filters: *integration_test_filters
       - delete-cluster:
           name: delete-cluster-defaults
-          executor: aws-eks/python2
+          executor: python2
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
           requires:
             - test-cluster-defaults
           filters: *integration_test_filters
       - delete-cluster:
           name: delete-cluster-custom-values
-          executor: aws-eks/python3
+          executor: python3
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
           region: "ap-southeast-2"
           requires:
@@ -622,7 +631,7 @@ workflows:
           filters: *integration_test_filters
       - create-deployment:
           name: create-deployment-kubectl
-          executor: aws-eks/python
+          executor: python
           region: "ap-southeast-1"
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
           requires:
