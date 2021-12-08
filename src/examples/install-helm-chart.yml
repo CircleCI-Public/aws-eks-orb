@@ -5,7 +5,7 @@ usage:
   version: 2.1
 
   orbs:
-    aws-eks: circleci/aws-eks@0.2.3
+    aws-eks: openbean/aws-eks@1.0.0
 
   workflows:
     deployment:
