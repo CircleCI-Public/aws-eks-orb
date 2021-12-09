@@ -228,24 +228,24 @@ jobs:
             sleep 10
             curl http://localhost:8080/api/
       - kubernetes/create-or-update-resource:
-          resource-file-path: "integration-tests/kubernetes-dashboard/kubernetes-dashboard.yaml"
+          resource-file-path: "integration-tests/kubernetes-dashboard/kubernetes-dashboard.yml"
           get-rollout-status: true
           namespace: kube-system
           resource-name: "deployment/kubernetes-dashboard"
       - kubernetes/create-or-update-resource:
-          resource-file-path: "integration-tests/kubernetes-dashboard/influxdb-heapster.yaml"
+          resource-file-path: "integration-tests/kubernetes-dashboard/influxdb-heapster.yml"
           get-rollout-status: true
           namespace: kube-system
           resource-name: "deployment/heapster"
       - kubernetes/create-or-update-resource:
-          resource-file-path: "integration-tests/kubernetes-dashboard/influxdb.yaml"
+          resource-file-path: "integration-tests/kubernetes-dashboard/influxdb.yml"
           get-rollout-status: true
           namespace: kube-system
           resource-name: "deployment/monitoring-influxdb"
       - kubernetes/create-or-update-resource:
-          resource-file-path: "integration-tests/kubernetes-dashboard/heapster-rbac.yaml"
+          resource-file-path: "integration-tests/kubernetes-dashboard/heapster-rbac.yml"
       - kubernetes/create-or-update-resource:
-          resource-file-path: "integration-tests/kubernetes-dashboard/eks-admin-service-account.yaml"
+          resource-file-path: "integration-tests/kubernetes-dashboard/eks-admin-service-account.yml"
       - run:
           name: Verify kubernetes dashboard
           command: |
@@ -399,7 +399,7 @@ jobs:
           aws-region: << parameters.region >>
           install-kubectl: true
       - kubernetes/create-or-update-resource:
-          resource-file-path: "~/project/tests/nginx-deployment/deployment.yaml"
+          resource-file-path: "~/project/tests/nginx-deployment/deployment.yml"
           resource-name: "deployment/nginx-deployment"
           get-rollout-status: true
           show-kubectl-command: true
@@ -542,20 +542,20 @@ workflows:
       #     requires:
       #       - test-ssh-access
       #Kubectl Tests
-      - aws-eks/create-cluster:
-          name: setup-cluster-kubectl
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
-          context: [CPE_ORBS_AWS]
-          aws-region: "us-west-2"
-          executor: docker
+      # - aws-eks/create-cluster:
+      #     name: setup-cluster-kubectl
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
+      #     context: [CPE_ORBS_AWS]
+      #     aws-region: "us-west-2"
+      #     executor: docker
       - create-deployment:
           name: create-deployment-kubectl
           executor: docker
           context: [CPE_ORBS_AWS]
           region: "us-west-2"
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
-          requires:
-            - setup-cluster-kubectl
+          # requires:
+          #   - setup-cluster-kubectl
       - aws-eks/update-container-image:
           name: update-container-image-kubectl
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
