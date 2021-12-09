@@ -10,7 +10,6 @@ orbs:
   browser-tools: circleci/browser-tools@1.2.3
   bats: circleci/bats@1.0
 
-
 parameters:
   run-integration-tests:
     description: An internal flag to prevent integration test from running before a development version has been created.
@@ -28,6 +27,12 @@ executors:
   docker:
     docker:
       - image: cimg/base:stable
+  macos:
+    macos:
+      xcode: 13.1.0
+  machine:
+    machine:
+      image: ubuntu-2004:202107-02
   python:
     docker:
       - image: cimg/python:3.10-browsers
@@ -394,7 +399,7 @@ jobs:
           aws-region: << parameters.region >>
           install-kubectl: true
       - kubernetes/create-or-update-resource:
-          resource-file-path: "tests/nginx-deployment/deployment.yaml"
+          resource-file-path: "~/project/tests/nginx-deployment/deployment.yaml"
           resource-name: "deployment/nginx-deployment"
           get-rollout-status: true
           show-kubectl-command: true
@@ -432,14 +437,14 @@ workflows:
       #     context: orb-publisher
       #     matrix:
       #       parameters:
-      #         executor: ["docker"]
+      #         executor: ["docker", "macos", "machine"]
       # - setup-cluster:
       #     name: setup-cluster-defaults
       #     context: [CPE_ORBS_AWS]
       #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
       #     matrix:
       #       parameters:
-      #         executor: ["docker"]
+      #         executor: ["docker", "macos", "machine"]
       # - test-cluster:
       #     name: test-cluster-defaults
       #     executor: python
@@ -452,7 +457,7 @@ workflows:
       #     name: test-authenticator
       #     matrix:
       #       parameters:
-      #         executor: ["docker"]
+      #         executor: ["docker", "macos", "machine"]
       #     requires:
       #       - setup-cluster-defaults
       # - test-update-kubeconfig:
@@ -462,7 +467,7 @@ workflows:
       #     region: $AWS_DEFAULT_REGION
       #     matrix:
       #       parameters:
-      #         executor: ["docker"]
+      #         executor: ["docker", "macos", "machine"]
       #     requires:
       #       - setup-cluster-defaults
       # - delete-cluster:
@@ -471,7 +476,7 @@ workflows:
       #     context: [CPE_ORBS_AWS]
       #     matrix:
       #       parameters:
-      #         executor: ["docker"]
+      #         executor: ["docker", "macos", "machine"]
       #     requires:
       #       - test-cluster-defaults
       # - setup-cluster-with-many-params:
@@ -481,7 +486,7 @@ workflows:
       #     region: "us-west-2"
       #     matrix:
       #       parameters:
-      #         executor: ["docker"]
+      #         executor: ["docker", "macos", "machine"]
       #     zones: "us-west-2a,us-west-2c"
       # - test-cluster:
           # name: test-cluster-custom-values
@@ -498,7 +503,7 @@ workflows:
       #     region: "us-west-2"
       #     matrix:
       #       parameters:
-      #         executor: ["docker"]
+      #         executor: ["docker", "macos", "machine"]
           # requires:
           #   - test-cluster-custom-values
       # - setup-cluster-with-ssh:
@@ -507,7 +512,7 @@ workflows:
       #     context: [CPE_ORBS_AWS]
       #     matrix:
       #       parameters:
-      #         executor: ["docker"]
+      #         executor: ["docker", "macos", "machine"]
       #     region: "us-west-2"
       #     zones: "us-west-2b,us-west-2c"
       # - test-cluster:
@@ -532,7 +537,7 @@ workflows:
       #     context: [CPE_ORBS_AWS]
       #     matrix:
       #       parameters:
-      #         executor: ["docker"]
+      #         executor: ["docker", "macos", "machine"]
       #     region: "us-west-2"
       #     requires:
       #       - test-ssh-access
