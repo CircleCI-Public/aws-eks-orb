@@ -4,7 +4,7 @@ orbs:
   aws-eks: circleci/aws-eks@<<pipeline.parameters.dev-orb-version>>
   aws-cli: circleci/aws-cli@2.0
   helm: circleci/helm@1.2
-  kubernetes: circleci/kubernetes@dev:alpha
+  kubernetes: circleci/kubernetes@1.0
   orb-tools: circleci/orb-tools@10.1
   shellcheck: circleci/shellcheck@2.2
   browser-tools: circleci/browser-tools@1.2
