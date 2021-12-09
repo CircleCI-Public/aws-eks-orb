@@ -399,7 +399,7 @@ jobs:
           aws-region: << parameters.region >>
           install-kubectl: true
       - kubernetes/create-or-update-resource:
-          resource-file-path: "~/project/tests/nginx-deployment/deployment.yml"
+          resource-file-path: ~/project/tests/nginx-deployment/deployment.yml
           resource-name: "deployment/nginx-deployment"
           get-rollout-status: true
           show-kubectl-command: true
