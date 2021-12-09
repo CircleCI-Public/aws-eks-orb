@@ -26,11 +26,9 @@ fi
 if [ -n "${CLUSTER_CONTEXT_ALIAS}" ]; then
     set -- "$@" --alias "${CLUSTER_CONTEXT_ALIAS}"
 fi
-if [ -n "${DRY_RUN}" ]; then
-    set -- "$@" --dry-run "${DRY_RUN}"
-fi
 if [ "${VERBOSE}" == "true" ]; then
     set -- "$@" --verbose
 fi
 
+set -- "$@" --dry-run "${DRY_RUN}"
 aws eks update-kubeconfig "$@"
