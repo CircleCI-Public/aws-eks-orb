@@ -33,11 +33,6 @@ parameters:
       The kubernetes namespace that should be used.
     type: string
     default: ""
-  record:
-    description: |
-      Whether to record the update
-    type: boolean
-    default: false
   get-rollout-status:
     description: |
       Get the status of the rollout.
@@ -98,7 +93,6 @@ steps:
       resource-name: << parameters.resource-name >>
       container-image-updates: << parameters.container-image-updates >>
       namespace: << parameters.namespace >>
-      record: << parameters.record >>
       get-rollout-status: << parameters.get-rollout-status >>
       watch-rollout-status: << parameters.watch-rollout-status >>
       pinned-revision-to-watch: << parameters.pinned-revision-to-watch >>

@@ -68,7 +68,6 @@ workflows:
           cluster-name: eks-demo-deployment
           resource-name: "deployment/nginx-deployment"
           container-image-updates: "nginx=nginx:1.9.1"
-          record: true
           requires:
             - create-deployment
       - aws-eks/delete-cluster:
