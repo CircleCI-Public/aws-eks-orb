@@ -8,6 +8,16 @@ CLUSTER_CONTEXT_ALIAS=$(eval echo "$PARAM_CLUSTER_CONTEXT_ALIAS")
 DRY_RUN=$(eval echo "$PARAM_DRY_RUN")
 VERBOSE=$(eval echo "$PARAM_VERBOSE")
 
+echo "$CLUSTER_NAME" >> vars.txt
+echo "$AWS_REGION" >> vars.txt
+echo "$AWS_PROFILE" >> vars.txt
+echo "$KUBECONFIG_FILE_PATH" >> vars.txt
+echo "$ROLE_ARN" >> vars.txt
+echo "$CLUSTER_CONTEXT_ALIAS" >> vars.txt
+echo "$DRY_RUN" >> vars.txt
+echo "$VERBOSE" >> vars.txt
+
+
 if [ -n "${CLUSTER_NAME}" ]; then
     set -- "$@" --name "${CLUSTER_NAME}"
 fi
