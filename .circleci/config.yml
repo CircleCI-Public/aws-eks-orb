@@ -536,6 +536,7 @@ workflows:
       #     region: "us-west-2"
       #     requires:
       #       - test-ssh-access
+      #Kubectl Tests
       - aws-eks/create-cluster:
           name: setup-cluster-kubectl
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
