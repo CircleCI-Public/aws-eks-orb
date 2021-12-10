@@ -17,17 +17,8 @@ fi
 
 if ! command -v eksctl >/dev/null 2>&1; then
 	echo "Installing the AWS eksctl CLI"
-	case $SYS_ENV_PLATFORM in
-		linux_x86)
-            curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
-            $SUDO mv /tmp/eksctl /usr/local/bin
-			;;
-		*)
-		echo "This orb does not currently support your platform. If you believe it should, please consider opening an issue on the GitHub repository:"
-		echo "https://github.com/CircleCI-Public/aws-eks-orb"
-		exit 1
-	;;
-	esac
+    curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+    $SUDO mv /tmp/eksctl /usr/local/bin
 	# Validate install.
 	echo
 	command -v eksctl

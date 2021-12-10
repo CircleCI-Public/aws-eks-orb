@@ -441,7 +441,7 @@ workflows:
       - setup-cluster:
           name: setup-cluster-defaults-<< matrix.executor >>
           context: [CPE_ORBS_AWS]
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults-<< matrix.executor >>
           matrix:
             parameters:
               executor: ["docker", "macos", "machine"]
@@ -450,7 +450,7 @@ workflows:
           executor: python
           context: [CPE_ORBS_AWS]
           region: $AWS_DEFAULT_REGION
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults-<< matrix.executor >>
           matrix:
             parameters:
               executor: ["docker", "macos", "machine"]
@@ -465,7 +465,7 @@ workflows:
             - setup-cluster-defaults-<< matrix.executor >>
       - test-update-kubeconfig:
           name: test-update-kubeconfig_region-<< matrix.executor >>
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults-<< matrix.executor >>
           context: [CPE_ORBS_AWS]
           region: $AWS_DEFAULT_REGION
           matrix:
@@ -475,7 +475,7 @@ workflows:
             - setup-cluster-defaults-<< matrix.executor >>
       - delete-cluster:
           name: delete-cluster-defaults-<< matrix.executor >>
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults-<< matrix.executor >>
           context: [CPE_ORBS_AWS]
           matrix:
             parameters:
@@ -485,16 +485,18 @@ workflows:
             - test-cluster-defaults-<< matrix.executor >>
       - setup-cluster-with-many-params:
           name: setup-cluster-custom-values-<< matrix.executor >>
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-<< matrix.executor >>
           context: [CPE_ORBS_AWS]
           region: "us-west-2"
           matrix:
             parameters:
               executor: ["docker", "macos", "machine"]
           zones: "us-west-2a,us-west-2c"
+          requires:
+            - delete-cluster-defaults-<< matrix.executor >>
       - test-cluster:
           name: test-cluster-custom-values-<< matrix.executor >>
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-<< matrix.executor >>
           context: [CPE_ORBS_AWS]
           region: "us-west-2"
           executor: python
@@ -505,7 +507,7 @@ workflows:
             - setup-cluster-custom-values-<< matrix.executor >>
       - delete-cluster:
           name: delete-cluster-custom-values-<< matrix.executor >>
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-<< matrix.executor >>
           context: [CPE_ORBS_AWS]
           region: "us-west-2"
           matrix:
@@ -516,16 +518,18 @@ workflows:
             - test-cluster-custom-values-<< matrix.executor >>
       - setup-cluster-with-ssh:
           name: setup-cluster-custom-values-ssh-<< matrix.executor >>
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh-<< matrix.executor >>
           context: [CPE_ORBS_AWS]
           matrix:
             parameters:
               executor: ["docker", "macos", "machine"]
           region: "us-west-2"
           zones: "us-west-2b,us-west-2c"
+          requires:
+            - delete-cluster-custom-values-<< matrix.executor >>
       - test-cluster:
           name: test-cluster-custom-values-ssh-<< matrix.executor >>
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh-<< matrix.executor >>
           context: [CPE_ORBS_AWS]
           executor: python
           matrix:
@@ -535,6 +539,7 @@ workflows:
           requires:
             - setup-cluster-custom-values-ssh-<< matrix.executor >>
       - test-ssh-access:
+          name: test-ssh-access-<< matrix.executor >>
           executor: python
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh-<< matrix.executor >>
           context: [CPE_ORBS_AWS]
@@ -563,6 +568,11 @@ workflows:
           context: [CPE_ORBS_AWS]
           aws-region: "us-west-2"
           executor: docker
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
+          requires:
+            - delete-cluster-custom-values-ssh-<< matrix.executor >>
       - create-deployment:
           name: create-deployment-kubectl
           executor: docker
