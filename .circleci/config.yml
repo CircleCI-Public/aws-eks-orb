@@ -563,8 +563,8 @@ workflows:
             - test-ssh-access-<< matrix.executor >>
       # #Kubectl Tests
       - aws-eks/create-cluster:
-          name: setup-cluster-kubectl
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
+          name: setup-cluster-kubectl-<< matrix.executor >>
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl-<< matrix.executor >>
           context: [CPE_ORBS_AWS]
           aws-region: "us-west-2"
           executor: docker
@@ -578,12 +578,15 @@ workflows:
           executor: docker
           context: [CPE_ORBS_AWS]
           region: "us-west-2"
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl-<< matrix.executor >>
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
           requires:
-            - setup-cluster-kubectl
+            - setup-cluster-kubectl-<< matrix.executor >>
       - aws-eks/update-container-image:
-          name: update-container-image-kubectl
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
+          name: update-container-image-kubectl-<< matrix.executor >>
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl-<< matrix.executor >>
           context: [CPE_ORBS_AWS]
           executor: docker
           aws-region: "us-west-2"
@@ -596,14 +599,20 @@ workflows:
                 resource-names: "nginx-deployment"
                 now: true
                 wait: true
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
           requires:
-            - create-deployment-kubectl
+            - create-deployment-kubectl-<< matrix.executor >>
       - aws-eks/delete-cluster:
           name: delete-cluster-kubectl
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl-<< matrix.executor >>
           context: [CPE_ORBS_AWS]
           executor: docker
           aws-region: "us-west-2"
           wait: true
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
           requires:
-            - update-container-image-kubectl
+            - update-container-image-kubectl-<< matrix.executor >>
