@@ -446,13 +446,16 @@ workflows:
             parameters:
               executor: ["docker", "macos", "machine"]
       - test-cluster:
-          name: test-cluster-defaults
+          name: test-cluster-defaults-<< matrix.executor >>
           executor: python
           context: [CPE_ORBS_AWS]
           region: $AWS_DEFAULT_REGION
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
           requires:
-            - setup-cluster-defaults
+            - setup-cluster-defaults-<< matrix.executor >>
       - test-authenticator:
           name: test-authenticator-<< matrix.executor >>
           matrix:
@@ -490,13 +493,16 @@ workflows:
               executor: ["docker", "macos", "machine"]
           zones: "us-west-2a,us-west-2c"
       - test-cluster:
-          name: test-cluster-custom-values
+          name: test-cluster-custom-values-<< matrix.executor >>
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
           context: [CPE_ORBS_AWS]
           region: "us-west-2"
           executor: python
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
           requires:
-            - setup-cluster-custom-values
+            - setup-cluster-custom-values-<< matrix.executor >>
       - delete-cluster:
           name: delete-cluster-custom-values-<< matrix.executor >>
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
@@ -518,21 +524,27 @@ workflows:
           region: "us-west-2"
           zones: "us-west-2b,us-west-2c"
       - test-cluster:
-          name: test-cluster-custom-values-ssh
+          name: test-cluster-custom-values-ssh-<< matrix.executor >>
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
           context: [CPE_ORBS_AWS]
           executor: python
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
           region: "us-west-2"
           requires:
-            - setup-cluster-custom-values-ssh
+            - setup-cluster-custom-values-ssh-<< matrix.executor >>
       - test-ssh-access:
           executor: python
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh-<< matrix.executor >>
           context: [CPE_ORBS_AWS]
           region: "us-west-2"
           release-name: grafana-release
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
           requires:
-            - test-cluster-custom-values-ssh
+            - test-cluster-custom-values-ssh-<< matrix.executor >>
       - delete-cluster:
           name: delete-cluster-custom-values-ssh-<< matrix.executor >>
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh

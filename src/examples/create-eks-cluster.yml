@@ -1,4 +1,3 @@
-   
 description: |
   Create an eks cluster together with the required VPC-related
   resources, test it, and tear it down.
