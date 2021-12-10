@@ -574,7 +574,7 @@ workflows:
           requires:
             - delete-cluster-custom-values-ssh-<< matrix.executor >>
       - create-deployment:
-          name: create-deployment-kubectl-<< parameters.executor >>
+          name: create-deployment-kubectl-<< matrix.executor >>
           executor: docker
           context: [CPE_ORBS_AWS]
           region: "us-west-2"
