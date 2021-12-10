@@ -433,129 +433,132 @@ workflows:
   integration-and-deploy:
     when: << pipeline.parameters.run-integration-tests >>
     jobs:
-      # - integration-test-installs:
-      #     context: orb-publisher
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker", "macos", "machine"]
-      # - setup-cluster:
-      #     name: setup-cluster-defaults
-      #     context: [CPE_ORBS_AWS]
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker", "macos", "machine"]
-      # - test-cluster:
-      #     name: test-cluster-defaults
-      #     executor: python
-      #     context: [CPE_ORBS_AWS]
-      #     region: $AWS_DEFAULT_REGION
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
-      #     requires:
-      #       - setup-cluster-defaults
-      # - test-authenticator:
-      #     name: test-authenticator
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker", "macos", "machine"]
-      #     requires:
-      #       - setup-cluster-defaults
-      # - test-update-kubeconfig:
-      #     name: test-update-kubeconfig_region
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
-      #     context: [CPE_ORBS_AWS]
-      #     region: $AWS_DEFAULT_REGION
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker", "macos", "machine"]
-      #     requires:
-      #       - setup-cluster-defaults
-      # - delete-cluster:
-      #     name: delete-cluster-defaults
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
-      #     context: [CPE_ORBS_AWS]
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker", "macos", "machine"]
-      #     requires:
-      #       - test-cluster-defaults
-      # - setup-cluster-with-many-params:
-      #     name: setup-cluster-custom-values
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
-      #     context: [CPE_ORBS_AWS]
-      #     region: "us-west-2"
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker", "macos", "machine"]
-      #     zones: "us-west-2a,us-west-2c"
-      # - test-cluster:
-          # name: test-cluster-custom-values
-          # cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
-          # context: [CPE_ORBS_AWS]
-          # region: "us-west-2"
-          # executor: python
-          # requires:
-          #   - setup-cluster-custom-values
-      # - delete-cluster:
-      #     name: delete-cluster-custom-values
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
-      #     context: [CPE_ORBS_AWS]
-      #     region: "us-west-2"
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker", "macos", "machine"]
-          # requires:
-          #   - test-cluster-custom-values
-      # - setup-cluster-with-ssh:
-      #     name: setup-cluster-custom-values-ssh
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
-      #     context: [CPE_ORBS_AWS]
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker", "macos", "machine"]
-      #     region: "us-west-2"
-      #     zones: "us-west-2b,us-west-2c"
-      # - test-cluster:
-      #     name: test-cluster-custom-values-ssh
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
-      #     context: [CPE_ORBS_AWS]
-      #     executor: python
-      #     region: "us-west-2"
-      #     requires:
-      #       - setup-cluster-custom-values-ssh
-      # - test-ssh-access:
-      #     executor: python
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
-      #     context: [CPE_ORBS_AWS]
-      #     region: "us-west-2"
-      #     release-name: grafana-release
-      #     requires:
-      #       - test-cluster-custom-values-ssh
-      # - delete-cluster:
-      #     name: delete-cluster-custom-values-ssh
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
-      #     context: [CPE_ORBS_AWS]
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker", "macos", "machine"]
-      #     region: "us-west-2"
-      #     requires:
-      #       - test-ssh-access
+      - integration-test-installs:
+          context: orb-publisher
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
+      - setup-cluster:
+          name: setup-cluster-defaults
+          context: [CPE_ORBS_AWS]
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
+      - test-cluster:
+          name: test-cluster-defaults
+          executor: python
+          context: [CPE_ORBS_AWS]
+          region: $AWS_DEFAULT_REGION
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          requires:
+            - setup-cluster-defaults
+      - test-authenticator:
+          name: test-authenticator
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
+          requires:
+            - setup-cluster-defaults
+      - test-update-kubeconfig:
+          name: test-update-kubeconfig_region
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          context: [CPE_ORBS_AWS]
+          region: $AWS_DEFAULT_REGION
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
+          requires:
+            - setup-cluster-defaults
+      - delete-cluster:
+          name: delete-cluster-defaults
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          context: [CPE_ORBS_AWS]
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
+          wait: true
+          requires:
+            - test-cluster-defaults
+      - setup-cluster-with-many-params:
+          name: setup-cluster-custom-values
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
+          context: [CPE_ORBS_AWS]
+          region: "us-west-2"
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
+          zones: "us-west-2a,us-west-2c"
+      - test-cluster:
+          name: test-cluster-custom-values
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
+          context: [CPE_ORBS_AWS]
+          region: "us-west-2"
+          executor: python
+          requires:
+            - setup-cluster-custom-values
+      - delete-cluster:
+          name: delete-cluster-custom-values
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
+          context: [CPE_ORBS_AWS]
+          region: "us-west-2"
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
+          wait: true
+          requires:
+            - test-cluster-custom-values
+      - setup-cluster-with-ssh:
+          name: setup-cluster-custom-values-ssh
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
+          context: [CPE_ORBS_AWS]
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
+          region: "us-west-2"
+          zones: "us-west-2b,us-west-2c"
+      - test-cluster:
+          name: test-cluster-custom-values-ssh
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
+          context: [CPE_ORBS_AWS]
+          executor: python
+          region: "us-west-2"
+          requires:
+            - setup-cluster-custom-values-ssh
+      - test-ssh-access:
+          executor: python
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
+          context: [CPE_ORBS_AWS]
+          region: "us-west-2"
+          release-name: grafana-release
+          requires:
+            - test-cluster-custom-values-ssh
+      - delete-cluster:
+          name: delete-cluster-custom-values-ssh
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
+          context: [CPE_ORBS_AWS]
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
+          region: "us-west-2"
+          wait: true
+          requires:
+            - test-ssh-access
       #Kubectl Tests
-      # - aws-eks/create-cluster:
-      #     name: setup-cluster-kubectl
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
-      #     context: [CPE_ORBS_AWS]
-      #     aws-region: "us-west-2"
-      #     executor: docker
+      - aws-eks/create-cluster:
+          name: setup-cluster-kubectl
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
+          context: [CPE_ORBS_AWS]
+          aws-region: "us-west-2"
+          executor: docker
       - create-deployment:
           name: create-deployment-kubectl
           executor: docker
           context: [CPE_ORBS_AWS]
           region: "us-west-2"
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
-          # requires:
-          #   - setup-cluster-kubectl
+          requires:
+            - setup-cluster-kubectl
       - aws-eks/update-container-image:
           name: update-container-image-kubectl
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
