@@ -494,8 +494,8 @@ workflows:
             parameters:
               executor: ["docker", "macos", "machine"]
           zones: "us-west-2a,us-west-2c"
-          requires:
-            - delete-cluster-defaults-<< matrix.executor >>
+          # requires:
+            # - delete-cluster-defaults-<< matrix.executor >>
       - test-cluster:
           name: test-cluster-custom-values-<< matrix.executor >>
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-<< matrix.executor >>
