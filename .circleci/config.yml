@@ -227,24 +227,24 @@ jobs:
             sleep 10
             curl http://localhost:8080/api/
       - kubernetes/create-or-update-resource:
-          resource-file-path: "integration-tests/kubernetes-dashboard/kubernetes-dashboard.yml"
+          resource-file-path: "tests/kubernetes-dashboard/kubernetes-dashboard.yml"
           get-rollout-status: true
           namespace: kube-system
           resource-name: "deployment/kubernetes-dashboard"
       - kubernetes/create-or-update-resource:
-          resource-file-path: "integration-tests/kubernetes-dashboard/influxdb-heapster.yml"
+          resource-file-path: "tests/kubernetes-dashboard/influxdb-heapster.yml"
           get-rollout-status: true
           namespace: kube-system
           resource-name: "deployment/heapster"
       - kubernetes/create-or-update-resource:
-          resource-file-path: "integration-tests/kubernetes-dashboard/influxdb.yml"
+          resource-file-path: "tests/kubernetes-dashboard/influxdb.yml"
           get-rollout-status: true
           namespace: kube-system
           resource-name: "deployment/monitoring-influxdb"
       - kubernetes/create-or-update-resource:
-          resource-file-path: "integration-tests/kubernetes-dashboard/heapster-rbac.yml"
+          resource-file-path: "tests/kubernetes-dashboard/heapster-rbac.yml"
       - kubernetes/create-or-update-resource:
-          resource-file-path: "integration-tests/kubernetes-dashboard/eks-admin-service-account.yml"
+          resource-file-path: "tests/kubernetes-dashboard/eks-admin-service-account.yml"
       - run:
           name: Verify kubernetes dashboard
           command: |
@@ -432,21 +432,21 @@ workflows:
   integration-and-deploy:
     when: << pipeline.parameters.run-integration-tests >>
     jobs:
-      - integration-test-installs:
-          name: integration-test-installs-<< matrix.executor >>
-          context: orb-publisher
-          matrix:
-            parameters:
-              executor: ["docker", "macos", "machine"]
-      - setup-cluster:
-          name: setup-cluster-defaults-<< matrix.executor >>
-          context: [CPE_ORBS_AWS]
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults-<< matrix.executor >>
-          matrix:
-            parameters:
-              executor: ["docker", "macos", "machine"]
-          requires:
-            - integration-test-installs-<< matrix.executor >>
+      # - integration-test-installs:
+      #     name: integration-test-installs-<< matrix.executor >>
+      #     context: orb-publisher
+      #     matrix:
+      #       parameters:
+      #         executor: ["docker", "macos", "machine"]
+      # - setup-cluster:
+      #     name: setup-cluster-defaults-<< matrix.executor >>
+      #     context: [CPE_ORBS_AWS]
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults-<< matrix.executor >>
+      #     matrix:
+      #       parameters:
+      #         executor: ["docker", "macos", "machine"]
+      #     requires:
+      #       - integration-test-installs-<< matrix.executor >>
       - test-cluster:
           name: test-cluster-defaults-<< matrix.executor >>
           executor: python
@@ -456,8 +456,8 @@ workflows:
           matrix:
             parameters:
               executor: ["docker", "macos", "machine"]
-          requires:
-            - setup-cluster-defaults-<< matrix.executor >>
+          # requires:
+          #   - setup-cluster-defaults-<< matrix.executor >>
       - test-authenticator:
           name: test-authenticator-<< matrix.executor >>
           matrix:
@@ -607,7 +607,7 @@ workflows:
           requires:
             - create-deployment-kubectl-<< matrix.executor >>
       - aws-eks/delete-cluster:
-          name: delete-cluster-kubectl
+          name: delete-cluster-kubectl-<< matrix.executor >>
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl-<< matrix.executor >>
           context: [CPE_ORBS_AWS]
           executor: docker
