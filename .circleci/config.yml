@@ -495,7 +495,9 @@ workflows:
               executor: ["docker", "macos", "machine"]
           zones: "us-west-2a,us-west-2c"
           requires:
-            - delete-cluster-defaults-<< matrix.executor >>
+            - delete-cluster-defaults-docker
+            - delete-cluster-defaults-macos
+            - delete-cluster-defaults-machine
       - test-cluster:
           name: test-cluster-custom-values-<< matrix.executor >>
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-<< matrix.executor >>
@@ -528,7 +530,9 @@ workflows:
           region: "us-west-2"
           zones: "us-west-2b,us-west-2c"
           requires:
-            - delete-cluster-custom-values-<< matrix.executor >>
+            - delete-cluster-custom-values-docker
+            - delete-cluster-custom-values-macos
+            - delete-cluster-custom-values-machine
       - test-cluster:
           name: test-cluster-custom-values-ssh-<< matrix.executor >>
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh-<< matrix.executor >>
@@ -574,7 +578,9 @@ workflows:
             parameters:
               executor: ["docker", "macos", "machine"]
           requires:
-            - delete-cluster-custom-values-ssh-<< matrix.executor >>
+            - delete-cluster-custom-values-ssh-docker
+            - delete-cluster-custom-values-ssh-macos
+            - delete-cluster-custom-values-ssh-machine
       - create-deployment:
           name: create-deployment-kubectl-<< matrix.executor >>
           executor: docker
