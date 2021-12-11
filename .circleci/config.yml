@@ -447,44 +447,44 @@ workflows:
       #         executor: ["docker", "macos", "machine"]
       #     requires:
       #       - integration-test-installs-<< matrix.executor >>
-      - test-cluster:
-          name: test-cluster-defaults-<< matrix.executor >>
-          executor: python
-          context: [CPE_ORBS_AWS]
-          region: $AWS_DEFAULT_REGION
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults-<< matrix.executor >>
-          matrix:
-            parameters:
-              executor: ["docker", "macos", "machine"]
+      # - test-cluster:
+      #     name: test-cluster-defaults-<< matrix.executor >>
+      #     executor: python
+      #     context: [CPE_ORBS_AWS]
+      #     region: $AWS_DEFAULT_REGION
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults-<< matrix.executor >>
+      #     matrix:
+      #       parameters:
+      #         executor: ["docker", "macos", "machine"]
           # requires:
           #   - setup-cluster-defaults-<< matrix.executor >>
-      - test-authenticator:
-          name: test-authenticator-<< matrix.executor >>
-          matrix:
-            parameters:
-              executor: ["docker", "macos", "machine"]
+      # - test-authenticator:
+      #     name: test-authenticator-<< matrix.executor >>
+      #     matrix:
+      #       parameters:
+      #         executor: ["docker", "macos", "machine"]
           # requires:
             # - setup-cluster-defaults-<< matrix.executor >>
-      - test-update-kubeconfig:
-          name: test-update-kubeconfig_region-<< matrix.executor >>
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults-<< matrix.executor >>
-          context: [CPE_ORBS_AWS]
-          region: $AWS_DEFAULT_REGION
-          matrix:
-            parameters:
-              executor: ["docker", "macos", "machine"]
+      # - test-update-kubeconfig:
+      #     name: test-update-kubeconfig_region-<< matrix.executor >>
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults-<< matrix.executor >>
+      #     context: [CPE_ORBS_AWS]
+      #     region: $AWS_DEFAULT_REGION
+      #     matrix:
+      #       parameters:
+      #         executor: ["docker", "macos", "machine"]
           # requires:
           #   - setup-cluster-defaults-<< matrix.executor >>
-      - delete-cluster:
-          name: delete-cluster-defaults-<< matrix.executor >>
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults-<< matrix.executor >>
-          context: [CPE_ORBS_AWS]
-          matrix:
-            parameters:
-              executor: ["docker", "macos", "machine"]
-          wait: true
-          requires:
-            - test-cluster-defaults-<< matrix.executor >>
+      # - delete-cluster:
+      #     name: delete-cluster-defaults-<< matrix.executor >>
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults-<< matrix.executor >>
+      #     context: [CPE_ORBS_AWS]
+      #     matrix:
+      #       parameters:
+      #         executor: ["docker", "macos", "machine"]
+      #     wait: true
+      #     requires:
+      #       - test-cluster-defaults-<< matrix.executor >>
       - setup-cluster-with-many-params:
           name: setup-cluster-custom-values-<< matrix.executor >>
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-<< matrix.executor >>

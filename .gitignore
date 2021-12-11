@@ -2,3 +2,4 @@ orb.yml
 config.yml.old
 .DS_Store
 src/.DS_Store
+tests/install.bats
