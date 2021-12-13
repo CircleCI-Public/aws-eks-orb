@@ -120,7 +120,6 @@ jobs:
           node-volume-size: 30
           node-volume-type: "gp2"
           max-pods-per-node: 30
-          node-ami: "auto-ssm"
           node-ami-family: "AmazonLinux2"
           node-private-networking: false
           node-labels: "nodeowner=cci,nodepurpose=testing"
