@@ -23,7 +23,7 @@ orbs:
 executors:
   macos:
     macos:
-      xcode: "10.1.0"
+      xcode: "13.2.0"
   python2-browsers:
     docker:
       - image: circleci/python:2.7-browsers
