@@ -10,7 +10,6 @@ parameters:
     description: |
       Name of the EKS cluster
     type: string
-    default: ""
   config-file:
     description: |
       Use this to specify a file if you wish to load configuration from it.
