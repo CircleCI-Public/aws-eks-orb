@@ -124,7 +124,6 @@ jobs:
           node-labels: "nodeowner=cci,nodepurpose=testing"
           vpc-cidr: "192.168.0.0/16"
           aws-max-polling-wait-time: "25m"
-          tags: "name=cci_orbs,purpose=orb_test"
           verbose: 3
           show-eksctl-command: true
       - quick-cluster-tests
@@ -162,7 +161,6 @@ jobs:
           external-dns-access: false
           full-ecr-access: false
           aws-max-polling-wait-time: "25m"
-          tags: "name=cci_orbs,purpose=orb_test"
           verbose: 3
           no-output-timeout: 50m
           show-eksctl-command: true
