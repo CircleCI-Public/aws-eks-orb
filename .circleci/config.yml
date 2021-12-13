@@ -442,7 +442,7 @@ workflows:
             - queue/block_workflow
       - orb-tools/trigger-integration-workflow:
           name: trigger-integration-dev
-          ssh-fingerprints: 2a:7f:74:c8:92:7a:a6:42:05:c8:6f:06:62:24:bc:ba
+          ssh-fingerprints: 71:36:7e:b9:59:c7:d7:16:fb:e6:e7:8b:9d:24:23:86
           tag: integration
           use-git-diff: false
           static-release-type: patch
@@ -453,7 +453,7 @@ workflows:
               ignore: master
       - orb-tools/trigger-integration-workflow:
           name: trigger-integration-master
-          ssh-fingerprints: 2a:7f:74:c8:92:7a:a6:42:05:c8:6f:06:62:24:bc:ba
+          ssh-fingerprints: 71:36:7e:b9:59:c7:d7:16:fb:e6:e7:8b:9d:24:23:86
           tag: master
           use-git-diff: false
           static-release-type: patch
@@ -630,7 +630,7 @@ workflows:
       - aws-eks/create-cluster:
           name: setup-cluster-kubectl
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
-          aws-region: "us-west-1"
+          aws-region: "us-west-2"
           context: [CPE_ORBS_AWS]
           filters: *integration_test_filters
       - create-deployment:
@@ -638,14 +638,13 @@ workflows:
           executor: aws-eks/python
           region: "us-west-2"
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
-          context: [CPE_ORBS_AWS]
           requires:
             - setup-cluster-kubectl
           filters: *integration_test_filters
       - aws-eks/update-container-image:
           name: update-container-image-kubectl
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
-          aws-region: "us-west-1"
+          aws-region: "us-west-2"
           resource-name: "deployment/nginx-deployment"
           container-image-updates: "nginx=nginx:1.9.1"
           get-rollout-status: true
@@ -662,7 +661,7 @@ workflows:
       - aws-eks/delete-cluster:
           name: delete-cluster-kubectl
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
-          aws-region: "us-west-1"
+          aws-region: "us-west-2"
           context: [CPE_ORBS_AWS]
           wait: true
           requires:
