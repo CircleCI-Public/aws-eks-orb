@@ -484,7 +484,9 @@ workflows:
               executor: ["docker", "macos", "machine"]
           wait: true
           requires:
+            - test-authenticator-<< matrix.executor >>
             - test-cluster-defaults-<< matrix.executor >>
+            - test-update-kubeconfig_region-<< matrix.executor >>
       - setup-cluster-with-many-params:
           name: setup-cluster-custom-values-<< matrix.executor >>
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-<< matrix.executor >>
@@ -519,7 +521,9 @@ workflows:
               executor: ["docker", "macos", "machine"]
           wait: true
           requires:
-            - test-cluster-custom-values-<< matrix.executor >>
+            - test-cluster-custom-values-docker
+            - test-cluster-custom-values-macos
+            - test-cluster-custom-values-machine
       - setup-cluster-with-ssh:
           name: setup-cluster-custom-values-ssh-<< matrix.executor >>
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh-<< matrix.executor >>
