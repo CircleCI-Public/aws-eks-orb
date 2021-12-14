@@ -311,8 +311,8 @@ jobs:
       - attach_workspace:
           at: /tmp/workspace
       - helm/install-helm-on-cluster:
-          service-account: tiller-test
-          # enable-cluster-wide-admin-access: true
+          service-account: tiller
+          enable-cluster-wide-admin-access: true
       - helm/install-helm-chart:
           chart: stable/grafana
           release-name: << parameters.release-name >>
