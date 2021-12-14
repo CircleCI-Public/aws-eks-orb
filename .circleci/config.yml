@@ -310,12 +310,12 @@ jobs:
           install-kubectl: true
       - attach_workspace:
           at: /tmp/workspace
-      # - helm/install-helm-on-cluster:
-      #     service-account: tiller-test
-      #     enable-cluster-wide-admin-access: true
-      - helm/install-helm-chart:
-          chart: stable/grafana
-          release-name: << parameters.release-name >>
+      - helm/install-helm-on-cluster:
+          service-account: tiller-test
+          enable-cluster-wide-admin-access: true
+      # - helm/install-helm-chart:
+      #     chart: stable/grafana
+      #     release-name: << parameters.release-name >>
       - run:
           name: Test SSH access
           command: |
