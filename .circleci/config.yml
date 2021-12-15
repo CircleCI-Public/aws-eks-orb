@@ -601,7 +601,7 @@ workflows:
           release-name: grafana-release
           context: [CPE_ORBS_AWS]
           requires:
-            - aws-eks/install-helm-on-cluster
+            - setup-cluster-helm
           filters: *integration_test_filters
       - aws-eks/delete-helm-release:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-helm
