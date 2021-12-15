@@ -600,8 +600,8 @@ workflows:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-helm
           enable-cluster-wide-admin-access: true
           context: [CPE_ORBS_AWS]
-          # requires:
-          #   - setup-cluster-helm
+          requires:
+            - setup-cluster-helm
           filters: *integration_test_filters
       - aws-eks/install-helm-chart:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-helm
@@ -620,10 +620,6 @@ workflows:
           requires:
             - aws-eks/install-helm-chart
           filters: *integration_test_filters
-      - helm/install-helm-chart-with-helm2:
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-helm
-          enable-cluster-wide-admin-access: true
-          context: [CPE_ORBS_AWS]
       - aws-eks/delete-cluster:
           name: delete-cluster-helm
           authenticator-release-tag: 'v0.5.0'
