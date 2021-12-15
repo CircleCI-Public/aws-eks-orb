@@ -642,8 +642,8 @@ workflows:
           region: "us-west-2"
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
           context: [CPE_ORBS_AWS]
-          # requires:
-          #   - setup-cluster-kubectl
+          requires:
+            - setup-cluster-kubectl
           filters: *integration_test_filters
       - aws-eks/update-container-image:
           name: update-container-image-kubectl
