@@ -310,10 +310,8 @@ jobs:
           install-kubectl: true
       - attach_workspace:
           at: /tmp/workspace
-      - helm/install-helm-on-cluster:
-          service-account: tiller
-          enable-cluster-wide-admin-access: true
       - helm/install-helm-chart:
+          helm-version: "v3.7.1"
           chart: stable/grafana
           release-name: << parameters.release-name >>
       - run:
@@ -596,15 +594,9 @@ workflows:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-helm
           filters: *integration_test_filters
           context: [CPE_ORBS_AWS]
-      - aws-eks/install-helm-on-cluster:
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-helm
-          enable-cluster-wide-admin-access: true
-          context: [CPE_ORBS_AWS]
-          requires:
-            - setup-cluster-helm
-          filters: *integration_test_filters
       - aws-eks/install-helm-chart:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-helm
+          helm-version: "v3.7.1"
           chart: stable/grafana
           release-name: grafana-release
           context: [CPE_ORBS_AWS]
