@@ -18,7 +18,7 @@ orbs:
   helm: circleci/helm@1.2.0
   orb-tools: circleci/orb-tools@7.3.0
   queue: eddiewebb/queue@1.1.2
-  kubernetes: circleci/kubernetes@0.4.0
+  kubernetes: circleci/kubernetes@1.0
 
 executors:
   macos:
