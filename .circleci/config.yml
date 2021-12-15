@@ -609,7 +609,6 @@ workflows:
           release-name: grafana-release
           context: [CPE_ORBS_AWS]
           purge: true
-          timeout: "600"
           # requires:
           #   - aws-eks/install-helm-chart
           filters: *integration_test_filters
@@ -638,32 +637,32 @@ workflows:
       #     requires:
       #       - setup-cluster-kubectl
           # filters: *integration_test_filters
-      - aws-eks/update-container-image:
-          name: update-container-image-kubectl
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
-          aws-region: "us-west-2"
-          resource-name: "deployment/nginx-deployment"
-          container-image-updates: "nginx=nginx:1.9.1"
-          get-rollout-status: true
-          context: [CPE_ORBS_AWS]
-          post-steps:
-            - kubernetes/delete-resource:
-                resource-types: "deployments"
-                resource-names: "nginx-deployment"
-                now: true
-                wait: true
+      # - aws-eks/update-container-image:
+      #     name: update-container-image-kubectl
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
+      #     aws-region: "us-west-2"
+      #     resource-name: "deployment/nginx-deployment"
+      #     container-image-updates: "nginx=nginx:1.9.1"
+      #     get-rollout-status: true
+      #     context: [CPE_ORBS_AWS]
+      #     post-steps:
+      #       - kubernetes/delete-resource:
+      #           resource-types: "deployments"
+      #           resource-names: "nginx-deployment"
+      #           now: true
+      #           wait: true
           # requires:
           #   - create-deployment-kubectl
-          filters: *integration_test_filters
-      - aws-eks/delete-cluster:
-          name: delete-cluster-kubectl
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
-          aws-region: "us-west-2"
-          context: [CPE_ORBS_AWS]
-          wait: true
-          requires:
-            - update-container-image-kubectl
-          filters: *integration_test_filters
+      #     filters: *integration_test_filters
+      # - aws-eks/delete-cluster:
+      #     name: delete-cluster-kubectl
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
+      #     aws-region: "us-west-2"
+      #     context: [CPE_ORBS_AWS]
+      #     wait: true
+      #     requires:
+      #       - update-container-image-kubectl
+      #     filters: *integration_test_filters
   # Tag-triggered workflow to promote a dev orb into production.
   # The tag is expected to have been applied manually.
   production-orb-publishing:
