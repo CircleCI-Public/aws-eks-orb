@@ -460,157 +460,158 @@ workflows:
   integration-tests:
     jobs:
       # jobs to test various commands
-      - setup-cluster:
-          name: setup-cluster-defaults
-          executor: aws-eks/python2
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
-          context: [CPE_ORBS_AWS]
-          filters: *integration_test_filters
-      - setup-cluster-with-many-params:
-          name: setup-cluster-custom-values
-          executor: aws-eks/python
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
-          context: [CPE_ORBS_AWS]
-          region: "us-west-2"
-          zones: "us-west-2b,us-west-2c"
-          filters: *integration_test_filters
-      - setup-cluster-with-ssh:
-          name: setup-cluster-custom-values-ssh
-          executor: macos
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
-          context: [CPE_ORBS_AWS]
-          region: "us-west-2"
-          zones: "us-west-2b,us-west-2c"
-          filters: *integration_test_filters
-      - test-cluster:
-          name: test-cluster-defaults
-          executor: python2-browsers
-          region: $AWS_DEFAULT_REGION
-          context: [CPE_ORBS_AWS]
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
-          requires:
-            - setup-cluster-defaults
-          filters: *integration_test_filters
-      - test-cluster:
-          name: test-cluster-custom-values
-          executor: python3-browsers
-          region: "us-west-2"
-          context: [CPE_ORBS_AWS]
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
-          requires:
-            - setup-cluster-custom-values
-          filters: *integration_test_filters
-      - test-cluster:
-          name: test-cluster-custom-values-ssh
-          executor: python2-browsers
-          region: "us-west-2"
-          context: [CPE_ORBS_AWS]
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
-          requires:
-            - setup-cluster-custom-values-ssh
-          filters: *integration_test_filters
-      - test-ssh-access:
-          executor:
-            name: aws-eks/python
-            tag: "3.6"
-          region: "us-west-2"
-          context: [CPE_ORBS_AWS]
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
-          release-name: grafana-release
-          requires:
-            - test-cluster-custom-values-ssh
-          filters: *integration_test_filters
-      - test-authenticator:
-          name: test-authenticator-options
-          executor: aws-eks/python2
-          context: [CPE_ORBS_AWS]
-          release-tag: "v0.5.0"
-          requires:
-            - setup-cluster-defaults
-          filters: *integration_test_filters
-      - test-authenticator:
-          name: test-authenticator-macos
-          executor: macos
-          release-tag: "v0.3.0"
-          context: [CPE_ORBS_AWS]
-          requires:
-            - setup-cluster-defaults
-          filters: *integration_test_filters
-      - test-update-kubeconfig:
-          name: test-update-kubeconfig_region
-          executor: aws-eks/python2
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
-          profile: ""
-          region: $AWS_DEFAULT_REGION
-          context: [CPE_ORBS_AWS]
-          requires:
-            - setup-cluster-defaults
-          filters: *integration_test_filters
-      - test-update-kubeconfig:
-          name: test-update-kubeconfig_defaults
-          executor: aws-eks/python3
-          context: [CPE_ORBS_AWS]
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
-          requires:
-            - setup-cluster-defaults
-          filters: *integration_test_filters
-      - test-update-kubeconfig:
-          name: test-update-kubeconfig_macos
-          executor: macos
-          context: [CPE_ORBS_AWS]
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
-          requires:
-            - setup-cluster-defaults
-          filters: *integration_test_filters
-      - delete-cluster:
-          name: delete-cluster-defaults
-          executor: aws-eks/python2
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
-          context: [CPE_ORBS_AWS]
-          requires:
-            - test-cluster-defaults
-          filters: *integration_test_filters
-      - delete-cluster:
-          name: delete-cluster-custom-values
-          executor: aws-eks/python3
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
-          region: "us-west-2"
-          context: [CPE_ORBS_AWS]
-          requires:
-            - test-cluster-custom-values
-          filters: *integration_test_filters
-      - delete-cluster:
-          name: delete-cluster-custom-values-ssh
-          executor: macos
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
-          region: "us-west-2"
-          context: [CPE_ORBS_AWS]
-          requires:
-            - test-ssh-access
-          filters: *integration_test_filters
+      # - setup-cluster:
+      #     name: setup-cluster-defaults
+      #     executor: aws-eks/python2
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+      #     context: [CPE_ORBS_AWS]
+      #     filters: *integration_test_filters
+      # - setup-cluster-with-many-params:
+      #     name: setup-cluster-custom-values
+      #     executor: aws-eks/python
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
+      #     context: [CPE_ORBS_AWS]
+      #     region: "us-west-2"
+      #     zones: "us-west-2b,us-west-2c"
+      #     filters: *integration_test_filters
+      # - setup-cluster-with-ssh:
+      #     name: setup-cluster-custom-values-ssh
+      #     executor: macos
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
+      #     context: [CPE_ORBS_AWS]
+      #     region: "us-west-2"
+      #     zones: "us-west-2b,us-west-2c"
+      #     filters: *integration_test_filters
+      # - test-cluster:
+      #     name: test-cluster-defaults
+      #     executor: python2-browsers
+      #     region: $AWS_DEFAULT_REGION
+      #     context: [CPE_ORBS_AWS]
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+      #     requires:
+      #       - setup-cluster-defaults
+      #     filters: *integration_test_filters
+      # - test-cluster:
+      #     name: test-cluster-custom-values
+      #     executor: python3-browsers
+      #     region: "us-west-2"
+      #     context: [CPE_ORBS_AWS]
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
+      #     requires:
+      #       - setup-cluster-custom-values
+      #     filters: *integration_test_filters
+      # - test-cluster:
+      #     name: test-cluster-custom-values-ssh
+      #     executor: python2-browsers
+      #     region: "us-west-2"
+      #     context: [CPE_ORBS_AWS]
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
+      #     requires:
+      #       - setup-cluster-custom-values-ssh
+      #     filters: *integration_test_filters
+      # - test-ssh-access:
+      #     executor:
+      #       name: aws-eks/python
+      #       tag: "3.6"
+      #     region: "us-west-2"
+      #     context: [CPE_ORBS_AWS]
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
+      #     release-name: grafana-release
+      #     requires:
+      #       - test-cluster-custom-values-ssh
+      #     filters: *integration_test_filters
+      # - test-authenticator:
+      #     name: test-authenticator-options
+      #     executor: aws-eks/python2
+      #     context: [CPE_ORBS_AWS]
+      #     release-tag: "v0.5.0"
+      #     requires:
+      #       - setup-cluster-defaults
+      #     filters: *integration_test_filters
+      # - test-authenticator:
+      #     name: test-authenticator-macos
+      #     executor: macos
+      #     release-tag: "v0.3.0"
+      #     context: [CPE_ORBS_AWS]
+      #     requires:
+      #       - setup-cluster-defaults
+      #     filters: *integration_test_filters
+      # - test-update-kubeconfig:
+      #     name: test-update-kubeconfig_region
+      #     executor: aws-eks/python2
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+      #     profile: ""
+      #     region: $AWS_DEFAULT_REGION
+      #     context: [CPE_ORBS_AWS]
+      #     requires:
+      #       - setup-cluster-defaults
+      #     filters: *integration_test_filters
+      # - test-update-kubeconfig:
+      #     name: test-update-kubeconfig_defaults
+      #     executor: aws-eks/python3
+      #     context: [CPE_ORBS_AWS]
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+      #     requires:
+      #       - setup-cluster-defaults
+      #     filters: *integration_test_filters
+      # - test-update-kubeconfig:
+      #     name: test-update-kubeconfig_macos
+      #     executor: macos
+      #     context: [CPE_ORBS_AWS]
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+      #     requires:
+      #       - setup-cluster-defaults
+      #     filters: *integration_test_filters
+      # - delete-cluster:
+      #     name: delete-cluster-defaults
+      #     executor: aws-eks/python2
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+      #     context: [CPE_ORBS_AWS]
+      #     requires:
+      #       - test-cluster-defaults
+      #     filters: *integration_test_filters
+      # - delete-cluster:
+      #     name: delete-cluster-custom-values
+      #     executor: aws-eks/python3
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
+      #     region: "us-west-2"
+      #     context: [CPE_ORBS_AWS]
+      #     requires:
+      #       - test-cluster-custom-values
+      #     filters: *integration_test_filters
+      # - delete-cluster:
+      #     name: delete-cluster-custom-values-ssh
+      #     executor: macos
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
+      #     region: "us-west-2"
+      #     context: [CPE_ORBS_AWS]
+      #     requires:
+      #       - test-ssh-access
+      #     filters: *integration_test_filters
       # jobs to test helm usage
-      - aws-eks/create-cluster:
-          name: setup-cluster-helm
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-helm
-          filters: *integration_test_filters
-          context: [CPE_ORBS_AWS]
-      - aws-eks/install-helm-chart:
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-helm
-          helm-version: "v3.7.1"
-          chart: stable/grafana
-          release-name: grafana-release
-          context: [CPE_ORBS_AWS]
-          requires:
-            - setup-cluster-helm
-          filters: *integration_test_filters
+      # - aws-eks/create-cluster:
+      #     name: setup-cluster-helm
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-helm
+      #     filters: *integration_test_filters
+      #     context: [CPE_ORBS_AWS]
+      # - aws-eks/install-helm-chart:
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-helm
+      #     helm-version: "v3.7.1"
+      #     chart: stable/grafana
+      #     release-name: grafana-release
+      #     context: [CPE_ORBS_AWS]
+      #     requires:
+      #       - setup-cluster-helm
+      #     filters: *integration_test_filters
       - aws-eks/delete-helm-release:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-helm
+          helm-version: "v3.7.1"
           release-name: grafana-release
           context: [CPE_ORBS_AWS]
           purge: true
           timeout: "600"
-          requires:
-            - aws-eks/install-helm-chart
+          # requires:
+          #   - aws-eks/install-helm-chart
           filters: *integration_test_filters
       - aws-eks/delete-cluster:
           name: delete-cluster-helm
@@ -622,21 +623,21 @@ workflows:
             - aws-eks/delete-helm-release
           filters: *integration_test_filters
       # jobs to test kubectl usage
-      - aws-eks/create-cluster:
-          name: setup-cluster-kubectl
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
-          aws-region: "us-west-2"
-          context: [CPE_ORBS_AWS]
-          filters: *integration_test_filters
-      - create-deployment:
-          name: create-deployment-kubectl
-          executor: aws-eks/python
-          region: "us-west-2"
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
-          context: [CPE_ORBS_AWS]
-          requires:
-            - setup-cluster-kubectl
-          filters: *integration_test_filters
+      # - aws-eks/create-cluster:
+      #     name: setup-cluster-kubectl
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
+      #     aws-region: "us-west-2"
+      #     context: [CPE_ORBS_AWS]
+      #     filters: *integration_test_filters
+      # - create-deployment:
+      #     name: create-deployment-kubectl
+      #     executor: aws-eks/python
+      #     region: "us-west-2"
+      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
+      #     context: [CPE_ORBS_AWS]
+      #     requires:
+      #       - setup-cluster-kubectl
+          # filters: *integration_test_filters
       - aws-eks/update-container-image:
           name: update-container-image-kubectl
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
@@ -651,8 +652,8 @@ workflows:
                 resource-names: "nginx-deployment"
                 now: true
                 wait: true
-          requires:
-            - create-deployment-kubectl
+          # requires:
+          #   - create-deployment-kubectl
           filters: *integration_test_filters
       - aws-eks/delete-cluster:
           name: delete-cluster-kubectl
