@@ -13,17 +13,17 @@ orb_promotion_filters: &orb_promotion_filters
     only: /^(major|minor|patch)-release-v\d+\.\d+\.\d+$/
 
 orbs:
-  aws-eks: circleci/aws-eks@dev:alpha
+  aws-eks: circleci/aws-eks@dev:hotfix
   cli: circleci/circleci-cli@0.1.2
   helm: circleci/helm@1.2.0
   orb-tools: circleci/orb-tools@7.3.0
   queue: eddiewebb/queue@1.1.2
-  kubernetes: circleci/kubernetes@0.4.0
+  kubernetes: circleci/kubernetes@1.0
 
 executors:
   macos:
     macos:
-      xcode: "10.1.0"
+      xcode: "13.2.0"
   python2-browsers:
     docker:
       - image: circleci/python:2.7-browsers
@@ -89,7 +89,6 @@ jobs:
       - aws-eks/install-aws-iam-authenticator
       - aws-eks/create-cluster:
           cluster-name: << parameters.cluster-name >>
-          tags: name=eksorb,purpose=eksorbtest
           verbose: 3
       - quick-cluster-tests
   setup-cluster-with-many-params:
@@ -120,13 +119,11 @@ jobs:
           node-volume-size: 30
           node-volume-type: "gp2"
           max-pods-per-node: 30
-          node-ami: "auto"
           node-ami-family: "AmazonLinux2"
           node-private-networking: false
           node-labels: "nodeowner=cci,nodepurpose=testing"
           vpc-cidr: "192.168.0.0/16"
           aws-max-polling-wait-time: "25m"
-          tags: "name=cci_orbs,purpose=orb_test"
           verbose: 3
           show-eksctl-command: true
       - quick-cluster-tests
@@ -164,7 +161,6 @@ jobs:
           external-dns-access: false
           full-ecr-access: false
           aws-max-polling-wait-time: "25m"
-          tags: "name=cci_orbs,purpose=orb_test"
           verbose: 3
           no-output-timeout: 50m
           show-eksctl-command: true
@@ -224,7 +220,6 @@ jobs:
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
           aws-region: << parameters.region >>
-          dry-run: true
           verbose: true
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
@@ -315,10 +310,8 @@ jobs:
           install-kubectl: true
       - attach_workspace:
           at: /tmp/workspace
-      - helm/install-helm-on-cluster:
-          service-account: tiller-test
-          enable-cluster-wide-admin-access: true
       - helm/install-helm-chart:
+          helm-version: "v3.7.1"
           chart: stable/grafana
           release-name: << parameters.release-name >>
       - run:
@@ -444,7 +437,7 @@ workflows:
             - queue/block_workflow
       - orb-tools/trigger-integration-workflow:
           name: trigger-integration-dev
-          ssh-fingerprints: 2a:7f:74:c8:92:7a:a6:42:05:c8:6f:06:62:24:bc:ba
+          ssh-fingerprints: 71:36:7e:b9:59:c7:d7:16:fb:e6:e7:8b:9d:24:23:86
           tag: integration
           use-git-diff: false
           static-release-type: patch
@@ -455,7 +448,7 @@ workflows:
               ignore: master
       - orb-tools/trigger-integration-workflow:
           name: trigger-integration-master
-          ssh-fingerprints: 2a:7f:74:c8:92:7a:a6:42:05:c8:6f:06:62:24:bc:ba
+          ssh-fingerprints: 71:36:7e:b9:59:c7:d7:16:fb:e6:e7:8b:9d:24:23:86
           tag: master
           use-git-diff: false
           static-release-type: patch
@@ -471,25 +464,29 @@ workflows:
           name: setup-cluster-defaults
           executor: aws-eks/python2
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          context: [CPE_ORBS_AWS]
           filters: *integration_test_filters
       - setup-cluster-with-many-params:
           name: setup-cluster-custom-values
           executor: aws-eks/python
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
-          region: "ap-southeast-2"
-          zones: "ap-southeast-2b,ap-southeast-2c"
+          context: [CPE_ORBS_AWS]
+          region: "us-west-2"
+          zones: "us-west-2b,us-west-2c"
           filters: *integration_test_filters
       - setup-cluster-with-ssh:
           name: setup-cluster-custom-values-ssh
           executor: macos
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
-          region: "ap-southeast-2"
-          zones: "ap-southeast-2b,ap-southeast-2c"
+          context: [CPE_ORBS_AWS]
+          region: "us-west-2"
+          zones: "us-west-2b,us-west-2c"
           filters: *integration_test_filters
       - test-cluster:
           name: test-cluster-defaults
           executor: python2-browsers
           region: $AWS_DEFAULT_REGION
+          context: [CPE_ORBS_AWS]
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
           requires:
             - setup-cluster-defaults
@@ -497,7 +494,8 @@ workflows:
       - test-cluster:
           name: test-cluster-custom-values
           executor: python3-browsers
-          region: "ap-southeast-2"
+          region: "us-west-2"
+          context: [CPE_ORBS_AWS]
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
           requires:
             - setup-cluster-custom-values
@@ -505,7 +503,8 @@ workflows:
       - test-cluster:
           name: test-cluster-custom-values-ssh
           executor: python2-browsers
-          region: "ap-southeast-2"
+          region: "us-west-2"
+          context: [CPE_ORBS_AWS]
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
           requires:
             - setup-cluster-custom-values-ssh
@@ -514,7 +513,8 @@ workflows:
           executor:
             name: aws-eks/python
             tag: "3.6"
-          region: "ap-southeast-2"
+          region: "us-west-2"
+          context: [CPE_ORBS_AWS]
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
           release-name: grafana-release
           requires:
@@ -523,6 +523,7 @@ workflows:
       - test-authenticator:
           name: test-authenticator-options
           executor: aws-eks/python2
+          context: [CPE_ORBS_AWS]
           release-tag: "v0.5.0"
           requires:
             - setup-cluster-defaults
@@ -531,6 +532,7 @@ workflows:
           name: test-authenticator-macos
           executor: macos
           release-tag: "v0.3.0"
+          context: [CPE_ORBS_AWS]
           requires:
             - setup-cluster-defaults
           filters: *integration_test_filters
@@ -540,12 +542,14 @@ workflows:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
           profile: ""
           region: $AWS_DEFAULT_REGION
+          context: [CPE_ORBS_AWS]
           requires:
             - setup-cluster-defaults
           filters: *integration_test_filters
       - test-update-kubeconfig:
           name: test-update-kubeconfig_defaults
           executor: aws-eks/python3
+          context: [CPE_ORBS_AWS]
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
           requires:
             - setup-cluster-defaults
@@ -553,6 +557,7 @@ workflows:
       - test-update-kubeconfig:
           name: test-update-kubeconfig_macos
           executor: macos
+          context: [CPE_ORBS_AWS]
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
           requires:
             - setup-cluster-defaults
@@ -561,6 +566,7 @@ workflows:
           name: delete-cluster-defaults
           executor: aws-eks/python2
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          context: [CPE_ORBS_AWS]
           requires:
             - test-cluster-defaults
           filters: *integration_test_filters
@@ -568,7 +574,8 @@ workflows:
           name: delete-cluster-custom-values
           executor: aws-eks/python3
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
-          region: "ap-southeast-2"
+          region: "us-west-2"
+          context: [CPE_ORBS_AWS]
           requires:
             - test-cluster-custom-values
           filters: *integration_test_filters
@@ -576,7 +583,8 @@ workflows:
           name: delete-cluster-custom-values-ssh
           executor: macos
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
-          region: "ap-southeast-2"
+          region: "us-west-2"
+          context: [CPE_ORBS_AWS]
           requires:
             - test-ssh-access
           filters: *integration_test_filters
@@ -585,24 +593,22 @@ workflows:
           name: setup-cluster-helm
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-helm
           filters: *integration_test_filters
-      - aws-eks/install-helm-on-cluster:
+          context: [CPE_ORBS_AWS]
+      - aws-eks/install-helm-chart:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-helm
-          enable-cluster-wide-admin-access: true
+          helm-version: "v3.7.1"
+          chart: stable/grafana
+          release-name: grafana-release
+          context: [CPE_ORBS_AWS]
           requires:
             - setup-cluster-helm
           filters: *integration_test_filters
-      - aws-eks/install-helm-chart:
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-helm
-          chart: stable/grafana
-          release-name: grafana-release
-          requires:
-            - aws-eks/install-helm-on-cluster
-          filters: *integration_test_filters
       - aws-eks/delete-helm-release:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-helm
+          helm-version: "v3.7.1"
           release-name: grafana-release
+          context: [CPE_ORBS_AWS]
           purge: true
-          timeout: "600"
           requires:
             - aws-eks/install-helm-chart
           filters: *integration_test_filters
@@ -610,6 +616,7 @@ workflows:
           name: delete-cluster-helm
           authenticator-release-tag: 'v0.5.0'
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-helm
+          context: [CPE_ORBS_AWS]
           wait: true
           requires:
             - aws-eks/delete-helm-release
@@ -618,24 +625,26 @@ workflows:
       - aws-eks/create-cluster:
           name: setup-cluster-kubectl
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
-          aws-region: "ap-southeast-1"
+          aws-region: "us-west-2"
+          context: [CPE_ORBS_AWS]
           filters: *integration_test_filters
       - create-deployment:
           name: create-deployment-kubectl
           executor: aws-eks/python
-          region: "ap-southeast-1"
+          region: "us-west-2"
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
+          context: [CPE_ORBS_AWS]
           requires:
             - setup-cluster-kubectl
           filters: *integration_test_filters
       - aws-eks/update-container-image:
           name: update-container-image-kubectl
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
-          aws-region: "ap-southeast-1"
+          aws-region: "us-west-2"
           resource-name: "deployment/nginx-deployment"
           container-image-updates: "nginx=nginx:1.9.1"
           get-rollout-status: true
-          record: true
+          context: [CPE_ORBS_AWS]
           post-steps:
             - kubernetes/delete-resource:
                 resource-types: "deployments"
@@ -648,7 +657,8 @@ workflows:
       - aws-eks/delete-cluster:
           name: delete-cluster-kubectl
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
-          aws-region: "ap-southeast-1"
+          aws-region: "us-west-2"
+          context: [CPE_ORBS_AWS]
           wait: true
           requires:
             - update-container-image-kubectl
