@@ -11,17 +11,13 @@ usage:
       jobs:
         - aws-eks/create-cluster:
             cluster-name: my-eks-helm-demo
-        - aws-eks/install-helm-on-cluster:
-            cluster-name: my-eks-helm-demo
-            enable-cluster-wide-admin-access: true
-            requires:
-              - aws-eks/create-cluster
         - aws-eks/install-helm-chart:
             cluster-name: my-eks-helm-demo
+            helm-version: "v3.7.1"
             chart: stable/grafana
             release-name: grafana-release
             requires:
-              - aws-eks/install-helm-on-cluster
+              - aws-eks/create-cluster
         - aws-eks/delete-helm-release:
             cluster-name: my-eks-helm-demo
             release-name: grafana-release
