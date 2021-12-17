@@ -1,5 +1,60 @@
 version: 2.1
 
+promotion_requires: &promotion_requires
+  [
+    integration-test-installs-docker,
+    integration-test-installs-macos,
+    integration-test-installs-machine,
+    setup-cluster-defaults-docker,
+    setup-cluster-defaults-macos,
+    setup-cluster-defaults-machine,
+    test-cluster-defaults-docker,
+    test-cluster-defaults-macos,
+    test-cluster-defaults-machine,
+    test-authenticator-docker,
+    test-authenticator-macos,
+    test-authenticator-machine,
+    test-update-kubeconfig_region-docker,
+    test-update-kubeconfig_region-macos,
+    test-update-kubeconfig_region-machine,
+    delete-cluster-defaults-docker,
+    delete-cluster-defaults-macos,
+    delete-cluster-defaults-machine,
+    setup-cluster-custom-values-docker,
+    setup-cluster-custom-values-macos,
+    setup-cluster-custom-values-machine,
+    test-cluster-custom-values-docker,
+    test-cluster-custom-values-macos,
+    test-cluster-custom-values-machine,
+    delete-cluster-custom-values-docker,
+    delete-cluster-custom-values-macos,
+    delete-cluster-custom-values-machine,
+    setup-cluster-custom-values-ssh-docker,
+    setup-cluster-custom-values-ssh-macos,
+    setup-cluster-custom-values-ssh-machine,
+    test-cluster-custom-values-ssh-docker,
+    test-cluster-custom-values-ssh-macos,
+    test-cluster-custom-values-ssh-machine,
+    test-ssh-access-docker,
+    test-ssh-access-macos,
+    test-ssh-access-machine,
+    delete-cluster-custom-values-ssh-docker,
+    delete-cluster-custom-values-ssh-macos,
+    delete-cluster-custom-values-ssh-machine,
+    setup-cluster-kubectl-docker,
+    setup-cluster-kubectl-macos,
+    setup-cluster-kubectl-machine,
+    create-deployment-kubectl-docker,
+    create-deployment-kubectl-macos,
+    create-deployment-kubectl-machine,
+    update-container-image-kubectl-docker,
+    update-container-image-kubectl-macos,
+    update-container-image-kubectl-machine,
+    delete-cluster-kubectl-docker,
+    delete-cluster-kubectl-macos,
+    delete-cluster-kubectl-machine
+  ]
+
 orbs:
   aws-eks: circleci/aws-eks@<<pipeline.parameters.dev-orb-version>>
   aws-cli: circleci/aws-cli@2.0
@@ -629,13 +684,12 @@ workflows:
           requires:
             - update-container-image-kubectl-<< matrix.executor >>
       - orb-tools/dev-promote-prod-from-commit-subject:
-          orb-name: <namespace>/<orb-name>
-          context: <publishing-context>
+          orb-name: circleci/aws-eks
+          context: orb-publisher
           add-pr-comment: false
           fail-if-semver-not-indicated: true
           publish-version-tag: false
-          requires:
-            - integration-and-deploy
+          requires: *promotion_requires
           filters:
             branches:
               only:
