@@ -5,7 +5,6 @@ description: |
   cluster (e.g. resources involving an AWS Elastic Load Balancer)
   before running the delete-cluster command, so that resources can be fully
   removed.
-
 parameters:
   cluster-name:
     description: |
@@ -65,41 +64,17 @@ parameters:
     default: "30m"
 
 steps:
-  - install-eksctl
+  - setup
   - run:
+      environment:
+        PARAM_CLUSTER_NAME: << parameters.cluster-name >>
+        PARAM_CONFIG_FILE: << parameters.config-file >>
+        PARAM_AWS_REGION: << parameters.aws-region >>
+        PARAM_AWS_PROFILE: << parameters.aws-profile >>
+        PARAM_WAIT: << parameters.wait >>
+        PARAM_CFN_ROLE_ARN: << parameters.cfn-role-arn >>
+        PARAM_VERBOSE: << parameters.verbose >>
+        PARAM_AWS_MAX_POLLING_WAIT_TIME: << parameters.aws-max-polling-wait-time >>
       name: Delete EKS cluster and associated resources
-      command: |
-        CLUSTER_NAME="<< parameters.cluster-name >>"
-        CONFIG_FILE="<< parameters.config-file >>"
-        AWS_REGION="<< parameters.aws-region >>"
-        AWS_PROFILE="<< parameters.aws-profile >>"
-        WAIT="<< parameters.wait >>"
-        CFN_ROLE_ARN="<< parameters.cfn-role-arn >>"
-        VERBOSE="<< parameters.verbose >>"
-        AWS_MAX_POLLING_WAIT_TIME="<< parameters.aws-max-polling-wait-time >>"
-        if [ -n "${CLUSTER_NAME}" ]; then
-          set -- "$@" --name="${CLUSTER_NAME}"
-        fi
-        if [ -n "${CONFIG_FILE}" ]; then
-          set -- "$@" --config-file="${CONFIG_FILE}"
-        fi
-        if [ -n "${AWS_REGION}" ]; then
-          set -- "$@" --region="${AWS_REGION}"
-        fi
-        if [ -n "${AWS_PROFILE}" ]; then
-          set -- "$@" --profile="${AWS_PROFILE}"
-        fi
-        if [ "${WAIT}" == "true" ]; then
-          set -- "$@" --wait
-        fi
-        if [ -n "${CFN_ROLE_ARN}" ]; then
-          set -- "$@" --cfn-role-arn="${CFN_ROLE_ARN}"
-        fi
-        if [ -n "${AWS_MAX_POLLING_WAIT_TIME}" ]; then
-          set -- "$@" --timeout="${AWS_MAX_POLLING_WAIT_TIME}"
-        fi
-        set -- "$@" --verbose=${VERBOSE}
-        <<# parameters.show-eksctl-command >>set -x<</ parameters.show-eksctl-command >>
-        eksctl delete cluster "$@"
-        <<# parameters.show-eksctl-command >>set +x<</ parameters.show-eksctl-command >>
+      command: <<include(scripts/delete-cluster.sh)>>
       no_output_timeout: << parameters.no-output-timeout >>

@@ -1,6 +1,5 @@
 description: |
   Creates an EKS cluster and required resources (e.g. VPC) using the eksctl tool.
-
 executor: << parameters.executor >>
 
 parameters:
@@ -8,7 +7,7 @@ parameters:
     description: |
       Executor to use for this job.
     type: executor
-    default: python3
+    default: python
   cluster-name:
     description: |
       Name of the EKS cluster to be created

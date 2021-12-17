@@ -1,12 +1,11 @@
 description: |
   Create a kubernetes deployment.
-
 usage:
   version: 2.1
 
   orbs:
-    aws-eks: circleci/aws-eks@0.2.3
-    kubernetes: circleci/kubernetes@0.4.0
+    aws-eks: circleci/aws-eks@2.0
+    kubernetes: circleci/kubernetes@1.0
 
   jobs:
     create-deployment:

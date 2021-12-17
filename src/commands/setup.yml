@@ -1,0 +1,12 @@
+description: Install the Amazon eksctl command line utility.  This command should be ran before invoking the eskctl cli.
+
+parameters:
+  version:
+    type: "string"
+    default: "0.77.0"
+    description: Specify the full semver versioned tag to use.
+
+steps:
+  - run:
+      name: Install Amazon EKSCTL
+      command: <<include(scripts/setup.sh)>>

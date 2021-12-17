@@ -1,13 +1,12 @@
 description: |
   Create an eks cluster together with the required VPC-related
   resources, test it, and tear it down.
-
 usage:
   version: 2.1
 
   orbs:
-    aws-eks: circleci/aws-eks@0.2.3
-    kubernetes: circleci/kubernetes@0.4.0
+    aws-eks: circleci/aws-eks@2.0
+    kubernetes: circleci/kubernetes@1.0
 
   jobs:
     test-cluster:
@@ -25,7 +24,6 @@ usage:
             name: Test cluster
             command: |
               kubectl get services
-
   workflows:
     deployment:
       jobs:
