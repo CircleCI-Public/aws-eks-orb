@@ -688,7 +688,7 @@ workflows:
       #       parameters:
       #         executor: ["docker", "macos", "machine"]
       #     requires:
-      #       - update-container-image-kubectl-<< matrix.executor >>  
+      #       - update-container-image-kubectl-<< matrix.executor >>
       #Fargate Tests
       - setup-cluster-with-many-params:
           name: setup-cluster-with-fargate-<< matrix.executor >>
