@@ -210,6 +210,11 @@ parameters:
       The string is a decimal with unit suffix, such as “20m”, “1.25h”, “5s”
     type: string
     default: "45m"
+  fargate:
+    description: |
+      Specify the node to run on fargate.
+    type: boolean
+    default: false
 
 steps:
   - setup
@@ -254,6 +259,7 @@ steps:
         PARAM_AWS_MAX_POLLING_WAIT_TIME: << parameters.aws-max-polling-wait-time >>
         PARAM_VERBOSE: << parameters.verbose >>
         PARAM_SHOW_EKSCTL_COMMAND: <<parameters.show-eksctl-command>>
+        PARAM_FARGATE: << parameters.fargate >>
       name: Create EKS cluster and associated resources
       command: <<include(scripts/create-cluster.sh)>>
       no_output_timeout: << parameters.no-output-timeout >>

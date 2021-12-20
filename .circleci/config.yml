@@ -682,7 +682,7 @@ workflows:
             parameters:
               executor: ["docker", "macos", "machine"]
           requires:
-            - update-container-image-kubectl-<< matrix.executor >>
+            - update-container-image-kubectl-<< matrix.executor >>      
       - orb-tools/dev-promote-prod-from-commit-subject:
           orb-name: circleci/aws-eks
           context: orb-publisher

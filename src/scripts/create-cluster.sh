@@ -36,6 +36,7 @@ TAGS=$(eval echo "$PARAM_TAGS")
 AWS_MAX_POLLING_WAIT_TIME=$(eval echo "$PARAM_AWS_MAX_POLLING_WAIT_TIM")
 VERBOSE=$(eval echo "$PARAM_VERBOSE")
 SHOW_EKSCTL_COMMAND=$(eval echo "$PARAM_SHOW_EKSCTL_COMMAND")
+FARGATE=$(eval echo "$PARAM_FARGATE")
 
 if [ -n "$CLUSTER_NAME" ]; then
     set -- "$@" --name="$CLUSTER_NAME"
@@ -143,7 +144,9 @@ if [ -n "$TAGS" ]; then
     set -- "$@" --tags="$TAGS"
 fi
 set -- "$@" --verbose="$VERBOSE"
-
+if [ "$FARGATE" == "1" ]; then
+    set -- "$@" --fargate
+fi
 if [ "$SHOW_EKSCTL_COMMAND" == "1" ]; then
     set -x
 fi
