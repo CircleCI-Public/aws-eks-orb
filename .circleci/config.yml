@@ -179,6 +179,9 @@ jobs:
       zones:
         type: string
         default: ""
+      fargate:
+        type: boolean
+        default: false
     executor: << parameters.executor >>
     steps:
       - cluster-setup-check
@@ -687,7 +690,7 @@ workflows:
       #     requires:
       #       - update-container-image-kubectl-<< matrix.executor >>  
       #Fargate Tests
-      - setup-cluster:
+      - setup-cluster-with-many-params:
           name: setup-cluster-with-fargate-<< matrix.executor >>
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-fargate-<< matrix.executor >>
           context: [CPE_ORBS_AWS]
