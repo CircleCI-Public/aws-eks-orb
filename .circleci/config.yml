@@ -53,9 +53,15 @@ promotion_requires: &promotion_requires
     delete-cluster-kubectl-docker,
     delete-cluster-kubectl-macos,
     delete-cluster-kubectl-machine,
-    # setup-cluster-with-fargate-docker,
-    # setup-cluster-with-fargate-macos,
-    # setup-cluster-with-fargate-machine,
+    setup-cluster-fargate-docker,
+    setup-cluster-fargate-macos,
+    setup-cluster-fargate-machine,
+    test-cluster-fargate-docker,
+    test-cluster-fargate-macos,
+    test-cluster-fargate-machine,
+    delete-cluster-fargate-docker,
+    delete-cluster-fargate-macos,
+    delete-cluster-fargate-machine
   ]
 
 orbs:
@@ -493,202 +499,202 @@ workflows:
   integration-and-deploy:
     when: << pipeline.parameters.run-integration-tests >>
     jobs:
-      # - integration-test-installs:
-      #     name: integration-test-installs-<< matrix.executor >>
-      #     context: orb-publisher
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker", "macos", "machine"]
-      # - setup-cluster:
-      #     name: setup-cluster-defaults-<< matrix.executor >>
-      #     context: [CPE_ORBS_AWS]
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults-<< matrix.executor >>
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker", "macos", "machine"]
-      #     requires:
-      #       - integration-test-installs-<< matrix.executor >>
-      # - test-cluster:
-      #     name: test-cluster-defaults-<< matrix.executor >>
-      #     executor: python
-      #     context: [CPE_ORBS_AWS]
-      #     region: $AWS_DEFAULT_REGION
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults-<< matrix.executor >>
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker", "macos", "machine"]
-      #     requires:
-      #       - setup-cluster-defaults-<< matrix.executor >>
-      # - test-authenticator:
-      #     name: test-authenticator-<< matrix.executor >>
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker", "macos", "machine"]
-      #     requires:
-      #       - setup-cluster-defaults-<< matrix.executor >>
-      # - test-update-kubeconfig:
-      #     name: test-update-kubeconfig_region-<< matrix.executor >>
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults-<< matrix.executor >>
-      #     context: [CPE_ORBS_AWS]
-      #     region: $AWS_DEFAULT_REGION
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker", "macos", "machine"]
-      #     requires:
-      #       - setup-cluster-defaults-<< matrix.executor >>
-      # - delete-cluster:
-      #     name: delete-cluster-defaults-<< matrix.executor >>
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults-<< matrix.executor >>
-      #     context: [CPE_ORBS_AWS]
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker", "macos", "machine"]
-      #     wait: true
-      #     requires:
-      #       - test-authenticator-<< matrix.executor >>
-      #       - test-cluster-defaults-<< matrix.executor >>
-      #       - test-update-kubeconfig_region-<< matrix.executor >>
-      # - setup-cluster-with-many-params:
-      #     name: setup-cluster-custom-values-<< matrix.executor >>
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-<< matrix.executor >>
-      #     context: [CPE_ORBS_AWS]
-      #     region: "us-west-2"
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker", "macos", "machine"]
-      #     zones: "us-west-2a,us-west-2c"
-      #     requires:
-      #       - delete-cluster-defaults-docker
-      #       - delete-cluster-defaults-macos
-      #       - delete-cluster-defaults-machine
-      # - test-cluster:
-      #     name: test-cluster-custom-values-<< matrix.executor >>
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-<< matrix.executor >>
-      #     context: [CPE_ORBS_AWS]
-      #     region: "us-west-2"
-      #     executor: python
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker", "macos", "machine"]
-      #     requires:
-      #       - setup-cluster-custom-values-<< matrix.executor >>
-      # - delete-cluster:
-      #     name: delete-cluster-custom-values-<< matrix.executor >>
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-<< matrix.executor >>
-      #     context: [CPE_ORBS_AWS]
-      #     region: "us-west-2"
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker", "macos", "machine"]
-      #     wait: true
-      #     requires:
-      #       - test-cluster-custom-values-docker
-      #       - test-cluster-custom-values-macos
-      #       - test-cluster-custom-values-machine
-      # - setup-cluster-with-ssh:
-      #     name: setup-cluster-custom-values-ssh-<< matrix.executor >>
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh-<< matrix.executor >>
-      #     context: [CPE_ORBS_AWS]
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker", "macos", "machine"]
-      #     region: "us-west-2"
-      #     zones: "us-west-2b,us-west-2c"
-      #     requires:
-      #       - delete-cluster-custom-values-docker
-      #       - delete-cluster-custom-values-macos
-      #       - delete-cluster-custom-values-machine
-      # - test-cluster:
-      #     name: test-cluster-custom-values-ssh-<< matrix.executor >>
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh-<< matrix.executor >>
-      #     context: [CPE_ORBS_AWS]
-      #     executor: python
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker", "macos", "machine"]
-      #     region: "us-west-2"
-      #     requires:
-      #       - setup-cluster-custom-values-ssh-<< matrix.executor >>
-      # - test-ssh-access:
-      #     name: test-ssh-access-<< matrix.executor >>
-      #     executor: python
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh-<< matrix.executor >>
-      #     context: [CPE_ORBS_AWS]
-      #     region: "us-west-2"
-      #     release-name: grafana-release
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker", "macos", "machine"]
-      #     requires:
-      #       - test-cluster-custom-values-ssh-<< matrix.executor >>
-      # - delete-cluster:
-      #     name: delete-cluster-custom-values-ssh-<< matrix.executor >>
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh-<< matrix.executor >>
-      #     context: [CPE_ORBS_AWS]
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker", "macos", "machine"]
-      #     region: "us-west-2"
-      #     wait: true
-      #     requires:
-      #       - test-ssh-access-<< matrix.executor >>
+      - integration-test-installs:
+          name: integration-test-installs-<< matrix.executor >>
+          context: orb-publisher
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
+      - setup-cluster:
+          name: setup-cluster-defaults-<< matrix.executor >>
+          context: [CPE_ORBS_AWS]
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults-<< matrix.executor >>
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
+          requires:
+            - integration-test-installs-<< matrix.executor >>
+      - test-cluster:
+          name: test-cluster-defaults-<< matrix.executor >>
+          executor: python
+          context: [CPE_ORBS_AWS]
+          region: $AWS_DEFAULT_REGION
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults-<< matrix.executor >>
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
+          requires:
+            - setup-cluster-defaults-<< matrix.executor >>
+      - test-authenticator:
+          name: test-authenticator-<< matrix.executor >>
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
+          requires:
+            - setup-cluster-defaults-<< matrix.executor >>
+      - test-update-kubeconfig:
+          name: test-update-kubeconfig_region-<< matrix.executor >>
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults-<< matrix.executor >>
+          context: [CPE_ORBS_AWS]
+          region: $AWS_DEFAULT_REGION
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
+          requires:
+            - setup-cluster-defaults-<< matrix.executor >>
+      - delete-cluster:
+          name: delete-cluster-defaults-<< matrix.executor >>
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults-<< matrix.executor >>
+          context: [CPE_ORBS_AWS]
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
+          wait: true
+          requires:
+            - test-authenticator-<< matrix.executor >>
+            - test-cluster-defaults-<< matrix.executor >>
+            - test-update-kubeconfig_region-<< matrix.executor >>
+      - setup-cluster-with-many-params:
+          name: setup-cluster-custom-values-<< matrix.executor >>
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-<< matrix.executor >>
+          context: [CPE_ORBS_AWS]
+          region: "us-west-2"
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
+          zones: "us-west-2a,us-west-2c"
+          requires:
+            - delete-cluster-defaults-docker
+            - delete-cluster-defaults-macos
+            - delete-cluster-defaults-machine
+      - test-cluster:
+          name: test-cluster-custom-values-<< matrix.executor >>
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-<< matrix.executor >>
+          context: [CPE_ORBS_AWS]
+          region: "us-west-2"
+          executor: python
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
+          requires:
+            - setup-cluster-custom-values-<< matrix.executor >>
+      - delete-cluster:
+          name: delete-cluster-custom-values-<< matrix.executor >>
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-<< matrix.executor >>
+          context: [CPE_ORBS_AWS]
+          region: "us-west-2"
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
+          wait: true
+          requires:
+            - test-cluster-custom-values-docker
+            - test-cluster-custom-values-macos
+            - test-cluster-custom-values-machine
+      - setup-cluster-with-ssh:
+          name: setup-cluster-custom-values-ssh-<< matrix.executor >>
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh-<< matrix.executor >>
+          context: [CPE_ORBS_AWS]
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
+          region: "us-west-2"
+          zones: "us-west-2b,us-west-2c"
+          requires:
+            - delete-cluster-custom-values-docker
+            - delete-cluster-custom-values-macos
+            - delete-cluster-custom-values-machine
+      - test-cluster:
+          name: test-cluster-custom-values-ssh-<< matrix.executor >>
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh-<< matrix.executor >>
+          context: [CPE_ORBS_AWS]
+          executor: python
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
+          region: "us-west-2"
+          requires:
+            - setup-cluster-custom-values-ssh-<< matrix.executor >>
+      - test-ssh-access:
+          name: test-ssh-access-<< matrix.executor >>
+          executor: python
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh-<< matrix.executor >>
+          context: [CPE_ORBS_AWS]
+          region: "us-west-2"
+          release-name: grafana-release
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
+          requires:
+            - test-cluster-custom-values-ssh-<< matrix.executor >>
+      - delete-cluster:
+          name: delete-cluster-custom-values-ssh-<< matrix.executor >>
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh-<< matrix.executor >>
+          context: [CPE_ORBS_AWS]
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
+          region: "us-west-2"
+          wait: true
+          requires:
+            - test-ssh-access-<< matrix.executor >>
       # # #Kubectl Tests
-      # - aws-eks/create-cluster:
-      #     name: setup-cluster-kubectl-<< matrix.executor >>
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl-<< matrix.executor >>
-      #     context: [CPE_ORBS_AWS]
-      #     aws-region: "us-west-2"
-      #     executor: docker
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker", "macos", "machine"]
-      #     requires:
-      #       - delete-cluster-custom-values-ssh-docker
-      #       - delete-cluster-custom-values-ssh-macos
-      #       - delete-cluster-custom-values-ssh-machine
-      # - create-deployment:
-      #     name: create-deployment-kubectl-<< matrix.executor >>
-      #     executor: docker
-      #     context: [CPE_ORBS_AWS]
-      #     region: "us-west-2"
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl-<< matrix.executor >>
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker", "macos", "machine"]
-      #     requires:
-      #       - setup-cluster-kubectl-<< matrix.executor >>
-      # - aws-eks/update-container-image:
-      #     name: update-container-image-kubectl-<< matrix.executor >>
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl-<< matrix.executor >>
-      #     context: [CPE_ORBS_AWS]
-      #     executor: docker
-      #     aws-region: "us-west-2"
-      #     resource-name: "deployment/nginx-deployment"
-      #     container-image-updates: "nginx=nginx:1.9.1"
-      #     get-rollout-status: true
-      #     post-steps:
-      #       - kubernetes/delete-resource:
-      #           resource-types: "deployments"
-      #           resource-names: "nginx-deployment"
-      #           now: true
-      #           wait: true
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker", "macos", "machine"]
-      #     requires:
-      #       - create-deployment-kubectl-<< matrix.executor >>
-      # - aws-eks/delete-cluster:
-      #     name: delete-cluster-kubectl-<< matrix.executor >>
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl-<< matrix.executor >>
-      #     context: [CPE_ORBS_AWS]
-      #     executor: docker
-      #     aws-region: "us-west-2"
-      #     wait: true
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker", "macos", "machine"]
-      #     requires:
-      #       - update-container-image-kubectl-<< matrix.executor >>
+      - aws-eks/create-cluster:
+          name: setup-cluster-kubectl-<< matrix.executor >>
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl-<< matrix.executor >>
+          context: [CPE_ORBS_AWS]
+          aws-region: "us-west-2"
+          executor: docker
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
+          requires:
+            - delete-cluster-custom-values-ssh-docker
+            - delete-cluster-custom-values-ssh-macos
+            - delete-cluster-custom-values-ssh-machine
+      - create-deployment:
+          name: create-deployment-kubectl-<< matrix.executor >>
+          executor: docker
+          context: [CPE_ORBS_AWS]
+          region: "us-west-2"
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl-<< matrix.executor >>
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
+          requires:
+            - setup-cluster-kubectl-<< matrix.executor >>
+      - aws-eks/update-container-image:
+          name: update-container-image-kubectl-<< matrix.executor >>
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl-<< matrix.executor >>
+          context: [CPE_ORBS_AWS]
+          executor: docker
+          aws-region: "us-west-2"
+          resource-name: "deployment/nginx-deployment"
+          container-image-updates: "nginx=nginx:1.9.1"
+          get-rollout-status: true
+          post-steps:
+            - kubernetes/delete-resource:
+                resource-types: "deployments"
+                resource-names: "nginx-deployment"
+                now: true
+                wait: true
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
+          requires:
+            - create-deployment-kubectl-<< matrix.executor >>
+      - aws-eks/delete-cluster:
+          name: delete-cluster-kubectl-<< matrix.executor >>
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl-<< matrix.executor >>
+          context: [CPE_ORBS_AWS]
+          executor: docker
+          aws-region: "us-west-2"
+          wait: true
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
+          requires:
+            - update-container-image-kubectl-<< matrix.executor >>
       #Fargate Tests
       - setup-cluster-with-many-params:
           name: setup-cluster-fargate-<< matrix.executor >>
@@ -700,10 +706,10 @@ workflows:
           matrix:
             parameters:
               executor: ["docker", "macos", "machine"]
-          # requires:
-          #   - delete-cluster-kubectl-docker
-          #   - delete-cluster-kubectl-macos
-          #   - delete-cluster-kubectl-machine
+          requires:
+            - delete-cluster-kubectl-docker
+            - delete-cluster-kubectl-macos
+            - delete-cluster-kubectl-machine
       - test-cluster:
           name: test-cluster-fargate-<< matrix.executor >>
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-fargate-<< matrix.executor >>
@@ -728,14 +734,14 @@ workflows:
             - test-cluster-fargate-docker
             - test-cluster-fargate-macos
             - test-cluster-fargate-machine
-      # - orb-tools/dev-promote-prod-from-commit-subject:
-      #     orb-name: circleci/aws-eks
-      #     context: orb-publisher
-      #     add-pr-comment: false
-      #     fail-if-semver-not-indicated: true
-      #     publish-version-tag: false
-      #     requires: *promotion_requires
-      #     filters:
-      #       branches:
-      #         only:
-      #           - master
+      - orb-tools/dev-promote-prod-from-commit-subject:
+          orb-name: circleci/aws-eks
+          context: orb-publisher
+          add-pr-comment: false
+          fail-if-semver-not-indicated: true
+          publish-version-tag: false
+          requires: *promotion_requires
+          filters:
+            branches:
+              only:
+                - master
