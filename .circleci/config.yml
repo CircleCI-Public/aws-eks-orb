@@ -691,7 +691,7 @@ workflows:
       #       - update-container-image-kubectl-<< matrix.executor >>
       #Fargate Tests
       - setup-cluster-with-many-params:
-          name: setup-cluster-with-fargate-<< matrix.executor >>
+          name: setup-cluster-fargate-<< matrix.executor >>
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-fargate-<< matrix.executor >>
           context: [CPE_ORBS_AWS]
           region: "us-west-2"
@@ -705,7 +705,7 @@ workflows:
           #   - delete-cluster-kubectl-macos
           #   - delete-cluster-kubectl-machine
       - test-cluster:
-          name: test-cluster-with-fargate-<< matrix.executor >>
+          name: test-cluster-fargate-<< matrix.executor >>
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-fargate-<< matrix.executor >>
           context: [CPE_ORBS_AWS]
           region: "us-west-2"
@@ -714,9 +714,9 @@ workflows:
             parameters:
               executor: ["docker", "macos", "machine"]
           requires:
-            - setup-cluster-with-fargate-<< matrix.executor >>
+            - setup-cluster-fargate-<< matrix.executor >>
       - delete-cluster:
-          name: delete-cluster-with-fargate-<< matrix.executor >>
+          name: delete-cluster-fargate-<< matrix.executor >>
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-fargate-<< matrix.executor >>
           context: [CPE_ORBS_AWS]
           region: "us-west-2"
@@ -725,9 +725,9 @@ workflows:
               executor: ["docker", "macos", "machine"]
           wait: true
           requires:
-            - test-cluster-with-fargate-docker
-            - test-cluster-with-fargate-macos
-            - test-cluster-with-fargate-machine
+            - test-cluster-fargate-docker
+            - test-cluster-fargate-macos
+            - test-cluster-fargate-machine
       # - orb-tools/dev-promote-prod-from-commit-subject:
       #     orb-name: circleci/aws-eks
       #     context: orb-publisher
