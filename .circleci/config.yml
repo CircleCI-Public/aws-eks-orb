@@ -690,15 +690,15 @@ workflows:
       #     requires:
       #       - update-container-image-kubectl-<< matrix.executor >>
       #Fargate Tests
-      # - setup-cluster-with-many-params:
-      #     name: setup-cluster-with-fargate-<< matrix.executor >>
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-fargate-<< matrix.executor >>
-      #     context: [CPE_ORBS_AWS]
-      #     region: "us-west-2"
-      #     fargate: true
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker", "macos", "machine"]
+      - setup-cluster-with-many-params:
+          name: setup-cluster-with-fargate-<< matrix.executor >>
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-fargate-<< matrix.executor >>
+          context: [CPE_ORBS_AWS]
+          region: "us-west-2"
+          fargate: true
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
           # requires:
           #   - delete-cluster-kubectl-docker
           #   - delete-cluster-kubectl-macos
