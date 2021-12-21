@@ -712,8 +712,8 @@ workflows:
           matrix:
             parameters:
               executor: ["docker", "macos", "machine"]
-          # requires:
-          #   - setup-cluster-with-fargate-<< matrix.executor >>
+          requires:
+            - setup-cluster-with-fargate-<< matrix.executor >>
       - delete-cluster:
           name: delete-cluster-with-fargate-<< matrix.executor >>
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-fargate-<< matrix.executor >>
