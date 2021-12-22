@@ -52,7 +52,16 @@ promotion_requires: &promotion_requires
     update-container-image-kubectl-machine,
     delete-cluster-kubectl-docker,
     delete-cluster-kubectl-macos,
-    delete-cluster-kubectl-machine
+    delete-cluster-kubectl-machine,
+    setup-cluster-fargate-docker,
+    setup-cluster-fargate-macos,
+    setup-cluster-fargate-machine,
+    test-cluster-fargate-docker,
+    test-cluster-fargate-macos,
+    test-cluster-fargate-machine,
+    delete-cluster-fargate-docker,
+    delete-cluster-fargate-macos,
+    delete-cluster-fargate-machine
   ]
 
 orbs:
@@ -176,6 +185,9 @@ jobs:
       zones:
         type: string
         default: ""
+      fargate:
+        type: boolean
+        default: false
     executor: << parameters.executor >>
     steps:
       - cluster-setup-check
@@ -626,7 +638,7 @@ workflows:
           wait: true
           requires:
             - test-ssh-access-<< matrix.executor >>
-      # #Kubectl Tests
+      # # #Kubectl Tests
       - aws-eks/create-cluster:
           name: setup-cluster-kubectl-<< matrix.executor >>
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl-<< matrix.executor >>
@@ -683,6 +695,45 @@ workflows:
               executor: ["docker", "macos", "machine"]
           requires:
             - update-container-image-kubectl-<< matrix.executor >>
+      #Fargate Tests
+      - setup-cluster-with-many-params:
+          name: setup-cluster-fargate-<< matrix.executor >>
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-fargate-<< matrix.executor >>
+          context: [CPE_ORBS_AWS]
+          region: "us-west-2"
+          fargate: true
+          zones: "us-west-2a,us-west-2c"
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
+          requires:
+            - delete-cluster-kubectl-docker
+            - delete-cluster-kubectl-macos
+            - delete-cluster-kubectl-machine
+      - test-cluster:
+          name: test-cluster-fargate-<< matrix.executor >>
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-fargate-<< matrix.executor >>
+          context: [CPE_ORBS_AWS]
+          region: "us-west-2"
+          executor: python
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
+          requires:
+            - setup-cluster-fargate-<< matrix.executor >>
+      - delete-cluster:
+          name: delete-cluster-fargate-<< matrix.executor >>
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-fargate-<< matrix.executor >>
+          context: [CPE_ORBS_AWS]
+          region: "us-west-2"
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
+          wait: true
+          requires:
+            - test-cluster-fargate-docker
+            - test-cluster-fargate-macos
+            - test-cluster-fargate-machine
       - orb-tools/dev-promote-prod-from-commit-subject:
           orb-name: circleci/aws-eks
           context: orb-publisher
