@@ -4,7 +4,7 @@ usage:
   version: 2.1
 
   orbs:
-    aws-eks: circleci/aws-eks@2.1
+    aws-eks: circleci/aws-eks@<<pipeline.parameters.dev-orb-version>>
 
   workflows:
     deployment:
