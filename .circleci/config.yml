@@ -86,6 +86,9 @@ parameters:
       A "dev:alpha" version must exist for the initial pipeline run.
     type: string
     default: "dev:alpha"
+  new-param:
+      type: boolean
+      default: false
 
 executors:
   docker:
