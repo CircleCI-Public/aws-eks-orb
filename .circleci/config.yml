@@ -103,6 +103,9 @@ executors:
   python:
     docker:
       - image: cimg/python:3.10-browsers
+  runner-test:
+    machine: true
+    resource-class: circleci-runner/alberto-macbook
 
 commands:
   cluster-setup-check:
@@ -142,7 +145,7 @@ jobs:
       release-tag:
         type: string
         default: ""
-    executor: << parameters.executor >>
+    executor: runner-test
     steps:
       - aws-eks/install-aws-iam-authenticator:
           release-tag: << parameters.release-tag >>
@@ -154,7 +157,7 @@ jobs:
     parameters:
       executor:
         type: executor
-    executor: << parameters.executor >>
+    executor: runner-test
     steps:
       - aws-eks/setup
       - run:
@@ -169,7 +172,7 @@ jobs:
         type: executor
       cluster-name:
         type: string
-    executor: << parameters.executor >>
+    executor: runner-test
     steps:
       - cluster-setup-check
       - aws-eks/install-aws-iam-authenticator
@@ -191,7 +194,7 @@ jobs:
       fargate:
         type: boolean
         default: false
-    executor: << parameters.executor >>
+    executor: runner-test
     steps:
       - cluster-setup-check
       - aws-eks/install-aws-iam-authenticator
@@ -227,7 +230,7 @@ jobs:
       zones:
         type: string
         default: ""
-    executor: << parameters.executor >>
+    executor: runner-test
     steps:
       - cluster-setup-check
       - aws-eks/install-aws-iam-authenticator
@@ -266,7 +269,7 @@ jobs:
         default: ""
       cluster-name:
         type: string
-    executor: << parameters.executor >>
+    executor: runner-test
     steps:
       - checkout
       - kubernetes/install
@@ -361,7 +364,7 @@ jobs:
       region:
         type: string
         default: ""
-    executor: << parameters.executor >>
+    executor: runner-test
     steps:
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
@@ -394,7 +397,7 @@ jobs:
         type: string
       release-name:
         type: string
-    executor: << parameters.executor >>
+    executor: runner-test
     steps:
       - cluster-setup-check
       - aws-eks/update-kubeconfig-with-authenticator:
@@ -437,7 +440,7 @@ jobs:
         type: string
       wait:
         type: boolean
-    executor: << parameters.executor >>
+    executor: runner-test
     steps:
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
@@ -460,7 +463,7 @@ jobs:
         description: |
           Name of the EKS cluster
         type: string
-    executor: << parameters.executor >>
+    executor: runner-test
     steps:
       - checkout
       - aws-eks/update-kubeconfig-with-authenticator:
@@ -507,14 +510,14 @@ workflows:
           context: orb-publisher
           matrix:
             parameters:
-              executor: ["docker", "macos", "machine"]
+              executor: ["docker", "macos", "machine", "runner-test"]
       - setup-cluster:
           name: setup-cluster-defaults-<< matrix.executor >>
           context: [CPE_ORBS_AWS]
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults-<< matrix.executor >>
           matrix:
             parameters:
-              executor: ["docker", "macos", "machine"]
+              executor: ["docker", "macos", "machine", "runner-test"]
           requires:
             - integration-test-installs-<< matrix.executor >>
       - test-cluster:
@@ -525,14 +528,14 @@ workflows:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults-<< matrix.executor >>
           matrix:
             parameters:
-              executor: ["docker", "macos", "machine"]
+              executor: ["docker", "macos", "machine", "runner-test"]
           requires:
             - setup-cluster-defaults-<< matrix.executor >>
       - test-authenticator:
           name: test-authenticator-<< matrix.executor >>
           matrix:
             parameters:
-              executor: ["docker", "macos", "machine"]
+              executor: ["docker", "macos", "machine", "runner-test"]
           requires:
             - setup-cluster-defaults-<< matrix.executor >>
       - test-update-kubeconfig:
@@ -542,7 +545,7 @@ workflows:
           region: $AWS_DEFAULT_REGION
           matrix:
             parameters:
-              executor: ["docker", "macos", "machine"]
+              executor: ["docker", "macos", "machine", "runner-test"]
           requires:
             - setup-cluster-defaults-<< matrix.executor >>
       - delete-cluster:
@@ -551,7 +554,7 @@ workflows:
           context: [CPE_ORBS_AWS]
           matrix:
             parameters:
-              executor: ["docker", "macos", "machine"]
+              executor: ["docker", "macos", "machine", "runner-test"]
           wait: true
           requires:
             - test-authenticator-<< matrix.executor >>
@@ -564,7 +567,7 @@ workflows:
           region: "us-west-2"
           matrix:
             parameters:
-              executor: ["docker", "macos", "machine"]
+              executor: ["docker", "macos", "machine", "runner-test"]
           zones: "us-west-2a,us-west-2c"
           requires:
             - delete-cluster-defaults-docker
@@ -575,10 +578,10 @@ workflows:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-<< matrix.executor >>
           context: [CPE_ORBS_AWS]
           region: "us-west-2"
-          executor: python
+          executor: runner-test
           matrix:
             parameters:
-              executor: ["docker", "macos", "machine"]
+              executor: ["docker", "macos", "machine", "runner-test"]
           requires:
             - setup-cluster-custom-values-<< matrix.executor >>
       - delete-cluster:
@@ -588,7 +591,7 @@ workflows:
           region: "us-west-2"
           matrix:
             parameters:
-              executor: ["docker", "macos", "machine"]
+              executor: ["docker", "macos", "machine", "runner-test"]
           wait: true
           requires:
             - test-cluster-custom-values-docker
@@ -600,7 +603,7 @@ workflows:
           context: [CPE_ORBS_AWS]
           matrix:
             parameters:
-              executor: ["docker", "macos", "machine"]
+              executor: ["docker", "macos", "machine", "runner-test"]
           region: "us-west-2"
           zones: "us-west-2b,us-west-2c"
           requires:
@@ -611,23 +614,23 @@ workflows:
           name: test-cluster-custom-values-ssh-<< matrix.executor >>
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh-<< matrix.executor >>
           context: [CPE_ORBS_AWS]
-          executor: python
+          executor: runner-test
           matrix:
             parameters:
-              executor: ["docker", "macos", "machine"]
+              executor: ["docker", "macos", "machine", "runner-test"]
           region: "us-west-2"
           requires:
             - setup-cluster-custom-values-ssh-<< matrix.executor >>
       - test-ssh-access:
           name: test-ssh-access-<< matrix.executor >>
-          executor: python
+          executor: runner-test
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh-<< matrix.executor >>
           context: [CPE_ORBS_AWS]
           region: "us-west-2"
           release-name: grafana-release
           matrix:
             parameters:
-              executor: ["docker", "macos", "machine"]
+              executor: ["docker", "macos", "machine", "runner-test"]
           requires:
             - test-cluster-custom-values-ssh-<< matrix.executor >>
       - delete-cluster:
@@ -636,7 +639,7 @@ workflows:
           context: [CPE_ORBS_AWS]
           matrix:
             parameters:
-              executor: ["docker", "macos", "machine"]
+              executor: ["docker", "macos", "machine", "runner-test"]
           region: "us-west-2"
           wait: true
           requires:
@@ -647,30 +650,30 @@ workflows:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl-<< matrix.executor >>
           context: [CPE_ORBS_AWS]
           aws-region: "us-west-2"
-          executor: docker
+          executor: runner-test
           matrix:
             parameters:
-              executor: ["docker", "macos", "machine"]
+              executor: ["docker", "macos", "machine", "runner-test"]
           requires:
             - delete-cluster-custom-values-ssh-docker
             - delete-cluster-custom-values-ssh-macos
             - delete-cluster-custom-values-ssh-machine
       - create-deployment:
           name: create-deployment-kubectl-<< matrix.executor >>
-          executor: docker
+          executor: runner-test
           context: [CPE_ORBS_AWS]
           region: "us-west-2"
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl-<< matrix.executor >>
           matrix:
             parameters:
-              executor: ["docker", "macos", "machine"]
+              executor: ["docker", "macos", "machine", "runner-test"]
           requires:
             - setup-cluster-kubectl-<< matrix.executor >>
       - aws-eks/update-container-image:
           name: update-container-image-kubectl-<< matrix.executor >>
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl-<< matrix.executor >>
           context: [CPE_ORBS_AWS]
-          executor: docker
+          executor: runner-test
           aws-region: "us-west-2"
           resource-name: "deployment/nginx-deployment"
           container-image-updates: "nginx=nginx:1.9.1"
@@ -683,19 +686,19 @@ workflows:
                 wait: true
           matrix:
             parameters:
-              executor: ["docker", "macos", "machine"]
+              executor: ["docker", "macos", "machine", "runner-test"]
           requires:
             - create-deployment-kubectl-<< matrix.executor >>
       - aws-eks/delete-cluster:
           name: delete-cluster-kubectl-<< matrix.executor >>
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl-<< matrix.executor >>
           context: [CPE_ORBS_AWS]
-          executor: docker
+          executor: runner-test
           aws-region: "us-west-2"
           wait: true
           matrix:
             parameters:
-              executor: ["docker", "macos", "machine"]
+              executor: ["docker", "macos", "machine", "runner-test"]
           requires:
             - update-container-image-kubectl-<< matrix.executor >>
       #Fargate Tests
@@ -708,7 +711,7 @@ workflows:
           zones: "us-west-2a,us-west-2c"
           matrix:
             parameters:
-              executor: ["docker", "macos", "machine"]
+              executor: ["docker", "macos", "machine", "runner-test"]
           requires:
             - delete-cluster-kubectl-docker
             - delete-cluster-kubectl-macos
@@ -718,10 +721,10 @@ workflows:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-fargate-<< matrix.executor >>
           context: [CPE_ORBS_AWS]
           region: "us-west-2"
-          executor: python
+          executor: runner-test
           matrix:
             parameters:
-              executor: ["docker", "macos", "machine"]
+              executor: ["docker", "macos", "machine", "runner-test"]
           requires:
             - setup-cluster-fargate-<< matrix.executor >>
       - delete-cluster:
@@ -731,7 +734,7 @@ workflows:
           region: "us-west-2"
           matrix:
             parameters:
-              executor: ["docker", "macos", "machine"]
+              executor: ["docker", "macos", "machine", "runner-test"]
           wait: true
           requires:
             - test-cluster-fargate-docker
