@@ -6,14 +6,17 @@ description: |
   cluster (e.g. resources involving an AWS Elastic Load Balancer)
   before running the delete-cluster command, so that resources can be fully
   removed.
-executor: << parameters.executor >>
+docker:
+- image: cimg/python:<<parameters.tag>>
 
 parameters:
-  executor:
+  tag:
+    default: 3.10
     description: |
-      Executor to use for this job.
-    type: executor
-    default: python
+      Version of the CircleCI Python convenience image to use. For full list,
+      see https://hub.docker.com/r/cimg/python/tags
+      A version of Python supported by the AWS CLI is required.
+    type: string
   cluster-name:
     description: |
       The name of the EKS cluster to be deleted.
