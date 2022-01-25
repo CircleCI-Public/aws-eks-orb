@@ -161,12 +161,10 @@ jobs:
           name: Test aws-iam-authenticator
           command: command -v aws-iam-authenticator
   setup-cluster:
+    executor: python
     parameters:
-      executor:
-        type: executor
       cluster-name:
         type: string
-    executor: << parameters.executor >>
     steps:
       - cluster-setup-check
       - aws-eks/install-aws-iam-authenticator
@@ -174,9 +172,8 @@ jobs:
           cluster-name: << parameters.cluster-name >>
       - quick-cluster-tests
   setup-cluster-with-many-params:
+    executor: python
     parameters:
-      executor:
-        type: executor
       cluster-name:
         type: string
       region:
@@ -188,7 +185,6 @@ jobs:
       fargate:
         type: boolean
         default: false
-    executor: << parameters.executor >>
     steps:
       - cluster-setup-check
       - aws-eks/install-aws-iam-authenticator
@@ -213,9 +209,8 @@ jobs:
           show-eksctl-command: true
       - quick-cluster-tests
   setup-cluster-with-ssh:
+    executor: python
     parameters:
-      executor:
-        type: executor
       cluster-name:
         type: string
       region:
@@ -224,7 +219,6 @@ jobs:
       zones:
         type: string
         default: ""
-    executor: << parameters.executor >>
     steps:
       - cluster-setup-check
       - aws-eks/install-aws-iam-authenticator
@@ -424,9 +418,8 @@ jobs:
             # Test accessing Grafana from the build container through the port-forwarding setup
             curl -s http://localhost:3000 | grep login
   delete-cluster:
+    executor: python
     parameters:
-      executor:
-        type: executor
       region:
         type: string
         default: ""
@@ -434,7 +427,6 @@ jobs:
         type: string
       wait:
         type: boolean
-    executor: << parameters.executor >>
     steps:
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
@@ -698,8 +690,7 @@ workflows:
       #Fargate Tests
       - setup-cluster-with-many-params:
           name: setup-cluster-fargate
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-fargate-<< matrix.executor >>
-          context: [CPE_ORBS_AWS]
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-fargate
           region: "us-west-2"
           fargate: true
           zones: "us-west-2a,us-west-2c"
@@ -711,19 +702,19 @@ workflows:
           #   - delete-cluster-kubectl-macos
           #   - delete-cluster-kubectl-machine
       - test-cluster:
-          name: test-cluster-fargate-<< matrix.executor >>
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-fargate-<< matrix.executor >>
+          name: test-cluster-fargate
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-fargate
           context: [CPE_ORBS_AWS]
           region: "us-west-2"
           executor: python
-          matrix:
-            parameters:
-              executor: ["docker", "macos", "machine"]
+          # matrix:
+          #   parameters:
+          #     executor: ["docker", "macos", "machine"]
           requires:
             - setup-cluster-fargate
       - delete-cluster:
-          name: delete-cluster-fargate-<< matrix.executor >>
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-fargate-<< matrix.executor >>
+          name: delete-cluster-fargate
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-fargate
           context: [CPE_ORBS_AWS]
           region: "us-west-2"
           # matrix:
