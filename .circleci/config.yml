@@ -722,9 +722,9 @@ workflows:
           #     executor: ["docker", "macos", "machine"]
           wait: true
           requires:
-            - test-cluster-fargate-docker
-            - test-cluster-fargate-macos
-            - test-cluster-fargate-machine
+            - test-cluster-fargate
+            # - test-cluster-fargate-macos
+            # - test-cluster-fargate-machine
       - orb-tools/dev-promote-prod-from-commit-subject:
           orb-name: circleci/aws-eks
           context: orb-publisher
