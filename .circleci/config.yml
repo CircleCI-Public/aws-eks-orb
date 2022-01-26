@@ -53,7 +53,7 @@ promotion_requires: &promotion_requires
     # delete-cluster-kubectl-docker,
     # delete-cluster-kubectl-macos,
     # delete-cluster-kubectl-machine,
-    setup-cluster-fargate-,
+    setup-cluster-fargate,
     test-cluster-fargate-docker,
     delete-cluster-fargate-docker
     # setup-cluster-fargate-docker,
