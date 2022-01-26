@@ -53,9 +53,6 @@ promotion_requires: &promotion_requires
     # delete-cluster-kubectl-docker,
     # delete-cluster-kubectl-macos,
     # delete-cluster-kubectl-machine,
-    setup-cluster-fargate,
-    test-cluster-fargate-docker,
-    delete-cluster-fargate-docker
     # setup-cluster-fargate-docker,
     # setup-cluster-fargate-macos,
     # setup-cluster-fargate-machine,
@@ -65,6 +62,9 @@ promotion_requires: &promotion_requires
     # delete-cluster-fargate-docker,
     # delete-cluster-fargate-macos,
     # delete-cluster-fargate-machine
+    setup-cluster-fargate,
+    test-cluster-fargate,
+    delete-cluster-fargate
   ]
 
 orbs:
