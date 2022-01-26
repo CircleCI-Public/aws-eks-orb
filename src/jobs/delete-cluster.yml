@@ -11,7 +11,7 @@ docker:
 
 parameters:
   tag:
-    default: 3.10
+    default: "3.10"
     description: |
       Version of the CircleCI Python convenience image to use. For full list,
       see https://hub.docker.com/r/cimg/python/tags
