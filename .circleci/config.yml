@@ -56,14 +56,14 @@ promotion_requires: &promotion_requires
     # setup-cluster-fargate-docker,
     # setup-cluster-fargate-macos,
     # setup-cluster-fargate-machine,
-    # test-cluster-fargate-docker,
-    # test-cluster-fargate-macos,
-    # test-cluster-fargate-machine,
     # delete-cluster-fargate-docker,
     # delete-cluster-fargate-macos,
     # delete-cluster-fargate-machine
     setup-cluster-fargate,
-    test-cluster-fargate,
+    test-cluster-fargate-docker,
+    test-cluster-fargate-macos,
+    test-cluster-fargate-machine,
+    # test-cluster-fargate,
     delete-cluster-fargate
   ]
 
@@ -707,13 +707,13 @@ workflows:
           #   - delete-cluster-kubectl-machine
       - test-cluster:
           name: test-cluster-fargate
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-fargate
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-fargate-<< matrix.executor >>
           context: [CPE_ORBS_AWS]
           region: "us-west-2"
           executor: python
-          # matrix:
-          #   parameters:
-          #     executor: ["docker", "macos", "machine"]
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
           requires:
             - setup-cluster-fargate
       - delete-cluster:
@@ -726,9 +726,9 @@ workflows:
           #     executor: ["docker", "macos", "machine"]
           wait: true
           requires:
-            - test-cluster-fargate
-            # - test-cluster-fargate-macos
-            # - test-cluster-fargate-machine
+            - test-cluster-fargate-docker
+            - test-cluster-fargate-macos
+            - test-cluster-fargate-machine
       - orb-tools/dev-promote-prod-from-commit-subject:
           orb-name: circleci/aws-eks
           context: orb-publisher
