@@ -697,6 +697,7 @@ workflows:
           region: "us-west-2"
           fargate: true
           zones: "us-west-2a,us-west-2c"
+          context: [CPE_ORBS_AWS]
           # matrix:
           #   parameters:
           #     executor: ["docker", "macos", "machine"]
