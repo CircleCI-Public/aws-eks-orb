@@ -27,9 +27,7 @@ promotion_requires: &promotion_requires
     create-deployment-kubectl,
     update-container-image-kubectl,
     delete-cluster-kubectl,
-    test-cluster-fargate-docker,
-    test-cluster-fargate-macos,
-    test-cluster-fargate-machine,
+    setup-cluster-fargate,
     test-cluster-fargate,
     delete-cluster-fargate
   ]
