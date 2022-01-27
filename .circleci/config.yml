@@ -24,8 +24,8 @@ promotion_requires: &promotion_requires
     test-ssh-access-machine,
     delete-cluster-custom-values-ssh,
     setup-cluster-kubectl,
-    create-deployment-kubectl
-    update-container-image-kubectl
+    create-deployment-kubectl,
+    update-container-image-kubectl,
     delete-cluster-kubectl,
     test-cluster-fargate-docker,
     test-cluster-fargate-macos,
