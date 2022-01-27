@@ -18,7 +18,7 @@ promotion_requires: &promotion_requires
     test-cluster-custom-values,
     delete-cluster-custom-values,
     setup-cluster-custom-values-ssh,
-    test-cluster-custom-values-ssh
+    test-cluster-custom-values-ssh,
     test-ssh-access-docker,
     test-ssh-access-macos,
     test-ssh-access-machine,
