@@ -624,9 +624,7 @@ workflows:
           zones: "us-west-2a,us-west-2c"
           context: [CPE_ORBS_AWS]
           requires:
-            - delete-cluster-kubectl-docker
-            - delete-cluster-kubectl-macos
-            - delete-cluster-kubectl-machine
+            - delete-cluster-kubectl
       - test-cluster:
           name: test-cluster-fargate
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-fargate
