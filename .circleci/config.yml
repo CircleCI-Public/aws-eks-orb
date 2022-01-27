@@ -59,7 +59,7 @@ promotion_requires: &promotion_requires
     # delete-cluster-fargate-docker,
     # delete-cluster-fargate-macos,
     # delete-cluster-fargate-machine
-    setup-cluster-fargate,
+    # setup-cluster-fargate,
     test-cluster-fargate-docker,
     test-cluster-fargate-macos,
     test-cluster-fargate-machine,
