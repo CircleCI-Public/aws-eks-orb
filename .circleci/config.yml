@@ -517,6 +517,10 @@ workflows:
           context: [CPE_ORBS_AWS]
           region: "us-west-2"
           zones: "us-west-2a,us-west-2c"
+          requires:
+            - integration-test-installs-docker
+            - integration-test-installs-macos
+            - integration-test-installs-machine
       - test-cluster:
           name: test-cluster-custom-values
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
@@ -540,7 +544,9 @@ workflows:
           region: "us-west-2"
           zones: "us-west-2b,us-west-2c"
           requires:
-            - delete-cluster-custom-values
+            - integration-test-installs-docker
+            - integration-test-installs-macos
+            - integration-test-installs-machine
       - test-cluster:
           name: test-cluster-custom-values-ssh
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
@@ -551,7 +557,7 @@ workflows:
             - setup-cluster-custom-values-ssh
       - test-ssh-access:
           name: test-ssh-access-<< matrix.executor >>
-          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh-<< matrix.executor >>
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
           context: [CPE_ORBS_AWS]
           region: "us-west-2"
           release-name: grafana-release
@@ -617,6 +623,10 @@ workflows:
           fargate: true
           zones: "us-west-2a,us-west-2c"
           context: [CPE_ORBS_AWS]
+          requires:
+            - integration-test-installs-docker
+            - integration-test-installs-macos
+            - integration-test-installs-machine
       - test-cluster:
           name: test-cluster-fargate
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-fargate

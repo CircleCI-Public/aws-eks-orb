@@ -6,6 +6,7 @@ description: |
   cluster (e.g. resources involving an AWS Elastic Load Balancer)
   before running the delete-cluster command, so that resources can be fully
   removed.
+
 docker:
 - image: cimg/python:<<parameters.tag>>
 
