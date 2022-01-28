@@ -19,9 +19,7 @@ promotion_requires: &promotion_requires
     delete-cluster-custom-values,
     setup-cluster-custom-values-ssh,
     test-cluster-custom-values-ssh,
-    test-ssh-access-docker,
-    test-ssh-access-macos,
-    test-ssh-access-machine,
+    test-ssh-access,
     delete-cluster-custom-values-ssh,
     setup-cluster-kubectl,
     create-deployment-kubectl,
@@ -556,14 +554,12 @@ workflows:
           requires:
             - setup-cluster-custom-values-ssh
       - test-ssh-access:
-          name: test-ssh-access-<< matrix.executor >>
+          name: test-ssh-access
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
           context: [CPE_ORBS_AWS]
           region: "us-west-2"
           release-name: grafana-release
-          matrix:
-            parameters:
-              executor: ["docker", "macos", "machine"]
+          executor: python
           requires:
             - test-cluster-custom-values-ssh
       - delete-cluster:
@@ -573,9 +569,7 @@ workflows:
           region: "us-west-2"
           wait: true
           requires:
-            - test-ssh-access-docker
-            - test-ssh-access-macos
-            - test-ssh-access-machine
+            - test-ssh-access
             - test-cluster-custom-values-ssh
       #Kubectl Tests
       - aws-eks/create-cluster:
@@ -583,6 +577,10 @@ workflows:
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
           context: [CPE_ORBS_AWS]
           aws-region: "us-west-2"
+          requires:
+            - integration-test-installs-docker
+            - integration-test-installs-macos
+            - integration-test-installs-machine
       - create-deployment:
           name: create-deployment-kubectl
           executor: python
