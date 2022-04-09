@@ -1,33 +1,10 @@
 version: 2.1
 
-promotion_requires: &promotion_requires
-  [
+promotion_requires:
+  &promotion_requires [
     integration-test-installs-docker,
     integration-test-installs-macos,
     integration-test-installs-machine,
-    setup-cluster-defaults,
-    test-cluster-defaults,
-    test-authenticator-docker,
-    test-authenticator-macos,
-    test-authenticator-machine,
-    test-update-kubeconfig-region-docker,
-    test-update-kubeconfig-region-macos,
-    test-update-kubeconfig-region-machine,
-    delete-cluster-defaults,
-    setup-cluster-custom-values,
-    test-cluster-custom-values,
-    delete-cluster-custom-values,
-    setup-cluster-custom-values-ssh,
-    test-cluster-custom-values-ssh,
-    test-ssh-access,
-    delete-cluster-custom-values-ssh,
-    setup-cluster-kubectl,
-    create-deployment-kubectl,
-    update-container-image-kubectl,
-    delete-cluster-kubectl,
-    setup-cluster-fargate,
-    test-cluster-fargate,
-    delete-cluster-fargate
   ]
 
 orbs:
