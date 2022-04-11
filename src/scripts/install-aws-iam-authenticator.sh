@@ -1,4 +1,15 @@
 #!/bin/bash
+set -x
+download_authenticator () {
+    echo "Download_url: $1"
+    curl -L --fail --retry 3 -o aws-iam-authenticator "$1"
+    chmod +x ./aws-iam-authenticator
+    if [ "$(id -u)" -ne 0 ] && which sudo > /dev/null ; then
+        SUDO="sudo"
+    fi
+    $SUDO mv ./aws-iam-authenticator /usr/local/bin/aws-iam-authenticator
+}
+
 if which aws-iam-authenticator > /dev/null; then
     echo "AWS IAM Authenticator for Kubernetes is already installed"
     exit 0
@@ -16,6 +27,8 @@ if [ -n "${PARAM_RELEASE_TAG}" ]; then
    FILENAME="heptio-authenticator-aws"
    fi
    DOWNLOAD_URL="https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/v${VERSION}/${FILENAME}_${VERSION}_${PLATFORM}_amd64"
+   download_authenticator $DOWNLOAD_URL
+   exit 0
 else
    versions_raw=$(curl -Ls --fail --retry 3  "https://api.github.com/repos/kubernetes-sigs/aws-iam-authenticator/releases"  | grep tag_name |  awk -F ":" '{print $2}')
    IFS=', ' read -ra versions <<<$(echo ${versions_raw//$'\n'/} | tr -d '"') 
@@ -25,13 +38,8 @@ else
       DOWNLOAD_URL="https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/v${ver}/aws-iam-authenticator_${ver}_${PLATFORM}_amd64"
       status_code=$(curl --write-out %{http_code} --silent --output /dev/null $DOWNLOAD_URL)
       if [[ "$status_code" -eq 302 ]] ; then
-	break
+        download_authenticator $DOWNLOAD_URL
+	    exit 0
       fi
    done
 fi
-curl -L --fail --retry 3 -o aws-iam-authenticator "$DOWNLOAD_URL"
-chmod +x ./aws-iam-authenticator
-if [ "$(id -u)" -ne 0 ] && which sudo > /dev/null ; then
-    SUDO="sudo"
-fi
-$SUDO mv ./aws-iam-authenticator /usr/local/bin/aws-iam-authenticator
