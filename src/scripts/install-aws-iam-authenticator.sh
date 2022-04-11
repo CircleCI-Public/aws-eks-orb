@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+
 download_authenticator () {
     echo "Download_url: $1"
     curl -L --fail --retry 3 -o aws-iam-authenticator "$1"
