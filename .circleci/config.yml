@@ -417,7 +417,7 @@ workflows:
           exclude: SC2148, SC1083
       # Publish development version(s) of the orb.
       - orb-tools/publish-dev:
-          orb-name: circleci/aws-eks
+          orb-name: crownandcaliber/aws-eks
           context: orb-publisher # A restricted context containing your private publishing credentials. Will only execute if approved by an authorized user.
           requires:
             - orb-tools/lint
@@ -619,7 +619,7 @@ workflows:
           requires:
             - test-cluster-fargate
       - orb-tools/dev-promote-prod-from-commit-subject:
-          orb-name: circleci/aws-eks
+          orb-name: crownandcaliber/aws-eks
           context: orb-publisher
           add-pr-comment: false
           fail-if-semver-not-indicated: true
