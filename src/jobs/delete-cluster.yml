@@ -38,6 +38,11 @@ parameters:
       Specifies which release-tag version of the authenticator to install.
     type: string
     default: ""
+  kubectl-version:
+    description: |
+      Version of kubectl to install
+    type: string
+    default: "latest"
   wait:
     description: |
       Whether to wait for deletion of all resources before exiting
@@ -66,6 +71,7 @@ steps:
       aws-profile: << parameters.aws-profile >>
       install-kubectl: true
       authenticator-release-tag: << parameters.authenticator-release-tag >>
+      kubectl-version: << parameters.kubectl-version >>
   - delete-cluster:
       cluster-name: << parameters.cluster-name >>
       aws-region: << parameters.aws-region >>

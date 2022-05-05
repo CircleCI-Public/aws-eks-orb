@@ -84,6 +84,11 @@ parameters:
       Specifies which release-tag version of the authenticator to install.
     type: string
     default: ""
+  kubectl-version:
+    description: |
+      Version of kubectl to install
+    type: string
+    default: "latest"
 
 steps:
   - update-kubeconfig-with-authenticator:
@@ -92,6 +97,7 @@ steps:
       aws-profile: << parameters.aws-profile >>
       install-kubectl: true
       authenticator-release-tag: << parameters.authenticator-release-tag >>
+      kubectl-version: << parameters.kubectl-version >>
   - kubernetes/update-container-image:
       resource-name: << parameters.resource-name >>
       container-image-updates: << parameters.container-image-updates >>
