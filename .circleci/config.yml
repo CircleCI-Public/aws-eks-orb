@@ -8,7 +8,7 @@ promotion_requires:
   ]
 
 orbs:
-  aws-eks: circleci/aws-eks@<<pipeline.parameters.dev-orb-version>>
+  aws-eks: circleci/aws-eks@2.1.2
   aws-cli: circleci/aws-cli@2.0
   helm: circleci/helm@1.2
   kubernetes: circleci/kubernetes@1.0
