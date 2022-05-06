@@ -200,16 +200,10 @@ jobs:
         default: ""
       cluster-name:
         type: string
-      kubectl-version:
-        description: |
-          Version of kubectl to install (v1.24.0 of kubectl breaks client.authentication.k8s.io/v1alpha1)
-        type: string
-        default: "v1.21.0"
     executor: << parameters.executor >>
     steps:
       - checkout
-      - kubernetes/install:
-          kubectl-version: << parameters.kubectl-version >>
+      - kubernetes/install
       - browser-tools/install-chrome
       - browser-tools/install-chromedriver
       # Test various update-kubeconfig options
@@ -301,11 +295,6 @@ jobs:
       region:
         type: string
         default: ""
-      kubectl-version:
-        description: |
-          Version of kubectl to install (v1.24.0 of kubectl breaks client.authentication.k8s.io/v1alpha1)
-        type: string
-        default: "v1.21.0"
     executor: << parameters.executor >>
     steps:
       - aws-eks/update-kubeconfig-with-authenticator:
@@ -322,8 +311,7 @@ jobs:
           name: Test aws-iam-authenticator
           command: |
             aws-iam-authenticator
-      - kubernetes/install:
-          kubectl-version: << parameters.kubectl-version >>
+      - kubernetes/install
       - run:
           name: Test with kubectl
           command: |
