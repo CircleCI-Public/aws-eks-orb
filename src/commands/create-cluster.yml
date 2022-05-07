@@ -199,6 +199,11 @@ parameters:
       Whether to skip the installation of kubectl.
     type: boolean
     default: false
+  kubectl-version:
+    description: |
+      Version of kubectl to install
+    type: string
+    default: "v1.22.0"
   aws-max-polling-wait-time:
     description: |
       Max wait time in any AWS polling operations
@@ -221,7 +226,8 @@ steps:
   - unless:
       condition: << parameters.skip-kubectl-install >>
       steps:
-        - kubernetes/install
+        - kubernetes/install:
+            kubectl-version: << parameters.kubectl-version >>
   - run:
       environment:
         PARAM_CLUSTER_NAME: << parameters.cluster-name >>

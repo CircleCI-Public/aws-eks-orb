@@ -203,7 +203,8 @@ jobs:
     executor: << parameters.executor >>
     steps:
       - checkout
-      - kubernetes/install
+      - kubernetes/install:
+          kubectl-version: v1.22.0
       - browser-tools/install-chrome
       - browser-tools/install-chromedriver
       # Test various update-kubeconfig options
@@ -311,7 +312,8 @@ jobs:
           name: Test aws-iam-authenticator
           command: |
             aws-iam-authenticator
-      - kubernetes/install
+      - kubernetes/install:
+          kubectl-version: v1.22.0
       - run:
           name: Test with kubectl
           command: |
