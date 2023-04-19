@@ -1,7 +1,7 @@
 version: 2.1
 orbs:
   aws-eks: circleci/aws-eks@dev:<<pipeline.git.revision>>
-  orb-tools: circleci/orb-tools@11.5
+  orb-tools: circleci/orb-tools@11.6
   aws-cli: circleci/aws-cli@3.1
   helm: circleci/helm@2.0
   kubernetes: circleci/kubernetes@1.0
@@ -285,18 +285,16 @@ jobs:
           name: Test SSH access
           command: |
             # Get external IP of one node
+            set -x
             NODE_EXTERNAL_IP=$(kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="ExternalIP")].address}' | awk '{print $1}')
             mkdir -p ~/.ssh
             ssh-keyscan -H $NODE_EXTERNAL_IP > ~/.ssh/known_hosts 2> /dev/null
             ssh -i /tmp/workspace/keys/eks_id_rsa ec2-user@$NODE_EXTERNAL_IP whoami | grep ec2-user
-            echo "DEBUG 1"
             RELEASE_CLUSTER_IP=$(kubectl get services | grep << parameters.release-name >> | awk '{print $3'})
-            echo "DEBUG 2"
+            sleep 30
             # Use SSH to test accessing Grafana from within the cluster through the cluster ip
-            echo "ssh -t /tmp/workspace/keys/eks_id_rsa ec2-user@$NODE_EXTERNAL_IP curl -s $RELEASE_CLUSTER_IP | grep login"
-            ssh -vvv -i -tt /tmp/workspace/keys/eks_id_rsa ec2-user@$NODE_EXTERNAL_IP \<< EOF
-              curl -s $RELEASE_CLUSTER_IP | grep login
-            EOF
+            ssh -i /tmp/workspace/keys/eks_id_rsa ec2-user@$NODE_EXTERNAL_IP "curl -Lv $RELEASE_CLUSTER_IP | grep login; echo $?"
+            set +x
       - run:
           name: Test port forwarding
           command: |
@@ -353,94 +351,94 @@ workflows:
   test-deploy:
     jobs:
       # Make sure to include "filters: *filters" in every test job you want to run as part of your deployment.
-      # - integration-test-installs:
-      #     name: integration-test-installs-<< matrix.executor >>
-      #     context: orb-publisher
-      #     filters: *filters
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker", "macos", "machine"]
-      # - setup-cluster:
-      #     name: setup-cluster-defaults
-      #     context: [CPE_ORBS_AWS]
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
-      #     filters: *filters
-      #     requires:
-      #       - integration-test-installs-docker
-      #       - integration-test-installs-macos
-      #       - integration-test-installs-machine
-      # - test-cluster:
-      #     name: test-cluster-defaults
-      #     executor: python
-      #     context: [CPE_ORBS_AWS]
-      #     region: $AWS_DEFAULT_REGION
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
-      #     filters: *filters
-      #     requires:
-      #       - setup-cluster-defaults
-      # - test-authenticator:
-      #     name: test-authenticator-<< matrix.executor >>
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker", "macos", "machine"]
-      #     filters: *filters
-      #     requires:
-      #       - setup-cluster-defaults
-      # - test-update-kubeconfig:
-      #     name: test-update-kubeconfig-region-<< matrix.executor >>
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
-      #     context: [CPE_ORBS_AWS]
-      #     region: $AWS_DEFAULT_REGION
-      #     filters: *filters
-      #     matrix:
-      #       parameters:
-      #         executor: ["docker", "macos", "machine"]
-      #     requires:
-      #       - setup-cluster-defaults
-      # - delete-cluster:
-      #     name: delete-cluster-defaults
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
-      #     region: "us-west-2"
-      #     wait: true
-      #     context: [CPE_ORBS_AWS]
-      #     filters: *filters
-      #     requires:
-      #       - test-authenticator-docker
-      #       - test-authenticator-macos
-      #       - test-authenticator-machine
-      #       - test-update-kubeconfig-region-docker
-      #       - test-update-kubeconfig-region-macos
-      #       - test-update-kubeconfig-region-machine
-      #       - test-cluster-defaults
-      # - setup-cluster-with-many-params:
-      #     name: setup-cluster-custom-values
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
-      #     context: [CPE_ORBS_AWS]
-      #     region: "us-west-2"
-      #     zones: "us-west-2a,us-west-2c"
-      #     filters: *filters
-      #     requires:
-      #       - integration-test-installs-docker
-      #       - integration-test-installs-macos
-      #       - integration-test-installs-machine
-      # - test-cluster:
-      #     name: test-cluster-custom-values
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
-      #     context: [CPE_ORBS_AWS]
-      #     region: "us-west-2"
-      #     executor: python
-      #     filters: *filters
-      #     requires:
-      #       - setup-cluster-custom-values
-      # - delete-cluster:
-      #     name: delete-cluster-custom-values
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
-      #     context: [CPE_ORBS_AWS]
-      #     region: "us-west-2"
-      #     wait: true
-      #     filters: *filters
-      #     requires:
-      #       - test-cluster-custom-values
+      - integration-test-installs:
+          name: integration-test-installs-<< matrix.executor >>
+          context: orb-publisher
+          filters: *filters
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
+      - setup-cluster:
+          name: setup-cluster-defaults
+          context: [CPE_ORBS_AWS]
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          filters: *filters
+          requires:
+            - integration-test-installs-docker
+            - integration-test-installs-macos
+            - integration-test-installs-machine
+      - test-cluster:
+          name: test-cluster-defaults
+          executor: python
+          context: [CPE_ORBS_AWS]
+          region: $AWS_DEFAULT_REGION
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          filters: *filters
+          requires:
+            - setup-cluster-defaults
+      - test-authenticator:
+          name: test-authenticator-<< matrix.executor >>
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
+          filters: *filters
+          requires:
+            - setup-cluster-defaults
+      - test-update-kubeconfig:
+          name: test-update-kubeconfig-region-<< matrix.executor >>
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          context: [CPE_ORBS_AWS]
+          region: $AWS_DEFAULT_REGION
+          filters: *filters
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
+          requires:
+            - setup-cluster-defaults
+      - delete-cluster:
+          name: delete-cluster-defaults
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          region: "us-west-2"
+          wait: true
+          context: [CPE_ORBS_AWS]
+          filters: *filters
+          requires:
+            - test-authenticator-docker
+            - test-authenticator-macos
+            - test-authenticator-machine
+            - test-update-kubeconfig-region-docker
+            - test-update-kubeconfig-region-macos
+            - test-update-kubeconfig-region-machine
+            - test-cluster-defaults
+      - setup-cluster-with-many-params:
+          name: setup-cluster-custom-values
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
+          context: [CPE_ORBS_AWS]
+          region: "us-west-2"
+          zones: "us-west-2a,us-west-2c"
+          filters: *filters
+          requires:
+            - integration-test-installs-docker
+            - integration-test-installs-macos
+            - integration-test-installs-machine
+      - test-cluster:
+          name: test-cluster-custom-values
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
+          context: [CPE_ORBS_AWS]
+          region: "us-west-2"
+          executor: python
+          filters: *filters
+          requires:
+            - setup-cluster-custom-values
+      - delete-cluster:
+          name: delete-cluster-custom-values
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
+          context: [CPE_ORBS_AWS]
+          region: "us-west-2"
+          wait: true
+          filters: *filters
+          requires:
+            - test-cluster-custom-values
       - setup-cluster-with-ssh:
           name: setup-cluster-custom-values-ssh
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
@@ -448,10 +446,10 @@ workflows:
           region: "us-west-2"
           zones: "us-west-2b,us-west-2c"
           filters: *filters
-          # requires:
-          #   - integration-test-installs-docker
-          #   - integration-test-installs-macos
-          #   - integration-test-installs-machine
+          requires:
+            - integration-test-installs-docker
+            - integration-test-installs-macos
+            - integration-test-installs-machine
       - test-cluster:
           name: test-cluster-custom-values-ssh
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
@@ -481,84 +479,84 @@ workflows:
           wait: true
           requires:
             - test-ssh-access
-            # - test-cluster-custom-values-ssh
+            - test-cluster-custom-values-ssh
       #Kubectl Tests
-      # - aws-eks/create-cluster:
-      #     name: setup-cluster-kubectl
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
-      #     context: [CPE_ORBS_AWS]
-      #     aws-region: "us-west-2"
-      #     filters: *filters
-      #     requires:
-      #       - integration-test-installs-docker
-      #       - integration-test-installs-macos
-      #       - integration-test-installs-machine
-      # - create-deployment:
-      #     name: create-deployment-kubectl
-      #     executor: python
-      #     context: [CPE_ORBS_AWS]
-      #     region: "us-west-2"
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
-      #     filters: *filters
-      #     requires:
-      #       - setup-cluster-kubectl
-      # - aws-eks/update-container-image:
-      #     name: update-container-image-kubectl
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
-      #     context: [CPE_ORBS_AWS]
-      #     aws-region: "us-west-2"
-      #     resource-name: "deployment/nginx-deployment"
-      #     container-image-updates: "nginx=nginx:1.9.1"
-      #     get-rollout-status: true
-      #     filters: *filters
-      #     post-steps:
-      #       - kubernetes/delete-resource:
-      #           resource-types: "deployments"
-      #           resource-names: "nginx-deployment"
-      #           now: true
-      #           wait: true
-      #     requires:
-      #       - create-deployment-kubectl
-      # - aws-eks/delete-cluster:
-      #     name: delete-cluster-kubectl
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
-      #     context: [CPE_ORBS_AWS]
-      #     aws-region: "us-west-2"
-      #     wait: true
-      #     filters: *filters
-      #     requires:
-      #       - update-container-image-kubectl
+      - aws-eks/create-cluster:
+          name: setup-cluster-kubectl
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
+          context: [CPE_ORBS_AWS]
+          aws-region: "us-west-2"
+          filters: *filters
+          requires:
+            - integration-test-installs-docker
+            - integration-test-installs-macos
+            - integration-test-installs-machine
+      - create-deployment:
+          name: create-deployment-kubectl
+          executor: python
+          context: [CPE_ORBS_AWS]
+          region: "us-west-2"
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
+          filters: *filters
+          requires:
+            - setup-cluster-kubectl
+      - aws-eks/update-container-image:
+          name: update-container-image-kubectl
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
+          context: [CPE_ORBS_AWS]
+          aws-region: "us-west-2"
+          resource-name: "deployment/nginx-deployment"
+          container-image-updates: "nginx=nginx:1.9.1"
+          get-rollout-status: true
+          filters: *filters
+          post-steps:
+            - kubernetes/delete-resource:
+                resource-types: "deployments"
+                resource-names: "nginx-deployment"
+                now: true
+                wait: true
+          requires:
+            - create-deployment-kubectl
+      - aws-eks/delete-cluster:
+          name: delete-cluster-kubectl
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
+          context: [CPE_ORBS_AWS]
+          aws-region: "us-west-2"
+          wait: true
+          filters: *filters
+          requires:
+            - update-container-image-kubectl
       #Fargate Tests
-      # - setup-cluster-with-many-params:
-      #     name: setup-cluster-fargate
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-fargate
-      #     region: "us-west-2"
-      #     fargate: true
-      #     zones: "us-west-2a,us-west-2c"
-      #     context: [CPE_ORBS_AWS]
-      #     filters: *filters
-      #     requires:
-      #       - integration-test-installs-docker
-      #       - integration-test-installs-macos
-      #       - integration-test-installs-machine
-      # - test-cluster:
-      #     name: test-cluster-fargate
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-fargate
-      #     context: [CPE_ORBS_AWS]
-      #     region: "us-west-2"
-      #     executor: python
-      #     filters: *filters
-      #     requires:
-      #       - setup-cluster-fargate
-      # - delete-cluster:
-      #     name: delete-cluster-fargate
-      #     cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-fargate
-      #     context: [CPE_ORBS_AWS]
-      #     region: "us-west-2"
-      #     wait: true
-      #     filters: *filters          
-      #     requires:
-      #       - test-cluster-fargate      
+      - setup-cluster-with-many-params:
+          name: setup-cluster-fargate
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-fargate
+          region: "us-west-2"
+          fargate: true
+          zones: "us-west-2a,us-west-2c"
+          context: [CPE_ORBS_AWS]
+          filters: *filters
+          requires:
+            - integration-test-installs-docker
+            - integration-test-installs-macos
+            - integration-test-installs-machine
+      - test-cluster:
+          name: test-cluster-fargate
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-fargate
+          context: [CPE_ORBS_AWS]
+          region: "us-west-2"
+          executor: python
+          filters: *filters
+          requires:
+            - setup-cluster-fargate
+      - delete-cluster:
+          name: delete-cluster-fargate
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-fargate
+          context: [CPE_ORBS_AWS]
+          region: "us-west-2"
+          wait: true
+          filters: *filters          
+          requires:
+            - test-cluster-fargate      
       - orb-tools/pack:
           filters: *filters
       - orb-tools/publish:
@@ -567,11 +565,11 @@ workflows:
           pub-type: production
           requires:
             - orb-tools/pack
-            # - delete-cluster-fargate
-            # - delete-cluster-kubectl
+            - delete-cluster-fargate
+            - delete-cluster-kubectl
             - delete-cluster-custom-values-ssh
-            # - delete-cluster-custom-values
-            # - delete-cluster-defaults
+            - delete-cluster-custom-values
+            - delete-cluster-defaults
           context: orb-publisher
           filters:
             branches:
