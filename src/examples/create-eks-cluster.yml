@@ -1,17 +1,19 @@
 description: |
-  Create an eks cluster together with the required VPC-related
-  resources, test it, and tear it down.
+  Create an eks cluster together with the required VPC-related resources, test it, and tear it down using OIDC authentication.
+  Import the aws-cli orb and authenticate using the aws-cli/setup command with a valid role-arn for OIDC authentication.
 usage:
   version: 2.1
 
   orbs:
-    aws-eks: circleci/aws-eks@<<pipeline.parameters.dev-orb-version>>
+    aws-eks: circleci/aws-eks@3.0
     kubernetes: circleci/kubernetes@1.3
+    # Importing aws-cli orb is required
+    aws-cli: circleci/aws-cli@3.1
 
   jobs:
     test-cluster:
       docker:
-        - image: cimg/python:3.10
+        - image: cimg/python:3.11
       parameters:
         cluster-name:
           description: |
@@ -30,6 +32,15 @@ usage:
     deployment:
       jobs:
         - aws-eks/create-cluster:
+            auth:
+              # Add authentication step with OIDC using aws-cli/setup command
+              - aws-cli/setup:
+                  profile: "OIDC-USER"
+                  role-arn: "arn:aws:iam::123456789012:role/VALID_OIDC_OIDC_ROLE"
+            # Must use same profile configured in aws-cli/setup command
+            aws-profile: "OIDC-USER"
+            # must use valid CircleCI context for OIDC authentication
+            context: "OIDC-CONTEXT"
             cluster-name: my-eks-demo
         - test-cluster:
             cluster-name: my-eks-demo
@@ -37,5 +48,14 @@ usage:
               - aws-eks/create-cluster
         - aws-eks/delete-cluster:
             cluster-name: my-eks-demo
+            auth:
+              # Add authentication step with OIDC using aws-cli/setup command
+              - aws-cli/setup:
+                  profile: "OIDC-USER"
+                  role-arn: "arn:aws:iam::123456789012:role/VALID_OIDC_OIDC_ROLE"
+            # Must use same profile configured in aws-cli/setup command
+            aws-profile: "OIDC-USER"
+            # must use valid CircleCI context for OIDC authentication
+            context: "OIDC-CONTEXT"
             requires:
               - test-cluster
