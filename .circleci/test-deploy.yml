@@ -1,0 +1,620 @@
+version: 2.1
+orbs:
+  aws-eks: circleci/aws-eks@dev:<<pipeline.git.revision>>
+  orb-tools: circleci/orb-tools@11.6
+  aws-cli: circleci/aws-cli@3.1
+  helm: circleci/helm@2.0
+  kubernetes: circleci/kubernetes@1.0
+  shellcheck: circleci/shellcheck@3.1
+  browser-tools: circleci/browser-tools@1.4
+filters: &filters
+  tags:
+    only: /.*/
+jobs:
+  test-authenticator:
+    parameters:
+      executor:
+        type: executor
+      release-tag:
+        type: string
+        default: ""
+    executor: << parameters.executor >>
+    steps:
+      - aws-eks/install-aws-iam-authenticator:
+          release-tag: << parameters.release-tag >>
+      - run:
+          name: Test aws-iam-authenticator
+          command: |
+            aws-iam-authenticator
+  integration-test-installs:
+    parameters:
+      executor:
+        type: executor
+    executor: << parameters.executor >>
+    steps:
+      - aws-eks/setup
+      - run:
+          command: command -v eksctl
+      - aws-eks/install-aws-iam-authenticator
+      - run:
+          name: Test aws-iam-authenticator
+          command: command -v aws-iam-authenticator
+  setup-cluster:
+    executor: python
+    parameters:
+      cluster-name:
+        type: string
+    steps:
+      - cluster-setup-check
+      - aws-eks/install-aws-iam-authenticator
+      - aws-eks/create-cluster:
+          cluster-name: << parameters.cluster-name >>
+      - quick-cluster-tests
+  setup-cluster-with-many-params:
+    executor: python
+    parameters:
+      cluster-name:
+        type: string
+      region:
+        type: string
+        default: ""
+      zones:
+        type: string
+        default: ""
+      fargate:
+        type: boolean
+        default: false
+    steps:
+      - cluster-setup-check
+      - aws-eks/install-aws-iam-authenticator
+      - aws-eks/create-cluster:
+          cluster-name: << parameters.cluster-name >>
+          nodegroup-name: "orbtest-ng-1"
+          node-type: "t2.large"
+          aws-region: << parameters.region >>
+          zones: "<< parameters.zones >>"
+          nodes: 4
+          nodes-min: 3
+          nodes-max: 4
+          node-volume-size: 30
+          node-volume-type: "gp2"
+          max-pods-per-node: 30
+          node-ami-family: "AmazonLinux2"
+          node-private-networking: false
+          node-labels: "nodeowner=cci,nodepurpose=testing"
+          vpc-cidr: "192.168.0.0/16"
+          aws-max-polling-wait-time: "25m"
+          verbose: 3
+          show-eksctl-command: true
+      - quick-cluster-tests
+  setup-cluster-with-ssh:
+    executor: python
+    parameters:
+      cluster-name:
+        type: string
+      region:
+        type: string
+        default: ""
+      zones:
+        type: string
+        default: ""
+    steps:
+      - cluster-setup-check
+      - aws-eks/install-aws-iam-authenticator
+      - run:
+          name: Generate ssh keys
+          command: |
+            mkdir -p /tmp/keys
+            ssh-keygen -t rsa -N "" -f /tmp/keys/eks_id_rsa
+            chmod 600 /tmp/keys/eks_id_rsa
+            chmod 644 /tmp/keys/eks_id_rsa.pub
+            ls -al /tmp/keys
+      - aws-eks/create-cluster:
+          cluster-name: << parameters.cluster-name >>
+          aws-region: << parameters.region >>
+          zones: "<< parameters.zones >>"
+          ssh-access: true
+          ssh-public-key: "/tmp/keys/eks_id_rsa.pub"
+          asg-access: false
+          external-dns-access: false
+          full-ecr-access: false
+          aws-max-polling-wait-time: "25m"
+          verbose: 3
+          no-output-timeout: 50m
+          show-eksctl-command: true
+      - quick-cluster-tests
+      - persist_to_workspace:
+          root: /tmp
+          paths:
+            - keys
+  test-cluster:
+    parameters:
+      executor:
+        type: executor
+      region:
+        type: string
+        default: ""
+      cluster-name:
+        type: string
+    executor: << parameters.executor >>
+    steps:
+      - checkout
+      - kubernetes/install:
+          kubectl-version: v1.22.0
+      - browser-tools/install-chrome
+      - browser-tools/install-chromedriver
+      # Test various update-kubeconfig options
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          aws-region: << parameters.region >>
+          verbose: true
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          aws-region: << parameters.region >>
+          kubeconfig-file-path: kube-config.test
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          aws-region: << parameters.region >>
+      - quick-cluster-tests
+      - run:
+          name: Run kubectl proxy
+          command: |
+            kubectl proxy --port=8080
+          background: true
+      - run:
+          name: Test kube-config and k8s API
+          command: |
+            cat kube-config.test | grep << parameters.cluster-name >>
+            sleep 10
+            curl http://localhost:8080/api/
+      - kubernetes/create-or-update-resource:
+          resource-file-path: "tests/kubernetes-dashboard/kubernetes-dashboard.yml"
+          get-rollout-status: true
+          namespace: kube-system
+          resource-name: "deployment/kubernetes-dashboard"
+      - kubernetes/create-or-update-resource:
+          resource-file-path: "tests/kubernetes-dashboard/influxdb-heapster.yml"
+          get-rollout-status: true
+          namespace: kube-system
+          resource-name: "deployment/heapster"
+      - kubernetes/create-or-update-resource:
+          resource-file-path: "tests/kubernetes-dashboard/influxdb.yml"
+          get-rollout-status: true
+          namespace: kube-system
+          resource-name: "deployment/monitoring-influxdb"
+      - kubernetes/create-or-update-resource:
+          resource-file-path: "tests/kubernetes-dashboard/heapster-rbac.yml"
+      - kubernetes/create-or-update-resource:
+          resource-file-path: "tests/kubernetes-dashboard/eks-admin-service-account.yml"
+      - run:
+          name: Verify kubernetes dashboard
+          command: |
+            kubectl get services --namespace=kube-system
+            kubectl get pods --namespace=kube-system
+            curl -s 'http://localhost:8080/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/login' | grep "kubernetesDashboard"
+      - run:
+          name: Set up python environment for browser-based test
+          command: |
+            sudo apt update
+            sudo apt install pip
+            pip install --upgrade pip
+            curl -L -O https://files.pythonhosted.org/packages/ad/24/39cab5fbaf425ff522e1e51cce79f94f10f9523f015d2b2251e43f45e8a2/selenium-4.0.0-py3-none-any.whl
+            pip install selenium-4.0.0-py3-none-any.whl
+      - run:
+          name: Load kubernetes dashboard in browser test
+          command: |
+            mkdir -p /tmp/artifacts
+            cat > test.py \<<-EOF
+            import time
+            import os
+            from selenium import webdriver
+            from selenium.webdriver.chrome.service import Service
+            s = Service('/usr/local/bin/chromedriver')
+            driver = webdriver.Chrome(service=s)
+            driver.get('http://localhost:8080/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/login');
+            time.sleep(5)
+            driver.save_screenshot("/tmp/artifacts/screenshot.png")
+            driver.quit()
+            EOF
+            chmod +x test.py
+            python3 test.py
+      - store_artifacts:
+          path: /tmp/artifacts
+  test-update-kubeconfig:
+    parameters:
+      executor:
+        type: executor
+      cluster-name:
+        type: string
+      profile:
+        type: string
+        default: ""
+      region:
+        type: string
+        default: ""
+    executor: << parameters.executor >>
+    steps:
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          aws-profile: << parameters.profile >>
+          aws-region: << parameters.region >>
+      - run:
+          name: Test aws cli
+          command: |
+            aws configure list
+            aws configure list | grep "<< parameters.profile >>"
+            aws configure list | grep "<< parameters.region >>"
+      - run:
+          name: Test aws-iam-authenticator
+          command: |
+            aws-iam-authenticator
+      - kubernetes/install:
+          kubectl-version: v1.22.0
+      - run:
+          name: Test with kubectl
+          command: |
+            cat ~/.kube/config | grep "<< parameters.cluster-name >>"
+            kubectl cluster-info
+  test-ssh-access:
+    parameters:
+      executor:
+        type: executor
+      region:
+        type: string
+        default: ""
+      cluster-name:
+        type: string
+      release-name:
+        type: string
+      add-repo:
+        type: string
+    executor: << parameters.executor >>
+    steps:
+      - cluster-setup-check
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          aws-region: << parameters.region >>
+          install-kubectl: true
+      - attach_workspace:
+          at: /tmp/workspace
+      - helm/install-helm-chart:
+          add-repo: << parameters.add-repo >>
+          chart: grafana/grafana
+          release-name: << parameters.release-name >>
+      - run:
+          name: Test SSH access
+          command: |
+            # Get external IP of one node
+            set -x
+            NODE_EXTERNAL_IP=$(kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="ExternalIP")].address}' | awk '{print $1}')
+            mkdir -p ~/.ssh
+            ssh-keyscan -H $NODE_EXTERNAL_IP > ~/.ssh/known_hosts 2> /dev/null
+            ssh -i /tmp/workspace/keys/eks_id_rsa ec2-user@$NODE_EXTERNAL_IP whoami | grep ec2-user
+            RELEASE_CLUSTER_IP=$(kubectl get services | grep << parameters.release-name >> | awk '{print $3'})
+            sleep 30
+            # Use SSH to test accessing Grafana from within the cluster through the cluster ip
+            ssh -i /tmp/workspace/keys/eks_id_rsa ec2-user@$NODE_EXTERNAL_IP "curl -Lv $RELEASE_CLUSTER_IP | grep login; echo $?"
+            set +x
+      - run:
+          name: Test port forwarding
+          command: |
+            export POD_NAME=$(kubectl get pods --namespace default -l "app.kubernetes.io/name=grafana" -o jsonpath="{.items[0].metadata.name}")
+            nohup kubectl --namespace default port-forward $POD_NAME 3000 &
+            sleep 10
+            # Test accessing Grafana from the build container through the port-forwarding setup
+            curl -s http://localhost:3000 | grep login
+  delete-cluster:
+    executor: python
+    parameters:
+      region:
+        type: string
+        default: ""
+      cluster-name:
+        type: string
+      wait:
+        type: boolean
+    steps:
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          aws-region: << parameters.region >>
+      - cluster-teardown-check
+      - aws-eks/delete-cluster:
+          cluster-name: << parameters.cluster-name >>
+          aws-region: << parameters.region >>
+          wait: true
+          verbose: 3
+          no-output-timeout: 20m
+  create-deployment:
+    parameters:
+      executor:
+        type: executor
+      region:
+        type: string
+        default: ""
+      cluster-name:
+        description: |
+          Name of the EKS cluster
+        type: string
+    executor: << parameters.executor >>
+    steps:
+      - checkout
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          aws-region: << parameters.region >>
+          install-kubectl: true
+      - kubernetes/create-or-update-resource:
+          resource-file-path: ~/project/tests/nginx-deployment/deployment.yml
+          resource-name: "deployment/nginx-deployment"
+          get-rollout-status: true
+          show-kubectl-command: true
+workflows:
+  test-deploy:
+    jobs:
+      # Make sure to include "filters: *filters" in every test job you want to run as part of your deployment.
+      - integration-test-installs:
+          name: integration-test-installs-<< matrix.executor >>
+          context: orb-publisher
+          filters: *filters
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
+      - setup-cluster:
+          name: setup-cluster-defaults
+          context: [CPE_ORBS_AWS]
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          filters: *filters
+          requires:
+            - integration-test-installs-docker
+            - integration-test-installs-macos
+            - integration-test-installs-machine
+      - test-cluster:
+          name: test-cluster-defaults
+          executor: python
+          context: [CPE_ORBS_AWS]
+          region: $AWS_DEFAULT_REGION
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          filters: *filters
+          requires:
+            - setup-cluster-defaults
+      - test-authenticator:
+          name: test-authenticator-<< matrix.executor >>
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
+          filters: *filters
+          requires:
+            - setup-cluster-defaults
+      - test-update-kubeconfig:
+          name: test-update-kubeconfig-region-<< matrix.executor >>
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          context: [CPE_ORBS_AWS]
+          region: $AWS_DEFAULT_REGION
+          filters: *filters
+          matrix:
+            parameters:
+              executor: ["docker", "macos", "machine"]
+          requires:
+            - setup-cluster-defaults
+      - delete-cluster:
+          name: delete-cluster-defaults
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
+          region: "us-west-2"
+          wait: true
+          context: [CPE_ORBS_AWS]
+          filters: *filters
+          requires:
+            - test-authenticator-docker
+            - test-authenticator-macos
+            - test-authenticator-machine
+            - test-update-kubeconfig-region-docker
+            - test-update-kubeconfig-region-macos
+            - test-update-kubeconfig-region-machine
+            - test-cluster-defaults
+      - setup-cluster-with-many-params:
+          name: setup-cluster-custom-values
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
+          context: [CPE_ORBS_AWS]
+          region: "us-west-2"
+          zones: "us-west-2a,us-west-2c"
+          filters: *filters
+          requires:
+            - integration-test-installs-docker
+            - integration-test-installs-macos
+            - integration-test-installs-machine
+      - test-cluster:
+          name: test-cluster-custom-values
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
+          context: [CPE_ORBS_AWS]
+          region: "us-west-2"
+          executor: python
+          filters: *filters
+          requires:
+            - setup-cluster-custom-values
+      - delete-cluster:
+          name: delete-cluster-custom-values
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
+          context: [CPE_ORBS_AWS]
+          region: "us-west-2"
+          wait: true
+          filters: *filters
+          requires:
+            - test-cluster-custom-values
+      - setup-cluster-with-ssh:
+          name: setup-cluster-custom-values-ssh
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
+          context: [CPE_ORBS_AWS]
+          region: "us-west-2"
+          zones: "us-west-2b,us-west-2c"
+          filters: *filters
+          requires:
+            - integration-test-installs-docker
+            - integration-test-installs-macos
+            - integration-test-installs-machine
+      - test-cluster:
+          name: test-cluster-custom-values-ssh
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
+          context: [CPE_ORBS_AWS]
+          executor: python
+          region: "us-west-2"
+          filters: *filters
+          requires:
+            - setup-cluster-custom-values-ssh
+      - test-ssh-access:
+          name: test-ssh-access
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
+          context: [CPE_ORBS_AWS]
+          region: "us-west-2"
+          release-name: grafana
+          add-repo: https://grafana.github.io/helm-charts
+          executor: python
+          filters: *filters
+          requires:
+            - test-cluster-custom-values-ssh
+      - delete-cluster:
+          name: delete-cluster-custom-values-ssh
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
+          context: [CPE_ORBS_AWS]
+          region: "us-west-2"
+          filters: *filters
+          wait: true
+          requires:
+            - test-ssh-access
+            - test-cluster-custom-values-ssh
+      #Kubectl Tests
+      - aws-eks/create-cluster:
+          name: setup-cluster-kubectl
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
+          context: [CPE_ORBS_AWS]
+          aws-region: "us-west-2"
+          filters: *filters
+          requires:
+            - integration-test-installs-docker
+            - integration-test-installs-macos
+            - integration-test-installs-machine
+      - create-deployment:
+          name: create-deployment-kubectl
+          executor: python
+          context: [CPE_ORBS_AWS]
+          region: "us-west-2"
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
+          filters: *filters
+          requires:
+            - setup-cluster-kubectl
+      - aws-eks/update-container-image:
+          name: update-container-image-kubectl
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
+          context: [CPE_ORBS_AWS]
+          aws-region: "us-west-2"
+          resource-name: "deployment/nginx-deployment"
+          container-image-updates: "nginx=nginx:1.9.1"
+          get-rollout-status: true
+          filters: *filters
+          post-steps:
+            - kubernetes/delete-resource:
+                resource-types: "deployments"
+                resource-names: "nginx-deployment"
+                now: true
+                wait: true
+          requires:
+            - create-deployment-kubectl
+      - aws-eks/delete-cluster:
+          name: delete-cluster-kubectl
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
+          context: [CPE_ORBS_AWS]
+          aws-region: "us-west-2"
+          wait: true
+          filters: *filters
+          requires:
+            - update-container-image-kubectl
+      #Fargate Tests
+      - setup-cluster-with-many-params:
+          name: setup-cluster-fargate
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-fargate
+          region: "us-west-2"
+          fargate: true
+          zones: "us-west-2a,us-west-2c"
+          context: [CPE_ORBS_AWS]
+          filters: *filters
+          requires:
+            - integration-test-installs-docker
+            - integration-test-installs-macos
+            - integration-test-installs-machine
+      - test-cluster:
+          name: test-cluster-fargate
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-fargate
+          context: [CPE_ORBS_AWS]
+          region: "us-west-2"
+          executor: python
+          filters: *filters
+          requires:
+            - setup-cluster-fargate
+      - delete-cluster:
+          name: delete-cluster-fargate
+          cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-fargate
+          context: [CPE_ORBS_AWS]
+          region: "us-west-2"
+          wait: true
+          filters: *filters          
+          requires:
+            - test-cluster-fargate      
+      - orb-tools/pack:
+          filters: *filters
+      - orb-tools/publish:
+          orb-name: circleci/aws-eks
+          vcs-type: << pipeline.project.type >>
+          pub-type: production
+          requires:
+            - orb-tools/pack
+            - delete-cluster-fargate
+            - delete-cluster-kubectl
+            - delete-cluster-custom-values-ssh
+            - delete-cluster-custom-values
+            - delete-cluster-defaults
+          context: orb-publisher
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v[0-9]+\.[0-9]+\.[0-9]+$/
+executors:
+  docker:
+    docker:
+      - image: cimg/base:current
+  macos:
+    macos:
+      xcode: 13.2.0
+  machine:
+    machine:
+      image: ubuntu-2004:202107-02
+  python:
+    docker:
+      - image: cimg/python:3.10-browsers
+commands:
+  cluster-setup-check:
+    steps:
+      - run:
+          name: Check if test env should be set up
+          command: |
+            if [ "${SKIP_TEST_ENV_CREATION}" = "true" ]
+            then
+              circleci step halt
+            fi
+  cluster-teardown-check:
+    steps:
+      - run:
+          name: Check if test env should be destroyed
+          command: |
+            if [ "${SKIP_TEST_ENV_TEARDOWN}" = "true" ]
+            then
+              circleci step halt
+            fi
+  quick-cluster-tests:
+    steps:
+      - run:
+          name: Run some tests on the cluster
+          command: |-
+            kubectl get nodes
+            kubectl cluster-info
+            kubectl config view
+            kubectl config get-contexts
+            kubectl get pods --namespace kube-system

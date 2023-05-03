@@ -20,7 +20,7 @@ fi
 
 DOWNLOAD_URL="https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/v${VERSION}/${FILENAME}_${VERSION}_${PLATFORM}_amd64"
 
-printf "Downloading version ${VERSION}\n"
+printf "Downloading version %s\n"  "${VERSION}"
 
 curl -L --fail --retry 3 -o aws-iam-authenticator "$DOWNLOAD_URL"
 chmod +x ./aws-iam-authenticator
