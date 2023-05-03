@@ -77,8 +77,14 @@ parameters:
       Specifies which release-tag version of the authenticator to install.
     type: string
     default: ""
+  auth:
+    description: |
+      The authentication method used to access your AWS account. Import the aws-cli orb in your config and
+      provide the aws-cli/setup command to authenticate with your preferred method. View examples for more information.
+    type: steps
 
 steps:
+  - steps: << parameters.auth >>
   - install-aws-iam-authenticator:
       release-tag: << parameters.authenticator-release-tag >>
   - create-cluster:

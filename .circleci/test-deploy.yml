@@ -66,6 +66,8 @@ jobs:
         default: false
     steps:
       - cluster-setup-check
+      - aws-cli/setup:
+          role-arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
       - aws-eks/install-aws-iam-authenticator
       - aws-eks/create-cluster:
           cluster-name: << parameters.cluster-name >>
@@ -144,6 +146,8 @@ jobs:
       - browser-tools/install-chrome
       - browser-tools/install-chromedriver
       # Test various update-kubeconfig options
+      - aws-cli/setup:
+          role-arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
           aws-region: << parameters.region >>
@@ -314,6 +318,8 @@ jobs:
       wait:
         type: boolean
     steps:
+      - aws-cli/setup:
+          role-arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
           aws-region: << parameters.region >>
@@ -431,7 +437,7 @@ workflows:
           requires:
             - setup-cluster-custom-values
       - delete-cluster:
-          name: delete-cluster-custom-values
+          name: delete-cluster-custom-values       
           cluster-name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
           context: [CPE-OIDC]
           region: "us-west-2"
