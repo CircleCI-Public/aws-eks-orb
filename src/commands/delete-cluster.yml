@@ -67,14 +67,15 @@ steps:
   - setup
   - run:
       environment:
-        PARAM_CLUSTER_NAME: << parameters.cluster-name >>
-        PARAM_CONFIG_FILE: << parameters.config-file >>
-        PARAM_AWS_REGION: << parameters.aws-region >>
-        PARAM_AWS_PROFILE: << parameters.aws-profile >>
-        PARAM_WAIT: << parameters.wait >>
-        PARAM_CFN_ROLE_ARN: << parameters.cfn-role-arn >>
-        PARAM_VERBOSE: << parameters.verbose >>
-        PARAM_AWS_MAX_POLLING_WAIT_TIME: << parameters.aws-max-polling-wait-time >>
+        ORB_EVAL_CLUSTER_NAME: << parameters.cluster-name >>
+        ORB_EVAL_CONFIG_FILE: << parameters.config-file >>
+        ORB_EVAL_AWS_REGION: << parameters.aws-region >>
+        ORB_EVAL_AWS_PROFILE: << parameters.aws-profile >>
+        ORB_VAL_WAIT: << parameters.wait >>
+        ORB_EVAL_CFN_ROLE_ARN: << parameters.cfn-role-arn >>
+        ORB_VAL_VERBOSE: << parameters.verbose >>
+        ORB_EVAL_AWS_MAX_POLLING_WAIT_TIME: << parameters.aws-max-polling-wait-time >>
+        ORB_VAL_SHOW_EKSCTL_COMMAND: << parameters.show-eksctl-command >>
       name: Delete EKS cluster and associated resources
       command: <<include(scripts/delete-cluster.sh)>>
       no_output_timeout: << parameters.no-output-timeout >>
