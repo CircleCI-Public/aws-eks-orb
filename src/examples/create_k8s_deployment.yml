@@ -12,41 +12,41 @@ usage:
       docker:
         - image: cimg/python:3.10
       parameters:
-        cluster-name:
+        cluster_name:
           description: |
             Name of the EKS cluster
           type: string
       steps:
         - checkout
-        - aws-eks/update-kubeconfig-with-authenticator:
-            cluster-name: << parameters.cluster-name >>
-            install-kubectl: true
+        - aws-eks/update_kubeconfig_with_authenticator:
+            cluster_name: << parameters.cluster_name >>
+            install_kubectl: true
         - kubernetes/create-or-update-resource:
             resource-file-path: "tests/nginx-deployment/deployment.yaml"
-            resource-name: "deployment/nginx-deployment"
-            get-rollout-status: true
+            resource_name: "deployment/nginx-deployment"
+            get_rollout_status: true
 
   workflows:
     deployment:
       jobs:
-        - aws-eks/create-cluster:
-            cluster-name: eks-demo-deployment
+        - aws-eks/create_cluster:
+            cluster_name: eks-demo-deployment
         - create-deployment:
-            cluster-name: eks-demo-deployment
+            cluster_name: eks-demo-deployment
             requires:
-              - aws-eks/create-cluster
-        - aws-eks/update-container-image:
-            cluster-name: eks-demo-deployment
-            resource-name: "deployment/nginx-deployment"
-            container-image-updates: "nginx=nginx:1.9.1"
+              - aws-eks/create_cluster
+        - aws-eks/update_container_image:
+            cluster_name: eks-demo-deployment
+            resource_name: "deployment/nginx-deployment"
+            container_image_updates: "nginx=nginx:1.9.1"
             requires:
               - create-deployment
             post-steps:
               - kubernetes/delete-resource:
                   resource-types: "deployment"
-                  resource-names: "nginx-deployment"
+                  resource_names: "nginx-deployment"
                   wait: true
-        - aws-eks/delete-cluster:
-            cluster-name: eks-demo-deployment
+        - aws-eks/delete_cluster:
+            cluster_name: eks-demo-deployment
             requires:
-              - aws-eks/update-container-image
+              - aws-eks/update_container_image

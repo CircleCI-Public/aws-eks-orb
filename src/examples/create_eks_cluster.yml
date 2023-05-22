@@ -15,15 +15,15 @@ usage:
       docker:
         - image: cimg/python:3.11
       parameters:
-        cluster-name:
+        cluster_name:
           description: |
             Name of the EKS cluster
           type: string
       steps:
         - kubernetes/install:
-            kubectl-version: v1.22.0
-        - aws-eks/update-kubeconfig-with-authenticator:
-            cluster-name: << parameters.cluster-name >>
+            kubectl_version: v1.22.0
+        - aws-eks/update_kubeconfig_with_authenticator:
+            cluster_name: << parameters.cluster_name >>
         - run:
             name: Test cluster
             command: |
@@ -31,30 +31,30 @@ usage:
   workflows:
     deployment:
       jobs:
-        - aws-eks/create-cluster:
+        - aws-eks/create_cluster:
             auth:
               # Add authentication step with OIDC using aws-cli/setup command
               - aws-cli/setup:
                   profile: "OIDC-USER"
                   role-arn: "arn:aws:iam::123456789012:role/VALID_OIDC_OIDC_ROLE"
             # Must use same profile configured in aws-cli/setup command
-            aws-profile: "OIDC-USER"
+            aws_profile: "OIDC-USER"
             # must use valid CircleCI context for OIDC authentication
             context: "OIDC-CONTEXT"
-            cluster-name: my-eks-demo
+            cluster_name: my-eks-demo
         - test-cluster:
-            cluster-name: my-eks-demo
+            cluster_name: my-eks-demo
             requires:
-              - aws-eks/create-cluster
-        - aws-eks/delete-cluster:
-            cluster-name: my-eks-demo
+              - aws-eks/create_cluster
+        - aws-eks/delete_cluster:
+            cluster_name: my-eks-demo
             auth:
               # Add authentication step with OIDC using aws-cli/setup command
               - aws-cli/setup:
                   profile: "OIDC-USER"
                   role-arn: "arn:aws:iam::123456789012:role/VALID_OIDC_OIDC_ROLE"
             # Must use same profile configured in aws-cli/setup command
-            aws-profile: "OIDC-USER"
+            aws_profile: "OIDC-USER"
             # must use valid CircleCI context for OIDC authentication
             context: "OIDC-CONTEXT"
             requires:

@@ -1,17 +1,17 @@
 description: |
   Creates an EKS cluster and required resources (e.g. VPC) using the eksctl tool.
 parameters:
-  cluster-name:
+  cluster_name:
     description: |
       Name of the EKS cluster to be created
     type: string
     default: ""
-  aws-region:
+  aws_region:
     description: |
       AWS region that the EKS cluster will be created in.
     type: string
     default: ""
-  aws-profile:
+  aws_profile:
     description: |
       The AWS profile to be used. If not specified, the configured default
       profile for your AWS CLI installation will be used.
@@ -23,48 +23,48 @@ parameters:
       If no value is specified, the availability zones will be auto-selected.
     type: string
     default: ""
-  kubernetes-version:
+  kubernetes_version:
     description: |
       Specify a version of Kubernetes that is supported by eksctl.
       If no value is specified, the version that eksctl defaults to will be used.
     type: string
     default: ""
-  config-file:
+  config_file:
     description: |
       Use this to specify a file if you wish to load configuration from it.
     type: string
     default: ""
-  nodegroup-name:
+  nodegroup_name:
     description: |
       Set this to specify a name for the nodegroup.
       If unspecified, it will be generated.
     type: string
     default: ""
-  without-nodegroup:
+  without_nodegroup:
     description: |
       Set to true to avoid creating initial nodegroup.
     type: boolean
     default: false
-  node-private-networking:
+  node_private_networking:
     description: |
       Set to true to make nodegroup networking private.
     type: boolean
     default: false
-  node-type:
+  node_type:
     description: |
       Set this to specify a node instance type for the node group.
     type: string
     default: ""
-  node-ami:
+  node_ami:
     description: |
       Specify this in advanced use cases only.
-      Check the documentation for the --node-ami flag of eksctl for more details.
+      Check the documentation for the --node_ami flag of eksctl for more details.
     type: string
     default: ""
-  node-ami-family:
+  node_ami-family:
     description: |
       Specify this in advanced use cases only.
-      Check the documentation for the --node-ami-family flag of eksctl for more details.
+      Check the documentation for the --node_ami-family flag of eksctl for more details.
     type: string
     default: ""
   nodes:
@@ -73,57 +73,57 @@ parameters:
       Otherwise the default as determined by eksctl will be used.
     type: integer
     default: -1
-  nodes-min:
+  nodes_min:
     description: |
       Sets the minimum number of nodes in the Auto Scaling Group, if a number other than -1 is set as the value.
       Otherwise the default as determined by eksctl will be used.
     type: integer
     default: -1
-  nodes-max:
+  nodes_max:
     description: |
       Sets the maximum number of nodes in the Auto Scaling Group, if a number other than -1 is set as the value.
       Otherwise the default as determined by eksctl will be used.
     type: integer
     default: -1
-  node-volume-size:
+  node_volume_size:
     description: |
       Sets the node volume size in GB, if a number other than -1 is set as the value.
     type: integer
     default: -1
-  node-volume-type:
+  node_volume_type:
     description: |
       Specify the node volume type.
     type: string
     default: ""
-  max-pods-per-node:
+  max_pods_per_node:
     description: |
       Sets the maximum number of pods per node, if a number other than -1 is set as the value.
       Otherwise the maximum will be automatically set.
     type: integer
     default: -1
-  node-security-groups:
+  node_security_groups:
     description: |
       Specify a comma-delimited list of security groups to be attached to nodes, for allowing
       extra ingress/egress access from/to pods.
     type: string
     default: ""
-  node-labels:
+  node_labels:
     description: |
       Extra labels to add when registering the nodes in the nodegroup, e.g. "partition=backend,nodeclass=hugememory"
     type: string
     default: ""
-  node-zones:
+  node_zones:
     description: |
       Specify availability zones for the nodes e.g. us-east-1a,us-east-1b,us-east-1d
       Zones will be inherited from the cluster if unspecified.
     type: string
     default: ""
-  ssh-access:
+  ssh_access:
     description: |
       Control SSH access for nodes
     type: boolean
     default: false
-  ssh-public-key:
+  ssh_public_key:
     description: |
       SSH public key to use for nodes (import from local path, or use existing EC2 key pair which
       must not resolve to a local file path)
@@ -131,46 +131,46 @@ parameters:
       "~/.ssh/id_rsa.pub" will be taken as the path if a value is not specified.
     type: string
     default: ""
-  asg-access:
+  asg_access:
     description: |
       Set to true to enable IAM policy for cluster-autoscaler.
     type: boolean
     default: false
-  external-dns-access:
+  external_dns_access:
     description: |
       Set to true to enable IAM policy for external-dns.
     type: boolean
     default: false
-  full-ecr-access:
+  full_ecr_access:
     description: |
       Set to true to enable full access to ECR.
     type: boolean
     default: false
-  vpc-cidr:
+  vpc_cidr:
     description: |
       Specify global CIDR to use for VPC.
       e.g. 192.168.0.0/16
     type: string
     default: ""
-  vpc-private-subnets:
+  vpc_private_subnets:
     description: |
       Specify this to re-use private subnets of an existing VPC.
       e.g. subnet-0ff156e0c4a6d300c,subnet-0426fb4a607393184
     type: string
     default: ""
-  vpc-public-subnets:
+  vpc_public_subnets:
     description: |
       Specify this to re-use public subnets of an existing VPC.
       e.g. subnet-0ff156e0c4a6d300c,subnet-0426fb4a607393184
     type: string
     default: ""
-  vpc-from-kops-cluster:
+  vpc_from_kops_cluster:
     description: |
       Specify this to re-use a VPC from a given kops cluster.
       e.g. cluster-1.k8s.local
     type: string
     default: ""
-  cfn-role-arn:
+  cfn_role_arn:
     description: |
       Specify an IAM role to be used by CloudFormation to call AWS API on your behalf
     type: string
@@ -180,7 +180,7 @@ parameters:
       A list of key-value pairs used to tag the AWS resources (e.g. "Owner=John Doe,Team=Some Team")
     type: string
     default: ""
-  show-eksctl-command:
+  show_eksctl_command:
     description: |
       Whether to show the eksctl command used.
     type: boolean
@@ -194,22 +194,22 @@ parameters:
       When set to 5, sensitive information such as credentials may be displayed in the log output.
     type: integer
     default: 3
-  skip-kubectl-install:
+  skip_kubectl_install:
     description: |
       Whether to skip the installation of kubectl.
     type: boolean
     default: false
-  kubectl-version:
+  kubectl_version:
     description: |
       Version of kubectl to install
     type: string
     default: "v1.22.0"
-  aws-max-polling-wait-time:
+  aws_max_polling_wait_time:
     description: |
       Max wait time in any AWS polling operations
     type: string
     default: "20m0s"
-  no-output-timeout:
+  no_output_timeout:
     description: |
       Elapsed time that the cluster creation command can run on CircleCI without output.
       The string is a decimal with unit suffix, such as “20m”, “1.25h”, “5s”
@@ -224,48 +224,48 @@ parameters:
 steps:
   - setup
   - unless:
-      condition: << parameters.skip-kubectl-install >>
+      condition: << parameters.skip_kubectl_install >>
       steps:
         - kubernetes/install:
-            kubectl-version: << parameters.kubectl-version >>
+            kubectl_version: << parameters.kubectl_version >>
   - run:
       environment:
-        ORB_EVAL_CLUSTER_NAME: << parameters.cluster-name >>
-        ORB_EVAL_AWS_REGION: << parameters.aws-region >>
-        ORB_EVAL_AWS_PROFILE: << parameters.aws-profile >>
+        ORB_EVAL_CLUSTER_NAME: << parameters.cluster_name >>
+        ORB_EVAL_AWS_REGION: << parameters.aws_region >>
+        ORB_EVAL_AWS_PROFILE: << parameters.aws_profile >>
         ORB_EVAL_ZONES: << parameters.zones >>
-        ORB_EVAL_KUBERNETES_VERSION: << parameters.kubernetes-version >>
-        ORB_EVAL_CONFIG_FILE: << parameters.config-file >>
-        ORB_EVAL_VPC_PRIVATE_SUBNETS: << parameters.vpc-private-subnets >>
-        ORB_EVAL_VPC_PUBLIC_SUBNETS: << parameters.vpc-public-subnets >>
-        ORB_EVAL_NODEGROUP_NAME: << parameters.nodegroup-name >>
-        ORB_VAL_WITHOUT_NODEGROUP: << parameters.without-nodegroup >>
-        ORB_VAL_NODE_PRIVATE_NETWORKING: << parameters.node-private-networking >>
-        ORB_EVAL_NODE_TYPE: << parameters.node-type >>
-        ORB_EVAL_NODE_AMI: << parameters.node-ami >>
-        ORB_EVAL_NODE_AMI_FAMILY: << parameters.node-ami-family >>
+        ORB_EVAL_KUBERNETES_VERSION: << parameters.kubernetes_version >>
+        ORB_EVAL_CONFIG_FILE: << parameters.config_file >>
+        ORB_EVAL_VPC_PRIVATE_SUBNETS: << parameters.vpc_private_subnets >>
+        ORB_EVAL_VPC_PUBLIC_SUBNETS: << parameters.vpc_public_subnets >>
+        ORB_EVAL_NODEGROUP_NAME: << parameters.nodegroup_name >>
+        ORB_VAL_WITHOUT_NODEGROUP: << parameters.without_nodegroup >>
+        ORB_VAL_NODE_PRIVATE_NETWORKING: << parameters.node_private_networking >>
+        ORB_EVAL_NODE_TYPE: << parameters.node_type >>
+        ORB_EVAL_NODE_AMI: << parameters.node_ami >>
+        ORB_EVAL_NODE_AMI_FAMILY: << parameters.node_ami-family >>
         ORB_VAL_NODES: << parameters.nodes >>
-        ORB_VAL_NODES_MIN: << parameters.nodes-min >>
-        ORB_VAL_NODES_MAX: << parameters.nodes-max >>
-        ORB_VAL_NODE_VOLUME_SIZE: << parameters.node-volume-size >>
-        ORB_EVAL_NODE_VOLUME_TYPE: << parameters.node-volume-type >>
-        ORB_VAL_MAX_PODS_PER_NODE: << parameters.max-pods-per-node >>
-        ORB_EVAL_NODE_SECURITY_GROUPS: << parameters.node-security-groups >>
-        ORB_EVAL_NODE_LABELS: << parameters.node-labels >>
-        ORB_EVAL_NODE_ZONES: << parameters.node-zones >>
-        ORB_VAL_SSH_ACCESS: << parameters.ssh-access >>
-        ORB_EVAL_SSH_PUBLIC_KEY: << parameters.ssh-public-key >>
-        ORB_VAL_ASG_ACCESS: << parameters.asg-access >>
-        ORB_VAL_EXTERNAL_DNS_ACCESS: << parameters.external-dns-access >>
-        ORB_VAL_FULL_ECR_ACCESS: << parameters.full-ecr-access >>
-        ORB_EVAL_VPC_CIDR: << parameters.vpc-cidr >>
-        ORB_EVAL_VPC_FROM_KOPS_CLUSTER: << parameters.vpc-from-kops-cluster >>
-        ORB_EVAL_CFN_ROLE_ARN: << parameters.cfn-role-arn >>
+        ORB_VAL_NODES_MIN: << parameters.nodes_min >>
+        ORB_VAL_NODES_MAX: << parameters.nodes_max >>
+        ORB_VAL_NODE_VOLUME_SIZE: << parameters.node_volume_size >>
+        ORB_EVAL_NODE_VOLUME_TYPE: << parameters.node_volume_type >>
+        ORB_VAL_MAX_PODS_PER_NODE: << parameters.max_pods_per_node >>
+        ORB_EVAL_NODE_SECURITY_GROUPS: << parameters.node_security_groups >>
+        ORB_EVAL_NODE_LABELS: << parameters.node_labels >>
+        ORB_EVAL_NODE_ZONES: << parameters.node_zones >>
+        ORB_VAL_SSH_ACCESS: << parameters.ssh_access >>
+        ORB_EVAL_SSH_PUBLIC_KEY: << parameters.ssh_public_key >>
+        ORB_VAL_ASG_ACCESS: << parameters.asg_access >>
+        ORB_VAL_EXTERNAL_DNS_ACCESS: << parameters.external_dns_access >>
+        ORB_VAL_FULL_ECR_ACCESS: << parameters.full_ecr_access >>
+        ORB_EVAL_VPC_CIDR: << parameters.vpc_cidr >>
+        ORB_EVAL_VPC_FROM_KOPS_CLUSTER: << parameters.vpc_from_kops_cluster >>
+        ORB_EVAL_CFN_ROLE_ARN: << parameters.cfn_role_arn >>
         ORB_EVAL_TAGS: << parameters.tags >>
-        ORB_EVAL_AWS_MAX_POLLING_WAIT_TIME: << parameters.aws-max-polling-wait-time >>
+        ORB_EVAL_AWS_MAX_POLLING_WAIT_TIME: << parameters.aws_max_polling_wait_time >>
         ORB_VAL_VERBOSE: << parameters.verbose >>
-        ORB_VAL_EKSCTL_COMMAND: <<parameters.show-eksctl-command>>
+        ORB_VAL_EKSCTL_COMMAND: <<parameters.show_eksctl_command>>
         ORB_VAL_FARGATE: << parameters.fargate >>
       name: Create EKS cluster and associated resources
-      command: <<include(scripts/create-cluster.sh)>>
-      no_output_timeout: << parameters.no-output-timeout >>
+      command: <<include(scripts/create_cluster.sh)>>
+      no_output_timeout: << parameters.no_output_timeout >>

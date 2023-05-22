@@ -13,28 +13,28 @@ parameters:
       A version of Python supported by the AWS CLI is required.
     type: string
 
-  cluster-name:
+  cluster_name:
     description: |
       Name of the EKS cluster to be created
     type: string
     default: ""
-  aws-region:
+  aws_region:
     description: |
       AWS region that the EKS cluster will be created in.
     type: string
     default: ""
-  aws-profile:
+  aws_profile:
     description: |
       The AWS profile to be used. If not specified, the configured default
       profile for your AWS CLI installation will be used.
     type: string
     default: ""
-  ssh-access:
+  ssh_access:
     description: |
       Control SSH access for nodes
     type: boolean
     default: false
-  ssh-public-key:
+  ssh_public_key:
     description: |
       SSH public key to use for nodes (import from local path, or use existing EC2 key pair which
       must not resolve to a local file path)
@@ -47,7 +47,7 @@ parameters:
       A list of key-value pairs used to tag the AWS resources (e.g. "Owner=John Doe,Team=Some Team")
     type: string
     default: ""
-  show-eksctl-command:
+  show_eksctl_command:
     description: |
       Whether to show the eksctl command used.
     type: boolean
@@ -61,20 +61,20 @@ parameters:
       When set to 5, sensitive information such as credentials may be displayed in the log output.
     type: integer
     default: 3
-  aws-max-polling-wait-time:
+  aws_max_polling_wait_time:
     description: |
       Max wait time in any AWS polling operations
     type: string
     default: "20m0s"
-  no-output-timeout:
+  no_output_timeout:
     description: |
       Elapsed time that the cluster creation command can run on CircleCI without output.
       The string is a decimal with unit suffix, such as “20m”, “1.25h”, “5s”
     type: string
     default: "45m"
-  authenticator-release-tag:
+  authenticator-release_tag:
     description: |
-      Specifies which release-tag version of the authenticator to install.
+      Specifies which release_tag version of the authenticator to install.
     type: string
     default: ""
   auth:
@@ -85,17 +85,17 @@ parameters:
 
 steps:
   - steps: << parameters.auth >>
-  - install-aws-iam-authenticator:
-      release-tag: << parameters.authenticator-release-tag >>
-  - create-cluster:
-      cluster-name: << parameters.cluster-name >>
-      aws-region: << parameters.aws-region >>
-      aws-profile: << parameters.aws-profile >>
-      ssh-access: << parameters.ssh-access >>
-      ssh-public-key: << parameters.ssh-public-key >>
+  - install_aws_iam_authenticator:
+      release_tag: << parameters.authenticator-release_tag >>
+  - create_cluster:
+      cluster_name: << parameters.cluster_name >>
+      aws_region: << parameters.aws_region >>
+      aws_profile: << parameters.aws_profile >>
+      ssh_access: << parameters.ssh_access >>
+      ssh_public_key: << parameters.ssh_public_key >>
       tags: << parameters.tags >>
-      show-eksctl-command: << parameters.show-eksctl-command >>
+      show_eksctl_command: << parameters.show_eksctl_command >>
       verbose: << parameters.verbose >>
-      skip-kubectl-install: false
-      aws-max-polling-wait-time: << parameters.aws-max-polling-wait-time >>
-      no-output-timeout: << parameters.no-output-timeout >>
+      skip_kubectl_install: false
+      aws_max_polling_wait_time: << parameters.aws_max_polling_wait_time >>
+      no_output_timeout: << parameters.no_output_timeout >>
