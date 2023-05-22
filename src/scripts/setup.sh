@@ -17,7 +17,7 @@ fi
 
 if ! command -v eksctl >/dev/null 2>&1; then
 	echo "Installing the AWS eksctl CLI"
-    curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+    curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_$(uname -m).tar.gz" | tar xz -C /tmp
     $SUDO mv /tmp/eksctl /usr/local/bin
 	# Validate install.
 	echo
