@@ -10,8 +10,8 @@ then
 fi
 FILENAME="aws-iam-authenticator"
 VERSION=0.5.6
-if [ -n "${PARAM_RELEASE_TAG}" ]; then
-    export RELEASE_TAG=${PARAM_RELEASE_TAG}
+if [ -n "${ORB_VAL_RELEASE_TAG}" ]; then
+    export RELEASE_TAG=${ORB_VAL_RELEASE_TAG}
     VERSION="${RELEASE_TAG}"
     if [ "${VERSION}" == "0.3.0" ]; then
     FILENAME="heptio-authenticator-aws"

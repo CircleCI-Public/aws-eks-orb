@@ -1,43 +1,41 @@
 #!/bin/bash
-CLUSTER_NAME=$(eval echo "$PARAM_CLUSTER_NAME")
-CONFIG_FILE=$(eval echo "$PARAM_CONFIG_FILE")
-AWS_REGION=$(eval echo "$PARAM_AWS_REGION")
-AWS_PROFILE=$(eval echo "$PARAM_AWS_PROFILE")
-WAIT=$(eval echo "$PARAM_WAIT")
-CFN_ROLE_ARN=$(eval echo "$PARAM_CFN_ROLE_ARN")
-VERBOSE=$(eval echo "$PARAM_VERBOSE")
-AWS_MAX_POLLING_WAIT_TIME=$(eval echo "$PARAM_AWS_MAX_POLLING_WAIT_TIME")
+ORB_EVAL_CLUSTER_NAME=$(circleci env subst "$ORB_EVAL_CLUSTER_NAME")
+ORB_EVAL_CONFIG_FILE=$(circleci env subst "$ORB_EVAL_CONFIG_FILE")
+ORB_EVAL_AWS_REGION=$(circleci env subst "$ORB_EVAL_AWS_REGION")
+ORB_EVAL_AWS_PROFILE=$(circleci env subst "$ORB_EVAL_AWS_PROFILE")
+ORB_EVAL_CFN_ROLE_ARN=$(circleci env subst "$ORB_EVAL_CFN_ROLE_ARN")
+ORB_EVAL_AWS_MAX_POLLING_WAIT_TIME=$(circleci env subst "$ORB_EVAL_AWS_MAX_POLLING_WAIT_TIME")
 
 
-if [ -n "${CLUSTER_NAME}" ]; then
-    set -- "$@" --name="${CLUSTER_NAME}"
+if [ -n "${ORB_EVAL_CLUSTER_NAME}" ]; then
+    set -- "$@" --name="${ORB_EVAL_CLUSTER_NAME}"
 fi
-if [ -n "${CONFIG_FILE}" ]; then
-    set -- "$@" --config-file="${CONFIG_FILE}"
+if [ -n "${ORB_EVAL_CONFIG_FILE}" ]; then
+    set -- "$@" --config-file="${ORB_EVAL_CONFIG_FILE}"
 fi
-if [ -n "${AWS_REGION}" ]; then
-    set -- "$@" --region="${AWS_REGION}"
+if [ -n "${ORB_EVAL_AWS_REGION}" ]; then
+    set -- "$@" --region="${ORB_EVAL_AWS_REGION}"
 fi
-if [ -n "${AWS_PROFILE}" ]; then
-    set -- "$@" --profile="${AWS_PROFILE}"
+if [ -n "${ORB_EVAL_AWS_PROFILE}" ]; then
+    set -- "$@" --profile="${ORB_EVAL_AWS_PROFILE}"
 fi
-if [ "${WAIT}" == "true" ]; then
+if [ "${ORB_VAL_WAIT}" == "true" ]; then
     set -- "$@" --wait
 fi
-if [ -n "${CFN_ROLE_ARN}" ]; then
-    set -- "$@" --cfn-role-arn="${CFN_ROLE_ARN}"
+if [ -n "${ORB_EVAL_CFN_ROLE_ARN}" ]; then
+    set -- "$@" --cfn-role-arn="${ORB_EVAL_CFN_ROLE_ARN}"
 fi
-if [ -n "${AWS_MAX_POLLING_WAIT_TIME}" ]; then
-    set -- "$@" --timeout="${AWS_MAX_POLLING_WAIT_TIME}"
+if [ -n "${ORB_EVAL_AWS_MAX_POLLING_WAIT_TIME}" ]; then
+    set -- "$@" --timeout="${ORB_EVAL_AWS_MAX_POLLING_WAIT_TIME}"
 fi
-set -- "$@" --verbose="${VERBOSE}"
+set -- "$@" --verbose="${ORB_VAL_VERBOSE}"
 
-if [ "$SHOW_EKSCTL_COMMAND" == "1" ]; then
+if [ "$ORB_VAL_SHOW_EKSCTL_COMMAND" == "1" ]; then
     set -x
 fi
 
 eksctl delete cluster "$@"
 
-if [ "$SHOW_EKSCTL_COMMAND" == "1" ]; then
+if [ "$ORB_VAL_SHOW_EKSCTL_COMMAND" == "1" ]; then
     set +x
 fi
