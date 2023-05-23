@@ -33,7 +33,7 @@ parameters:
       profile for your AWS CLI installation will be used.
     type: string
     default: ""
-  authenticator-release_tag:
+  authenticator_release_tag:
     description: |
       Specifies which release_tag version of the authenticator to install.
     type: string
@@ -76,7 +76,7 @@ steps:
       aws_region: << parameters.aws_region >>
       aws_profile: << parameters.aws_profile >>
       install_kubectl: true
-      authenticator-release_tag: << parameters.authenticator-release_tag >>
+      authenticator_release_tag: << parameters.authenticator_release_tag >>
       kubectl_version: << parameters.kubectl_version >>
   - delete_cluster:
       cluster_name: << parameters.cluster_name >>

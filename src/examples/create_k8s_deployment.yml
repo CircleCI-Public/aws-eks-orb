@@ -23,8 +23,8 @@ usage:
             install_kubectl: true
         - kubernetes/create-or-update-resource:
             resource-file-path: "tests/nginx-deployment/deployment.yaml"
-            resource_name: "deployment/nginx-deployment"
-            get_rollout_status: true
+            resource-name: "deployment/nginx-deployment"
+            get-rollout-status: true
 
   workflows:
     deployment:
@@ -44,7 +44,7 @@ usage:
             post-steps:
               - kubernetes/delete-resource:
                   resource-types: "deployment"
-                  resource_names: "nginx-deployment"
+                  resource-names: "nginx-deployment"
                   wait: true
         - aws-eks/delete_cluster:
             cluster_name: eks-demo-deployment

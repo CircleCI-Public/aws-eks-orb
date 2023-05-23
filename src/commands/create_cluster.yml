@@ -61,10 +61,10 @@ parameters:
       Check the documentation for the --node_ami flag of eksctl for more details.
     type: string
     default: ""
-  node_ami-family:
+  node_ami_family:
     description: |
       Specify this in advanced use cases only.
-      Check the documentation for the --node_ami-family flag of eksctl for more details.
+      Check the documentation for the --node_ami_family flag of eksctl for more details.
     type: string
     default: ""
   nodes:
@@ -227,7 +227,7 @@ steps:
       condition: << parameters.skip_kubectl_install >>
       steps:
         - kubernetes/install:
-            kubectl_version: << parameters.kubectl_version >>
+            kubectl-version: << parameters.kubectl_version >>
   - run:
       environment:
         ORB_EVAL_CLUSTER_NAME: << parameters.cluster_name >>
@@ -243,7 +243,7 @@ steps:
         ORB_VAL_NODE_PRIVATE_NETWORKING: << parameters.node_private_networking >>
         ORB_EVAL_NODE_TYPE: << parameters.node_type >>
         ORB_EVAL_NODE_AMI: << parameters.node_ami >>
-        ORB_EVAL_NODE_AMI_FAMILY: << parameters.node_ami-family >>
+        ORB_EVAL_NODE_AMI_FAMILY: << parameters.node_ami_family >>
         ORB_VAL_NODES: << parameters.nodes >>
         ORB_VAL_NODES_MIN: << parameters.nodes_min >>
         ORB_VAL_NODES_MAX: << parameters.nodes_max >>

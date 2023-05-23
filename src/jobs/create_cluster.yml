@@ -72,7 +72,7 @@ parameters:
       The string is a decimal with unit suffix, such as “20m”, “1.25h”, “5s”
     type: string
     default: "45m"
-  authenticator-release_tag:
+  authenticator_release_tag:
     description: |
       Specifies which release_tag version of the authenticator to install.
     type: string
@@ -86,7 +86,7 @@ parameters:
 steps:
   - steps: << parameters.auth >>
   - install_aws_iam_authenticator:
-      release_tag: << parameters.authenticator-release_tag >>
+      release_tag: << parameters.authenticator_release_tag >>
   - create_cluster:
       cluster_name: << parameters.cluster_name >>
       aws_region: << parameters.aws_region >>
