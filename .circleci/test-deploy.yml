@@ -6,9 +6,17 @@ orbs:
   kubernetes: circleci/kubernetes@1.3
   shellcheck: circleci/shellcheck@3.1
   browser-tools: circleci/browser-tools@1.4
+  aws-eks: {}
+
 filters: &filters
   tags:
     only: /.*/
+
+release-filters: &release-filters
+  branches:
+    ignore: /.*/
+  tags:
+    only: /^v[0-9]+\.[0-9]+\.[0-9]+$/
 jobs:
   test-authenticator:
     parameters:
@@ -582,24 +590,15 @@ workflows:
           requires:
             - test-cluster-fargate
       - orb-tools/pack:
-          filters: *filters
+          filters: *release-filters
       - orb-tools/publish:
           orb_name: circleci/aws-eks
           vcs_type: << pipeline.project.type >>
           pub_type: production
-          requires:
-            - orb-tools/pack
-            - delete_cluster-fargate
-            - delete_cluster-kubectl
-            - delete_cluster-custom-values-ssh
-            - delete_cluster-custom-values
-            - delete_cluster-defaults
+          requires: [orb-tools/pack, delete_cluster-fargate, delete_cluster-kubectl, delete_cluster-custom-values-ssh, delete_cluster-custom-values, delete_cluster-defaults]
           context: orb-publisher
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /^v[0-9]+\.[0-9]+\.[0-9]+$/
+          enable_pr_comment: true
+          filters: *release-filters
 executors:
   docker:
     docker:
