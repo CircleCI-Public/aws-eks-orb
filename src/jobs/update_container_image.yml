@@ -12,18 +12,18 @@ parameters:
       see https://hub.docker.com/r/cimg/python/tags
       A version of Python supported by the AWS CLI is required.
     type: string
-  cluster-name:
+  cluster_name:
     description: |
       The name of the EKS cluster.
     type: string
-  resource-name:
+  resource_name:
     description: |
       Resource name in the format TYPE/NAME e.g. deployment/nginx-deployment
-      Either resource-file-path or resource-name need to be specified.
-      This is required if get-rollout-status is set to true.
+      Either resource-file-path or resource_name need to be specified.
+      This is required if get_rollout_status is set to true.
     type: string
     default: ""
-  container-image-updates:
+  container_image_updates:
     description: |
       Specify a list of container image updates
       (space-delimited name value pairs in the form
@@ -36,55 +36,55 @@ parameters:
       The kubernetes namespace that should be used.
     type: string
     default: ""
-  get-rollout-status:
+  get_rollout_status:
     description: |
       Get the status of the rollout.
       This can only be used for resource types that are valid
       for usage with `kubectl rollout` subcommands.
     type: boolean
     default: false
-  watch-rollout-status:
+  watch_rollout_status:
     description: |
       Whether to watch the status of the latest rollout until it's done.
-      Only effective if get-rollout-status is set to true.
+      Only effective if get_rollout_status is set to true.
     type: boolean
     default: true
-  pinned-revision-to-watch:
+  pinned_revision_to_watch:
     description: |
       Pin a specific revision to be watched and abort watching if it is rolled
       over by another revision.
-      Only effective if get-rollout-status is set to true.
+      Only effective if get_rollout_status is set to true.
     type: string
     default: ""
-  watch-timeout:
+  watch_timeout:
     description: |
       The length of time to wait before ending the watch, zero means never.
       Any other values should contain a corresponding time unit (e.g. 1s, 2m, 3h).
-      Only effective if get-rollout-status is set to true.
+      Only effective if get_rollout_status is set to true.
     type: string
     default: ""
-  aws-region:
+  aws_region:
     description: |
       AWS region that the EKS cluster is in.
     type: string
     default: ""
-  aws-profile:
+  aws_profile:
     description: |
       The AWS profile to be used. If not specified, the configured default
       profile for your AWS CLI installation will be used.
     type: string
     default: ""
-  show-kubectl-command:
+  show_kubectl_command:
     description: |
       Whether to show the kubectl command used.
     type: boolean
     default: false
-  authenticator-release-tag:
+  authenticator_release_tag:
     description: |
-      Specifies which release-tag version of the authenticator to install.
+      Specifies which release_tag version of the authenticator to install.
     type: string
     default: ""
-  kubectl-version:
+  kubectl_version:
     description: |
       Version of kubectl to install
     type: string
@@ -97,19 +97,19 @@ parameters:
 
 steps:
   - steps: << parameters.auth >>
-  - update-kubeconfig-with-authenticator:
-      cluster-name: << parameters.cluster-name >>
-      aws-region: << parameters.aws-region >>
-      aws-profile: << parameters.aws-profile >>
-      install-kubectl: true
-      authenticator-release-tag: << parameters.authenticator-release-tag >>
-      kubectl-version: << parameters.kubectl-version >>
+  - update_kubeconfig_with_authenticator:
+      cluster_name: << parameters.cluster_name >>
+      aws_region: << parameters.aws_region >>
+      aws_profile: << parameters.aws_profile >>
+      install_kubectl: true
+      authenticator_release_tag: << parameters.authenticator_release_tag >>
+      kubectl_version: << parameters.kubectl_version >>
   - kubernetes/update-container-image:
-      resource-name: << parameters.resource-name >>
-      container-image-updates: << parameters.container-image-updates >>
+      resource-name: << parameters.resource_name >>
+      container-image-updates: << parameters.container_image_updates >>
       namespace: << parameters.namespace >>
-      get-rollout-status: << parameters.get-rollout-status >>
-      watch-rollout-status: << parameters.watch-rollout-status >>
-      pinned-revision-to-watch: << parameters.pinned-revision-to-watch >>
-      watch-timeout: << parameters.watch-timeout >>
-      show-kubectl-command: << parameters.show-kubectl-command >>
+      get-rollout-status: << parameters.get_rollout_status >>
+      watch-rollout-status: << parameters.watch_rollout_status >>
+      pinned-revision-to-watch: << parameters.pinned_revision_to_watch >>
+      watch-timeout: << parameters.watch_timeout >>
+      show-kubectl-command: << parameters.show_kubectl_command >>
