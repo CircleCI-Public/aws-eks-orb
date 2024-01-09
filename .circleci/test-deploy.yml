@@ -605,7 +605,7 @@ executors:
       - image: cimg/base:current
   macos:
     macos:
-      xcode: 13.2.0
+      xcode: 14.2.0
   machine:
     machine:
       image: ubuntu-2004:202107-02
