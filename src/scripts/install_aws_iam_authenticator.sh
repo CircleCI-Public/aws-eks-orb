@@ -1,4 +1,7 @@
 #!/bin/bash
+set -x
+ORB_VAL_RELEASE_TAG="$(echo "${ORB_VAL_RELEASE_TAG}" |  circleci env subst)"
+
 if which aws-iam-authenticator > /dev/null; then
     echo "AWS IAM Authenticator for Kubernetes is already installed"
     exit 0
@@ -29,3 +32,4 @@ if [ "$(id -u)" -ne 0 ] && which sudo > /dev/null ; then
     SUDO="sudo"
 fi
 $SUDO mv ./aws-iam-authenticator /usr/local/bin/aws-iam-authenticator
+set +x
