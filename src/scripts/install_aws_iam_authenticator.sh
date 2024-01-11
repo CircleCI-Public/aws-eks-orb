@@ -30,7 +30,7 @@ FILENAME="aws-iam-authenticator"
 #     fi
 # fi
 if [ "${ORB_VAL_RELEASE_TAG}" != "latest" ]; then
-    VERSION=${ORB_VAL_RELEASE_TAG}
+    VERSION="${ORB_VAL_RELEASE_TAG}"
     if [ "${VERSION}" == "0.3.0" ]; then
         FILENAME="heptio-authenticator-aws"
     fi
@@ -38,7 +38,7 @@ else
     detect_latest_version
 fi
 
-DOWNLOAD_URL="https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/v${VERSION}/${FILENAME}_${VERSION}_${PLATFORM}_amd64"
+DOWNLOAD_URL="https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/v${VERSION/v/}/${FILENAME}_${VERSION/v/}_${PLATFORM}_${ARCH}"
 
 printf "Downloading version %s\n"  "${VERSION}"
 

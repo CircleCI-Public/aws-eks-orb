@@ -41,7 +41,7 @@ set_sudo () {
 }
 
 detect_latest_version (){
-    VERSION="$(curl -Ls --fail --retry 3 -o /dev/null -w '%{url_effective}' "https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/latest" | sed 's:.*/::')"
+    VERSION="$(curl -Ls --fail --retry 3 -o /dev/null -w '%{url_effective}' "https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/latest" | sed 's:.*/v::')"
     echo "Latest version is $VERSION"
     
     export VERSION

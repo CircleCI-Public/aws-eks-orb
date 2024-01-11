@@ -30,9 +30,26 @@ jobs:
       - aws-eks/install_aws_iam_authenticator:
           release_tag: << parameters.release_tag >>
       - run:
-          name: Test aws-iam-authenticator
+          name: Test aws-iam-authenticator installation
           command: |
-            command -v aws-iam-authenticator && aws-iam-authenticator version
+            command -v aws-iam-authenticator
+            aws-iam-authenticator version
+      - run:
+          name: Test aws-iam-authenticator version
+          command: |
+            if [ << parameters.release_tag >> == "latest" ]; then
+              version="$(curl -Ls --fail --retry 3 -o /dev/null -w '%{url_effective}' "https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/latest" | sed 's:.*/v::')"
+            else
+              version=<< parameters.release_tag >>
+            fi
+            
+            if aws-iam-authenticator version | grep -q "$version"; then
+              echo "Version $version installed"
+              exit 0
+            else
+              echo "Incorrect version installed: $version"
+              exit 1
+            fi
   integration-test-install:
     parameters:
       executor:
@@ -375,8 +392,14 @@ workflows:
     jobs:
       # Make sure to include "filters: *filters" in every test job you want to run as part of your deployment.
       - test-authenticator:
-          name: integration-test-install-iam-authenticator-specific-version
-          release_tag: "0.5.1"
+          name: integration-test-install-iam-authenticator-specific-version-<< matrix.executor >>
+          release_tag: "0.5.7"
+          filters: *filters
+          matrix:
+            parameters:
+              executor: [ "docker", "arm" ]
+      - test-authenticator:
+          name: integration-test-install-iam-authenticator-latest-version-<< matrix.executor >>
           filters: *filters
           matrix:
             parameters:
