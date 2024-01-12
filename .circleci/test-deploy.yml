@@ -419,7 +419,7 @@ workflows:
           requires:
             - integration-test-install-docker
             - integration-test-install-macos
-            - integration-test-install-machine
+            - integration-test-install-arm
       - test-cluster:
           name: test-cluster-defaults
           executor: python
@@ -473,7 +473,7 @@ workflows:
           requires:
             - integration-test-install-docker
             - integration-test-install-macos
-            - integration-test-install-machine
+            - integration-test-install-arm
       - test-cluster:
           name: test-cluster-custom-values
           cluster_name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
@@ -502,7 +502,7 @@ workflows:
           requires:
             - integration-test-install-docker
             - integration-test-install-macos
-            - integration-test-install-machine
+            - integration-test-install-arm
       - test-cluster:
           name: test-cluster-custom-values-ssh
           cluster_name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
@@ -546,7 +546,7 @@ workflows:
           requires:
             - integration-test-install-docker
             - integration-test-install-macos
-            - integration-test-install-machine
+            - integration-test-install-arm
       - create-deployment:
           name: create-deployment-kubectl
           executor: python
@@ -600,7 +600,7 @@ workflows:
           requires:
             - integration-test-install-docker
             - integration-test-install-macos
-            - integration-test-install-machine
+            - integration-test-install-arm
       - test-cluster:
           name: test-cluster-fargate
           cluster_name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-fargate
