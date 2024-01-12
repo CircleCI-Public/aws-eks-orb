@@ -10,12 +10,12 @@ parameters:
       Note: Release versions earlier than v0.3.0 cannot be specified. Also,
       pre or alpha releases cannot be specified.
     type: string
-    default: "latest"
+    default: ""
 
 steps:
   - run:
       environment:
-        ORB_VAL_RELEASE_TAG: << parameters.release_tag>>
+        AWS_EKS_STR_RELEASE_TAG: << parameters.release_tag>>
         SCRIPT_UTILS: << include(scripts/utils.sh) >>
       name: Install the AWS IAM Authenticator for Kubernetes
       command: <<include(scripts/install_aws_iam_authenticator.sh)>>

@@ -3,10 +3,13 @@ description: Install the Amazon eksctl command line utility.  This command shoul
 parameters:
   version:
     type: "string"
-    default: "0.77.0"
+    default: ""
     description: Specify the full semver versioned tag to use.
 
 steps:
   - run:
       name: Install Amazon EKSCTL
+      environment:
+        AWS_EKS_STR_VERSION: << parameters.version >>
+        SCRIPT_UTILS: << include(scripts/utils.sh) >>
       command: <<include(scripts/setup.sh)>>
