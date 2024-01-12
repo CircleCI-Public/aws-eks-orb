@@ -4,7 +4,9 @@ parameters:
   version:
     type: "string"
     default: ""
-    description: Specify the full semver versioned tag to use.
+    description: | 
+      Specify the full semver versioned tag to use. 
+      The latest version will be installed by default if none is specified.
 
 steps:
   - run:
