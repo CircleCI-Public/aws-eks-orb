@@ -1,10 +1,10 @@
 #!/bin/bash
-AWS_EKS_STR_CLUSTER_NAME=$(circleci env subst "$AWS_EKS_STR_CLUSTER_NAME")
-AWS_EKS_STR_CONFIG_FILE=$(circleci env subst "$AWS_EKS_STR_CONFIG_FILE")
-AWS_EKS_STR_REGION=$(circleci env subst "$AWS_EKS_STR_REGION")
-AWS_EKS_STR_PROFILE=$(circleci env subst "$AWS_EKS_STR_PROFILE")
-AWS_EKS_STR_CFN_ROLE_ARN=$(circleci env subst "$AWS_EKS_STR_CFN_ROLE_ARN")
-AWS_EKS_STR_MAX_POLLING_WAIT_TIME=$(circleci env subst "$AWS_EKS_STR_MAX_POLLING_WAIT_TIME")
+AWS_EKS_STR_CLUSTER_NAME="$(echo "${AWS_EKS_STR_CLUSTER_NAME}" | circleci env subst)"
+AWS_EKS_STR_CONFIG_FILE="$(echo "${AWS_EKS_STR_CONFIG_FILE}" | circleci env subst )"
+AWS_EKS_STR_REGION="$(echo "${AWS_EKS_STR_REGION}" | circleci env subst)"
+AWS_EKS_STR_PROFILE="$(echo "${AWS_EKS_STR_PROFILE}" | circleci env subst)"
+AWS_EKS_STR_CFN_ROLE_ARN="$(echo "${AWS_EKS_STR_CFN_ROLE_ARN}" | circleci env subst)"
+AWS_EKS_STR_MAX_POLLING_WAIT_TIME="$(echo "${AWS_EKS_STR_MAX_POLLING_WAIT_TIME}" | circleci env subst)"
 
 
 if [ -n "${AWS_EKS_STR_CLUSTER_NAME}" ]; then

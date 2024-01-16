@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+
 AWS_EKS_STR_RELEASE_TAG="$(echo "${AWS_EKS_STR_RELEASE_TAG}" |  circleci env subst)"
 
 if which aws-iam-authenticator > /dev/null; then
@@ -31,4 +31,3 @@ curl -L --fail --retry 3 -o aws-iam-authenticator "$DOWNLOAD_URL"
 chmod +x ./aws-iam-authenticator
 
 $SUDO mv ./aws-iam-authenticator /usr/local/bin/aws-iam-authenticator
-set +x
