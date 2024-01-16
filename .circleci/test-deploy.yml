@@ -62,7 +62,9 @@ jobs:
       - aws-eks/install_aws_iam_authenticator
       - run:
           name: Test aws-iam-authenticator
-          command: command -v aws-iam-authenticator && aws-iam-authenticator version
+          command: |
+            command -v aws-iam-authenticator
+            aws-iam-authenticator version
   setup-cluster:
     executor: python
     parameters:
