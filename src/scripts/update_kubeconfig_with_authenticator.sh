@@ -1,34 +1,34 @@
 #!/bin/bash
-ORB_EVAL_CLUSTER_NAME=$(circleci env subst "$ORB_EVAL_CLUSTER_NAME")
-ORB_EVAL_AWS_REGION=$(circleci env subst "$ORB_EVAL_AWS_REGION")
-ORB_EVAL_AWS_PROFILE=$(circleci env subst "$ORB_EVAL_AWS_PROFILE")
-ORB_EVAL_KUBECONFIG_FILE_PATH=$(circleci env subst "$ORB_EVAL_KUBECONFIG_FILE_PATH")
-ORB_EVAL_ROLE_ARN=$(circleci env subst "$ORB_EVAL_ROLE_ARN")
-ORB_EVAL_CLUSTER_CONTEXT_ALIAS=$(circleci env subst "$ORB_EVAL_CLUSTER_CONTEXT_ALIAS")
-ORB_EVAL_DRY_RUN=$(circleci env subst "$ORB_EVAL_DRY_RUN")
+AWS_EKS_STR_CLUSTER_NAME=$(circleci env subst "$AWS_EKS_STR_CLUSTER_NAME")
+AWS_EKS_STR_REGION=$(circleci env subst "$AWS_EKS_STR_REGION")
+AWS_EKS_STR_PROFILE=$(circleci env subst "$AWS_EKS_STR_PROFILE")
+AWS_EKS_EVAL_KUBECONFIG_FILE_PATH=$(circleci env subst "$AWS_EKS_EVAL_KUBECONFIG_FILE_PATH")
+AWS_EKS_STR_ROLE_ARN=$(circleci env subst "$AWS_EKS_STR_ROLE_ARN")
+AWS_EKS_STR_CLUSTER_CONTEXT_ALIAS=$(circleci env subst "$AWS_EKS_STR_CLUSTER_CONTEXT_ALIAS")
+AWS_EKS_STR_DRY_RUN=$(circleci env subst "$AWS_EKS_STR_DRY_RUN")
 
-if [ -n "${ORB_EVAL_CLUSTER_NAME}" ]; then
-    set -- "$@" --name "${ORB_EVAL_CLUSTER_NAME}"
+if [ -n "${AWS_EKS_STR_CLUSTER_NAME}" ]; then
+    set -- "$@" --name "${AWS_EKS_STR_CLUSTER_NAME}"
 fi
-if [ -n "${ORB_EVAL_AWS_REGION}" ]; then
-    set -- "$@" --region "${ORB_EVAL_AWS_REGION}"
+if [ -n "${AWS_EKS_STR_REGION}" ]; then
+    set -- "$@" --region "${AWS_EKS_STR_REGION}"
 fi
-if [ -n "${ORB_EVAL_AWS_PROFILE}" ]; then
-    set -- "$@" --profile "${ORB_EVAL_AWS_PROFILE}"
+if [ -n "${AWS_EKS_STR_PROFILE}" ]; then
+    set -- "$@" --profile "${AWS_EKS_STR_PROFILE}"
 fi
-if [ -n "${ORB_EVAL_KUBECONFIG_FILE_PATH}" ]; then
-    set -- "$@" --kubeconfig "${ORB_EVAL_KUBECONFIG_FILE_PATH}"
+if [ -n "${AWS_EKS_EVAL_KUBECONFIG_FILE_PATH}" ]; then
+    set -- "$@" --kubeconfig "${AWS_EKS_EVAL_KUBECONFIG_FILE_PATH}"
 fi
-if [ -n "${ORB_EVAL_ROLE_ARN}" ]; then
-    set -- "$@" --role-arn "${ORB_EVAL_ROLE_ARN}"
+if [ -n "${AWS_EKS_STR_ROLE_ARN}" ]; then
+    set -- "$@" --role-arn "${AWS_EKS_STR_ROLE_ARN}"
 fi
-if [ -n "${ORB_EVAL_CLUSTER_CONTEXT_ALIAS}" ]; then
-    set -- "$@" --alias "${ORB_EVAL_CLUSTER_CONTEXT_ALIAS}"
+if [ -n "${AWS_EKS_STR_CLUSTER_CONTEXT_ALIAS}" ]; then
+    set -- "$@" --alias "${AWS_EKS_STR_CLUSTER_CONTEXT_ALIAS}"
 fi
-if [ -n "${ORB_EVAL_DRY_RUN}" ]; then
+if [ -n "${AWS_EKS_STR_DRY_RUN}" ]; then
     set -- "$@" --dry-run "${DRY_RUN}"
 fi
-if [ "${ORB_VAL_VERBOSE}" == "true" ]; then
+if [ "${AWS_EKS_INT_VERBOSE}" == "true" ]; then
     set -- "$@" --verbose
 fi
 

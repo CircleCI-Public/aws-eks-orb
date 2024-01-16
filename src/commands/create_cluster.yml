@@ -230,42 +230,42 @@ steps:
             kubectl-version: << parameters.kubectl_version >>
   - run:
       environment:
-        ORB_EVAL_CLUSTER_NAME: << parameters.cluster_name >>
-        ORB_EVAL_AWS_REGION: << parameters.aws_region >>
-        ORB_EVAL_AWS_PROFILE: << parameters.aws_profile >>
-        ORB_EVAL_ZONES: << parameters.zones >>
-        ORB_EVAL_KUBERNETES_VERSION: << parameters.kubernetes_version >>
-        ORB_EVAL_CONFIG_FILE: << parameters.config_file >>
-        ORB_EVAL_VPC_PRIVATE_SUBNETS: << parameters.vpc_private_subnets >>
-        ORB_EVAL_VPC_PUBLIC_SUBNETS: << parameters.vpc_public_subnets >>
-        ORB_EVAL_NODEGROUP_NAME: << parameters.nodegroup_name >>
-        ORB_VAL_WITHOUT_NODEGROUP: << parameters.without_nodegroup >>
-        ORB_VAL_NODE_PRIVATE_NETWORKING: << parameters.node_private_networking >>
-        ORB_EVAL_NODE_TYPE: << parameters.node_type >>
-        ORB_EVAL_NODE_AMI: << parameters.node_ami >>
-        ORB_EVAL_NODE_AMI_FAMILY: << parameters.node_ami_family >>
-        ORB_VAL_NODES: << parameters.nodes >>
-        ORB_VAL_NODES_MIN: << parameters.nodes_min >>
-        ORB_VAL_NODES_MAX: << parameters.nodes_max >>
-        ORB_VAL_NODE_VOLUME_SIZE: << parameters.node_volume_size >>
-        ORB_EVAL_NODE_VOLUME_TYPE: << parameters.node_volume_type >>
-        ORB_VAL_MAX_PODS_PER_NODE: << parameters.max_pods_per_node >>
-        ORB_EVAL_NODE_SECURITY_GROUPS: << parameters.node_security_groups >>
-        ORB_EVAL_NODE_LABELS: << parameters.node_labels >>
-        ORB_EVAL_NODE_ZONES: << parameters.node_zones >>
-        ORB_VAL_SSH_ACCESS: << parameters.ssh_access >>
-        ORB_EVAL_SSH_PUBLIC_KEY: << parameters.ssh_public_key >>
-        ORB_VAL_ASG_ACCESS: << parameters.asg_access >>
-        ORB_VAL_EXTERNAL_DNS_ACCESS: << parameters.external_dns_access >>
-        ORB_VAL_FULL_ECR_ACCESS: << parameters.full_ecr_access >>
-        ORB_EVAL_VPC_CIDR: << parameters.vpc_cidr >>
-        ORB_EVAL_VPC_FROM_KOPS_CLUSTER: << parameters.vpc_from_kops_cluster >>
-        ORB_EVAL_CFN_ROLE_ARN: << parameters.cfn_role_arn >>
-        ORB_EVAL_TAGS: << parameters.tags >>
-        ORB_EVAL_AWS_MAX_POLLING_WAIT_TIME: << parameters.aws_max_polling_wait_time >>
-        ORB_VAL_VERBOSE: << parameters.verbose >>
-        ORB_VAL_EKSCTL_COMMAND: <<parameters.show_eksctl_command>>
-        ORB_VAL_FARGATE: << parameters.fargate >>
+        AWS_EKS_STR_CLUSTER_NAME: << parameters.cluster_name >>
+        AWS_EKS_STR_REGION: << parameters.aws_region >>
+        AWS_EKS_STR_PROFILE: << parameters.aws_profile >>
+        AWS_EKS_STR_ZONES: << parameters.zones >>
+        AWS_EKS_STR_ORB_KUBERNETES_VERSION: << parameters.kubernetes_version >>
+        AWS_EKS_STR_CONFIG_FILE: << parameters.config_file >>
+        AWS_EKS_STR_VPC_PRIVATE_SUBNETS: << parameters.vpc_private_subnets >>
+        AWS_EKS_STR_VPC_PUBLIC_SUBNETS: << parameters.vpc_public_subnets >>
+        AWS_EKS_STR_NODEGROUP_NAME: << parameters.nodegroup_name >>
+        AWS_EKS_BOOL_WITHOUT_NODEGROUP: << parameters.without_nodegroup >>
+        AWS_EKS_BOOL_NODE_PRIVATE_NETWORKING: << parameters.node_private_networking >>
+        AWS_EKS_STR_NODE_TYPE: << parameters.node_type >>
+        AWS_EKS_STR_NODE_AMI: << parameters.node_ami >>
+        AWS_EKS_STR_NODE_AMI_FAMILY: << parameters.node_ami_family >>
+        AWS_EKS_INT_NODES: << parameters.nodes >>
+        AWS_EKS_INT_NODES_MIN: << parameters.nodes_min >>
+        AWS_EKS_INT_NODES_MAX: << parameters.nodes_max >>
+        AWS_EKS_INT_NODE_VOLUME_SIZE: << parameters.node_volume_size >>
+        AWS_EKS_STR_NODE_VOLUME_TYPE: << parameters.node_volume_type >>
+        AWS_EKS_INT_MAX_PODS_PER_NODE: << parameters.max_pods_per_node >>
+        AWS_EKS_STR_NODE_SECURITY_GROUPS: << parameters.node_security_groups >>
+        AWS_EKS_STR_NODE_LABELS: << parameters.node_labels >>
+        AWS_EKS_STR_NODE_ZONES: << parameters.node_zones >>
+        AWS_EKS_BOOL_SSH_ACCESS: << parameters.ssh_access >>
+        AWS_EKS_STR_SSH_PUBLIC_KEY: << parameters.ssh_public_key >>
+        AWS_EKS_BOOL_ASG_ACCESS: << parameters.asg_access >>
+        AWS_EKS_BOOL_EXTERNAL_DNS_ACCESS: << parameters.external_dns_access >>
+        AWS_EKS_BOOL_FULL_ECR_ACCESS: << parameters.full_ecr_access >>
+        AWS_EKS_STR_VPC_CIDR: << parameters.vpc_cidr >>
+        AWS_EKS_STR_FROM_KOPS_CLUSTER: << parameters.vpc_from_kops_cluster >>
+        AWS_EKS_STR_CFN_ROLE_ARN: << parameters.cfn_role_arn >>
+        AWS_EKS_STR_TAGS: << parameters.tags >>
+        AWS_EKS_STR_MAX_POLLING_WAIT_TIME: << parameters.aws_max_polling_wait_time >>
+        AWS_EKS_INT_VERBOSE: << parameters.verbose >>
+        AWS_EKS_BOOL_EKSCTL_COMMAND: <<parameters.show_eksctl_command>>
+        AWS_EKS_BOOL_FARGATE: << parameters.fargate >>
       name: Create EKS cluster and associated resources
       command: <<include(scripts/create_cluster.sh)>>
       no_output_timeout: << parameters.no_output_timeout >>

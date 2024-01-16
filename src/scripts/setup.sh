@@ -1,28 +1,31 @@
 #!/bin/bash
-# set smart sudo
-if [[ $EUID == 0 ]]; then export SUDO=""; else export SUDO="sudo"; fi
 
-# Define current platform
-if [[ "$(uname -s)" == "Darwin" && "$(uname -m)" == "x86_64" ]]; then
-	export SYS_ENV_PLATFORM=Darwin_amd64
-elif [[ "$(uname -s)" == "Linux" && "$(uname -m)" == "x86_64" ]]; then
-	export SYS_ENV_PLATFORM=Linux_amd64
-elif [[ "$(uname -s)" == "Linux" && "$(uname -m)" == "aarch64" ]]; then
-	export SYS_ENV_PLATFORM=linux_arm64
-else
-	echo "This platform appears to be unsupported."
-	uname -a
-	exit 1
+AWS_EKS_STR_VERSION="$(echo "${AWS_EKS_STR_VERSION}" | circleci env subst)"
+
+if which eksctl > /dev/null; then
+    echo "The AWS eksctl CLI is already installed"
+    exit 0
 fi
 
-if ! command -v eksctl >/dev/null 2>&1; then
-	echo "Installing the AWS eksctl CLI"
-    curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_${SYS_ENV_PLATFORM}.tar.gz" | tar xz -C /tmp
-    $SUDO mv /tmp/eksctl /usr/local/bin
-	# Validate install.
-	echo
-	command -v eksctl
-	echo "AWS eksctl CLI installed"
+eval "$SCRIPT_UTILS"
+detect_arch
+detect_os
+set_sudo
+
+
+if [ -n "${AWS_EKS_STR_VERSION}" ]; then
+ 	download_url="https://github.com/eksctl-io/eksctl/releases/download/v${AWS_EKS_STR_VERSION/v/}/eksctl_${PLATFORM}_${ARCH}.tar.gz"
 else
-	echo "AWS eksctl CLI is already installed."
+ 	download_url="https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_${PLATFORM}_${ARCH}.tar.gz"
 fi
+
+echo "Installing the AWS eksctl CLI"
+set -x
+curl --silent --location "$download_url" | tar xz -C /tmp
+set +x
+$SUDO mv /tmp/eksctl /usr/local/bin
+
+# Validate install.
+command -v eksctl
+echo "AWS eksctl CLI installed"
+

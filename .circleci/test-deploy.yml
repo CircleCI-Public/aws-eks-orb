@@ -20,20 +20,38 @@ release-filters: &release-filters
 jobs:
   test-authenticator:
     parameters:
-      executor:
-        type: executor
       release_tag:
         type: string
         default: ""
+      executor:
+        type: executor
     executor: << parameters.executor >>
     steps:
       - aws-eks/install_aws_iam_authenticator:
           release_tag: << parameters.release_tag >>
       - run:
-          name: Test aws-iam-authenticator
+          name: Test aws-iam-authenticator installation
           command: |
-            aws-iam-authenticator
-  integration-test-installs:
+            if command -v aws-iam-authenticator >/dev/null 2>&1 && ! aws-iam-authenticator version >/dev/null 2>&1; then
+              echo "aws-iam-authenticator was not installed correctly."
+            fi
+      - run:
+          name: Test aws-iam-authenticator version
+          command: |
+            if [ << parameters.release_tag >> == "latest" ]; then
+              version="$(curl -Ls --fail --retry 3 -o /dev/null -w '%{url_effective}' "https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/latest" | sed 's:.*/v::')"
+            else
+              version=<< parameters.release_tag >>
+            fi
+            
+            if aws-iam-authenticator version | grep -q "$version"; then
+              echo "Version $version installed"
+              exit 0
+            else
+              echo "Incorrect version installed: $version"
+              exit 1
+            fi
+  integration-test-install:
     parameters:
       executor:
         type: executor
@@ -45,7 +63,10 @@ jobs:
       - aws-eks/install_aws_iam_authenticator
       - run:
           name: Test aws-iam-authenticator
-          command: command -v aws-iam-authenticator
+          command: |
+            if command -v aws-iam-authenticator >/dev/null 2>&1 && ! aws-iam-authenticator version >/dev/null 2>&1; then
+              echo "aws-iam-authenticator was not installed correctly."
+            fi
   setup-cluster:
     executor: python
     parameters:
@@ -374,22 +395,35 @@ workflows:
   test-deploy:
     jobs:
       # Make sure to include "filters: *filters" in every test job you want to run as part of your deployment.
-      - integration-test-installs:
-          name: integration-test-installs-<< matrix.executor >>
+      - test-authenticator:
+          name: integration-test-install-iam-authenticator-specific-version-<< matrix.executor >>
+          release_tag: "0.5.7"
+          filters: *filters
+          matrix:
+            parameters:
+              executor: [ "docker", "arm" ]
+      - test-authenticator:
+          name: integration-test-install-iam-authenticator-latest-version-<< matrix.executor >>
+          filters: *filters
+          matrix:
+            parameters:
+              executor: [ "docker", "arm" ]
+      - integration-test-install:
+          name: integration-test-install-<< matrix.executor >>
           context: orb-publisher
           filters: *filters
           matrix:
             parameters:
-              executor: ["docker", "macos", "machine"]
+              executor: ["docker", "macos", "arm"]
       - setup-cluster:
           name: setup-cluster-defaults
           context: [CPE-OIDC]
           cluster_name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-defaults
           filters: *filters
           requires:
-            - integration-test-installs-docker
-            - integration-test-installs-macos
-            - integration-test-installs-machine
+            - integration-test-install-docker
+            - integration-test-install-macos
+            - integration-test-install-arm
       - test-cluster:
           name: test-cluster-defaults
           executor: python
@@ -441,9 +475,9 @@ workflows:
           zones: "us-west-2a,us-west-2c"
           filters: *filters
           requires:
-            - integration-test-installs-docker
-            - integration-test-installs-macos
-            - integration-test-installs-machine
+            - integration-test-install-docker
+            - integration-test-install-macos
+            - integration-test-install-arm
       - test-cluster:
           name: test-cluster-custom-values
           cluster_name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values
@@ -470,9 +504,9 @@ workflows:
           zones: "us-west-2b,us-west-2c"
           filters: *filters
           requires:
-            - integration-test-installs-docker
-            - integration-test-installs-macos
-            - integration-test-installs-machine
+            - integration-test-install-docker
+            - integration-test-install-macos
+            - integration-test-install-arm
       - test-cluster:
           name: test-cluster-custom-values-ssh
           cluster_name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-custom-values-ssh
@@ -514,9 +548,9 @@ workflows:
           aws_region: "us-west-2"
           filters: *filters
           requires:
-            - integration-test-installs-docker
-            - integration-test-installs-macos
-            - integration-test-installs-machine
+            - integration-test-install-docker
+            - integration-test-install-macos
+            - integration-test-install-arm
       - create-deployment:
           name: create-deployment-kubectl
           executor: python
@@ -568,9 +602,9 @@ workflows:
           context: [CPE-OIDC]
           filters: *filters
           requires:
-            - integration-test-installs-docker
-            - integration-test-installs-macos
-            - integration-test-installs-machine
+            - integration-test-install-docker
+            - integration-test-install-macos
+            - integration-test-install-arm
       - test-cluster:
           name: test-cluster-fargate
           cluster_name: ${AWS_RESOURCE_NAME_PREFIX}-orb-test-fargate
@@ -612,6 +646,11 @@ executors:
   python:
     docker:
       - image: cimg/python:3.10-browsers
+  arm:
+    machine:
+      image: ubuntu-2004:202101-01
+    resource_class: arm.medium
+
 commands:
   cluster-setup-check:
     steps:
