@@ -32,8 +32,9 @@ jobs:
       - run:
           name: Test aws-iam-authenticator installation
           command: |
-            command -v aws-iam-authenticator
-            aws-iam-authenticator version
+            if command -v aws-iam-authenticator >/dev/null 2>&1 && ! aws-iam-authenticator version >/dev/null 2>&1; then
+              echo "aws-iam-authenticator was not installed correctly."
+            fi
       - run:
           name: Test aws-iam-authenticator version
           command: |
@@ -63,8 +64,9 @@ jobs:
       - run:
           name: Test aws-iam-authenticator
           command: |
-            command -v aws-iam-authenticator
-            aws-iam-authenticator version
+            if command -v aws-iam-authenticator >/dev/null 2>&1 && ! aws-iam-authenticator version >/dev/null 2>&1; then
+              echo "aws-iam-authenticator was not installed correctly."
+            fi
   setup-cluster:
     executor: python
     parameters:

@@ -20,7 +20,9 @@ else
 fi
 
 echo "Installing the AWS eksctl CLI"
+set -x
 curl --silent --location "$download_url" | tar xz -C /tmp
+set +x
 $SUDO mv /tmp/eksctl /usr/local/bin
 
 # Validate install.
