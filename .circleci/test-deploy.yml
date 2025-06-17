@@ -75,7 +75,7 @@ jobs:
     steps:
       - cluster-setup-check
       - aws-cli/setup:
-          role-arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
+          role_arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
       - aws-eks/install_aws_iam_authenticator
       - aws-eks/create_cluster:
           cluster_name: << parameters.cluster_name >>
@@ -97,7 +97,7 @@ jobs:
     steps:
       - cluster-setup-check
       - aws-cli/setup:
-          role-arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
+          role_arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
       - aws-eks/install_aws_iam_authenticator
       - aws-eks/create_cluster:
           cluster_name: << parameters.cluster_name >>
@@ -133,7 +133,7 @@ jobs:
     steps:
       - cluster-setup-check
       - aws-cli/setup:
-          role-arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
+          role_arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
       - aws-eks/install_aws_iam_authenticator
       - run:
           name: Generate ssh keys
@@ -179,7 +179,7 @@ jobs:
       - browser-tools/install-chromedriver
       # Test various update-kubeconfig options
       - aws-cli/setup:
-          role-arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
+          role_arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
       - aws-eks/update_kubeconfig_with_authenticator:
           cluster_name: << parameters.cluster_name >>
           aws_region: << parameters.region >>
@@ -271,7 +271,7 @@ jobs:
     executor: << parameters.executor >>
     steps:
       - aws-cli/setup:
-          role-arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
+          role_arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
       - aws-eks/update_kubeconfig_with_authenticator:
           cluster_name: << parameters.cluster_name >>
           aws_profile: << parameters.profile >>
@@ -310,7 +310,7 @@ jobs:
     steps:
       - cluster-setup-check
       - aws-cli/setup:
-          role-arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
+          role_arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
       - aws-eks/update_kubeconfig_with_authenticator:
           cluster_name: << parameters.cluster_name >>
           aws_region: << parameters.region >>
@@ -355,7 +355,7 @@ jobs:
         type: boolean
     steps:
       - aws-cli/setup:
-          role-arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
+          role_arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
       - aws-eks/update_kubeconfig_with_authenticator:
           cluster_name: << parameters.cluster_name >>
           aws_region: << parameters.region >>
@@ -381,7 +381,7 @@ jobs:
     steps:
       - checkout
       - aws-cli/setup:
-          role-arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
+          role_arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
       - aws-eks/update_kubeconfig_with_authenticator:
           cluster_name: << parameters.cluster_name >>
           aws_region: << parameters.region >>
@@ -542,7 +542,7 @@ workflows:
           name: setup-cluster-kubectl
           auth:
             - aws-cli/setup:
-                role-arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
+                role_arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
           cluster_name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
           context: [CPE-OIDC]
           aws_region: "us-west-2"
@@ -563,7 +563,7 @@ workflows:
       - aws-eks/update_container_image:
           auth:
             - aws-cli/setup:
-                role-arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
+                role_arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
           name: update_container_image-kubectl
           cluster_name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
           context: [CPE-OIDC]
@@ -584,7 +584,7 @@ workflows:
           name: delete_cluster-kubectl
           auth:
             - aws-cli/setup:
-                role-arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
+                role_arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
           cluster_name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
           context: [CPE-OIDC]
           aws_region: "us-west-2"
