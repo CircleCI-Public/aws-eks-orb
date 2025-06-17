@@ -217,7 +217,7 @@ jobs:
           resource_file_path: "tests/kubernetes-dashboard/influxdb.yml"
           get_rollout_status: true
           namespace: kube-system
-          resource-name: "deployment/monitoring-influxdb"
+          resource_name: "deployment/monitoring-influxdb"
       - kubernetes/create_or_update_resource:
           resource_file_path: "tests/kubernetes-dashboard/heapster-rbac.yml"
       - kubernetes/create_or_update_resource:
