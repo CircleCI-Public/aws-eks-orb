@@ -1,11 +1,10 @@
 version: 2.1
 orbs:
-  orb-tools: circleci/orb-tools@12.0
-  aws-cli: circleci/aws-cli@3.1
-  helm: circleci/helm@2.0
-  kubernetes: circleci/kubernetes@1.3
-  shellcheck: circleci/shellcheck@3.1
-  browser-tools: circleci/browser-tools@1.4
+  orb-tools: circleci/orb-tools@12.3.1
+  aws-cli: circleci/aws-cli@5.4.0
+  helm: circleci/helm@3.2.0
+  kubernetes: circleci/kubernetes@2.0.0
+  browser-tools: circleci/browser-tools@2.1.2
   aws-eks: {}
 
 filters: &filters
@@ -75,7 +74,7 @@ jobs:
     steps:
       - cluster-setup-check
       - aws-cli/setup:
-          role-arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
+          role_arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
       - aws-eks/install_aws_iam_authenticator
       - aws-eks/create_cluster:
           cluster_name: << parameters.cluster_name >>
@@ -97,7 +96,7 @@ jobs:
     steps:
       - cluster-setup-check
       - aws-cli/setup:
-          role-arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
+          role_arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
       - aws-eks/install_aws_iam_authenticator
       - aws-eks/create_cluster:
           cluster_name: << parameters.cluster_name >>
@@ -133,7 +132,7 @@ jobs:
     steps:
       - cluster-setup-check
       - aws-cli/setup:
-          role-arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
+          role_arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
       - aws-eks/install_aws_iam_authenticator
       - run:
           name: Generate ssh keys
@@ -174,12 +173,12 @@ jobs:
     steps:
       - checkout
       - kubernetes/install:
-          kubectl-version: v1.22.0
-      - browser-tools/install-chrome
-      - browser-tools/install-chromedriver
+          kubectl_version: v1.22.0
+      - browser-tools/install_chrome
+      - browser-tools/install_chromedriver
       # Test various update-kubeconfig options
       - aws-cli/setup:
-          role-arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
+          role_arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
       - aws-eks/update_kubeconfig_with_authenticator:
           cluster_name: << parameters.cluster_name >>
           aws_region: << parameters.region >>
@@ -203,25 +202,25 @@ jobs:
             cat kube-config.test | grep << parameters.cluster_name >>
             sleep 10
             curl http://localhost:8080/api/
-      - kubernetes/create-or-update-resource:
-          resource-file-path: "tests/kubernetes-dashboard/kubernetes-dashboard.yml"
-          get-rollout-status: true
+      - kubernetes/create_or_update_resource:
+          resource_file_path: "tests/kubernetes-dashboard/kubernetes-dashboard.yml"
+          get_rollout_status: true
           namespace: kube-system
-          resource-name: "deployment/kubernetes-dashboard"
-      - kubernetes/create-or-update-resource:
-          resource-file-path: "tests/kubernetes-dashboard/influxdb-heapster.yml"
-          get-rollout-status: true
+          resource_name: "deployment/kubernetes-dashboard"
+      - kubernetes/create_or_update_resource:
+          resource_file_path: "tests/kubernetes-dashboard/influxdb-heapster.yml"
+          get_rollout_status: true
           namespace: kube-system
-          resource-name: "deployment/heapster"
-      - kubernetes/create-or-update-resource:
-          resource-file-path: "tests/kubernetes-dashboard/influxdb.yml"
-          get-rollout-status: true
+          resource_name: "deployment/heapster"
+      - kubernetes/create_or_update_resource:
+          resource_file_path: "tests/kubernetes-dashboard/influxdb.yml"
+          get_rollout_status: true
           namespace: kube-system
-          resource-name: "deployment/monitoring-influxdb"
-      - kubernetes/create-or-update-resource:
-          resource-file-path: "tests/kubernetes-dashboard/heapster-rbac.yml"
-      - kubernetes/create-or-update-resource:
-          resource-file-path: "tests/kubernetes-dashboard/eks-admin-service-account.yml"
+          resource_name: "deployment/monitoring-influxdb"
+      - kubernetes/create_or_update_resource:
+          resource_file_path: "tests/kubernetes-dashboard/heapster-rbac.yml"
+      - kubernetes/create_or_update_resource:
+          resource_file_path: "tests/kubernetes-dashboard/eks-admin-service-account.yml"
       - run:
           name: Verify kubernetes dashboard
           command: |
@@ -271,7 +270,7 @@ jobs:
     executor: << parameters.executor >>
     steps:
       - aws-cli/setup:
-          role-arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
+          role_arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
       - aws-eks/update_kubeconfig_with_authenticator:
           cluster_name: << parameters.cluster_name >>
           aws_profile: << parameters.profile >>
@@ -287,7 +286,7 @@ jobs:
           command: |
             aws-iam-authenticator
       - kubernetes/install:
-          kubectl-version: v1.22.0
+          kubectl_version: v1.22.0
       - run:
           name: Test with kubectl
           command: |
@@ -310,17 +309,17 @@ jobs:
     steps:
       - cluster-setup-check
       - aws-cli/setup:
-          role-arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
+          role_arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
       - aws-eks/update_kubeconfig_with_authenticator:
           cluster_name: << parameters.cluster_name >>
           aws_region: << parameters.region >>
           install_kubectl: true
       - attach_workspace:
           at: /tmp/workspace
-      - helm/install-helm-chart:
-          add-repo: << parameters.add-repo >>
+      - helm/install_helm_chart:
+          add_repo: << parameters.add-repo >>
           chart: grafana/grafana
-          release-name: << parameters.release-name >>
+          release_name: << parameters.release-name >>
       - run:
           name: Test SSH access
           command: |
@@ -355,7 +354,7 @@ jobs:
         type: boolean
     steps:
       - aws-cli/setup:
-          role-arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
+          role_arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
       - aws-eks/update_kubeconfig_with_authenticator:
           cluster_name: << parameters.cluster_name >>
           aws_region: << parameters.region >>
@@ -381,16 +380,16 @@ jobs:
     steps:
       - checkout
       - aws-cli/setup:
-          role-arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
+          role_arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
       - aws-eks/update_kubeconfig_with_authenticator:
           cluster_name: << parameters.cluster_name >>
           aws_region: << parameters.region >>
           install_kubectl: true
-      - kubernetes/create-or-update-resource:
-          resource-file-path: ~/project/tests/nginx-deployment/deployment.yml
-          resource-name: "deployment/nginx-deployment"
-          get-rollout-status: true
-          show-kubectl-command: true
+      - kubernetes/create_or_update_resource:
+          resource_file_path: ~/project/tests/nginx-deployment/deployment.yml
+          resource_name: "deployment/nginx-deployment"
+          get_rollout_status: true
+          show_kubectl_command: true
 workflows:
   test-deploy:
     jobs:
@@ -542,7 +541,7 @@ workflows:
           name: setup-cluster-kubectl
           auth:
             - aws-cli/setup:
-                role-arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
+                role_arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
           cluster_name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
           context: [CPE-OIDC]
           aws_region: "us-west-2"
@@ -563,7 +562,7 @@ workflows:
       - aws-eks/update_container_image:
           auth:
             - aws-cli/setup:
-                role-arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
+                role_arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
           name: update_container_image-kubectl
           cluster_name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
           context: [CPE-OIDC]
@@ -573,9 +572,9 @@ workflows:
           get_rollout_status: true
           filters: *filters
           post-steps:
-            - kubernetes/delete-resource:
-                resource-types: "deployments"
-                resource-names: "nginx-deployment"
+            - kubernetes/delete_resource:
+                resource_types: "deployments"
+                resource_names: "nginx-deployment"
                 now: true
                 wait: true
           requires:
@@ -584,7 +583,7 @@ workflows:
           name: delete_cluster-kubectl
           auth:
             - aws-cli/setup:
-                role-arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
+                role_arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
           cluster_name: ${AWS_RESOURCE_NAME_PREFIX}-eks-orb-test-kubectl
           context: [CPE-OIDC]
           aws_region: "us-west-2"
@@ -639,16 +638,16 @@ executors:
       - image: cimg/base:current
   macos:
     macos:
-      xcode: 14.2.0
+      xcode: 16.2.0
   machine:
     machine:
-      image: ubuntu-2004:202107-02
+      image: ubuntu-2204:2024.11.1
   python:
     docker:
       - image: cimg/python:3.10-browsers
   arm:
     machine:
-      image: ubuntu-2004:202101-01
+      image: ubuntu-2204:2024.11.1
     resource_class: arm.medium
 
 commands:

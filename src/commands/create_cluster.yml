@@ -227,7 +227,7 @@ steps:
       condition: << parameters.skip_kubectl_install >>
       steps:
         - kubernetes/install:
-            kubectl-version: << parameters.kubectl_version >>
+            kubectl_version: << parameters.kubectl_version >>
   - run:
       environment:
         AWS_EKS_STR_CLUSTER_NAME: << parameters.cluster_name >>

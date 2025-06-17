@@ -1,4 +1,4 @@
-# AWS EKS Orb [![CircleCI status](https://circleci.com/gh/CircleCI-Public/aws-eks-orb.svg "CircleCI status")](https://circleci.com/gh/CircleCI-Public/aws-eks-orb) [![CircleCI Orb Version](https://img.shields.io/badge/endpoint.svg?url=https://badges.circleci.io/orb/circleci/aws-eks)](https://circleci.com/orbs/registry/orb/circleci/aws-eks) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/circleci-public/aws-eks-orb/master/LICENSE) [![CircleCI Community](https://img.shields.io/badge/community-CircleCI%20Discuss-343434.svg)](https://discuss.circleci.com/c/ecosystem/orbs)
+# AWS EKS Orb [![CircleCI status](https://circleci.com/gh/CircleCI-Public/aws-eks-orb.svg "CircleCI status")](https://circleci.com/gh/CircleCI-Public/aws-eks-orb) [![CircleCI Orb Version](https://badges.circleci.com/orbs/circleci/aws-eks.svg)](https://circleci.com/orbs/registry/orb/circleci/aws-eks) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/circleci-public/aws-eks-orb/master/LICENSE) [![CircleCI Community](https://img.shields.io/badge/community-CircleCI%20Discuss-343434.svg)](https://discuss.circleci.com/c/ecosystem/orbs)
 
 A CircleCI Orb to simplify deployments to Amazon Elastic Container Service for Kubernetes (Amazon EKS).
 
@@ -46,34 +46,34 @@ jobs:
         type: string
     steps:
       - checkout
-      - aws-eks/update-kubeconfig-with-authenticator:
-          cluster-name: << parameters.cluster-name >>
-          install-kubectl: true
-      - kubernetes/create-or-update-resource:
-          resource-file-path: "tests/nginx-deployment/deployment.yaml"
-          resource-name: "deployment/nginx-deployment"
-          get-rollout-status: true
-          show-kubectl-command: true
+      - aws-eks/update_kubeconfig_with_authenticator:
+          cluster_name: << parameters.cluster-name >>
+          install_kubectl: true
+      - kubernetes/create_or_update_resource:
+          resource_file-path: "tests/nginx-deployment/deployment.yaml"
+          resource_name: "deployment/nginx-deployment"
+          get_rollout_status: true
+          show_kubectl_command: true
 
 workflows:
   deployment:
     jobs:
-      - aws-eks/create-cluster:
-          cluster-name: eks-demo-deployment
+      - aws-eks/create_cluster:
+          cluster_name: eks-demo-deployment
       - create-deployment:
-          cluster-name: eks-demo-deployment
+          cluster_name: eks-demo-deployment
           requires:
-            - aws-eks/create-cluster
-      - aws-eks/update-container-image:
-          cluster-name: eks-demo-deployment
-          resource-name: "deployment/nginx-deployment"
-          container-image-updates: "nginx=nginx:1.9.1"
+            - aws-eks/create_cluster
+      - aws-eks/update_container_image:
+          cluster_name: eks-demo-deployment
+          resource_name: "deployment/nginx-deployment"
+          container_image_updates: "nginx=nginx:1.9.1"
           requires:
             - create-deployment
-      - aws-eks/delete-cluster:
-          cluster-name: eks-demo-deployment
+      - aws-eks/delete_cluster:
+          cluster_name: eks-demo-deployment
           requires:
-              - aws-eks/update-container-image
+              - aws-eks/update_container_image
 ```
 
 

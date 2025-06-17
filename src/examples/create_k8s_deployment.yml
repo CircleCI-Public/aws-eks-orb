@@ -21,10 +21,10 @@ usage:
         - aws-eks/update_kubeconfig_with_authenticator:
             cluster_name: << parameters.cluster_name >>
             install_kubectl: true
-        - kubernetes/create-or-update-resource:
-            resource-file-path: "tests/nginx-deployment/deployment.yaml"
-            resource-name: "deployment/nginx-deployment"
-            get-rollout-status: true
+        - kubernetes/create_or_update_resource:
+            resource_file_path: "tests/nginx-deployment/deployment.yaml"
+            resource_name: "deployment/nginx-deployment"
+            get_rollout_status: true
 
   workflows:
     deployment:
@@ -42,9 +42,9 @@ usage:
             requires:
               - create-deployment
             post-steps:
-              - kubernetes/delete-resource:
-                  resource-types: "deployment"
-                  resource-names: "nginx-deployment"
+              - kubernetes/delete_resource:
+                  resource_types: "deployment"
+                  resource_names: "nginx-deployment"
                   wait: true
         - aws-eks/delete_cluster:
             cluster_name: eks-demo-deployment
