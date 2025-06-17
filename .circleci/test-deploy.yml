@@ -175,8 +175,8 @@ jobs:
       - checkout
       - kubernetes/install:
           kubectl_version: v1.22.0
-      - browser-tools/install-chrome
-      - browser-tools/install-chromedriver
+      - browser-tools/install_chrome
+      - browser-tools/install_chromedriver
       # Test various update-kubeconfig options
       - aws-cli/setup:
           role_arn: arn:aws:iam::122211685980:role/CPE_EKS_OIDC_TEST
