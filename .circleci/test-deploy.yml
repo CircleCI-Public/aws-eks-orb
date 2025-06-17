@@ -4,7 +4,6 @@ orbs:
   aws-cli: circleci/aws-cli@5.4.0
   helm: circleci/helm@3.2.0
   kubernetes: circleci/kubernetes@2.0.0
-  shellcheck: circleci/shellcheck@3.4
   browser-tools: circleci/browser-tools@2.1.2
   aws-eks: {}
 
@@ -318,9 +317,9 @@ jobs:
       - attach_workspace:
           at: /tmp/workspace
       - helm/install_helm_chart:
-          add-repo: << parameters.add-repo >>
+          add_repo: << parameters.add-repo >>
           chart: grafana/grafana
-          release-name: << parameters.release-name >>
+          release_name: << parameters.release-name >>
       - run:
           name: Test SSH access
           command: |
