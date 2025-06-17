@@ -105,11 +105,11 @@ steps:
       authenticator_release_tag: << parameters.authenticator_release_tag >>
       kubectl_version: << parameters.kubectl_version >>
   - kubernetes/update_container_image:
-      resource-name: << parameters.resource_name >>
-      container-image-updates: << parameters.container_image_updates >>
+      resource_name: << parameters.resource_name >>
+      container_image_updates: << parameters.container_image_updates >>
       namespace: << parameters.namespace >>
-      get-rollout-status: << parameters.get_rollout_status >>
-      watch-rollout-status: << parameters.watch_rollout_status >>
-      pinned-revision-to-watch: << parameters.pinned_revision_to_watch >>
-      watch-timeout: << parameters.watch_timeout >>
-      show-kubectl-command: << parameters.show_kubectl_command >>
+      get_rollout_status: << parameters.get_rollout_status >>
+      watch_rollout_status: << parameters.watch_rollout_status >>
+      pinned_revision_to_watch: << parameters.pinned_revision_to_watch >>
+      watch_timeout: << parameters.watch_timeout >>
+      show_kubectl_command: << parameters.show_kubectl_command >>
