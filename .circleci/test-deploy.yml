@@ -174,7 +174,7 @@ jobs:
     steps:
       - checkout
       - kubernetes/install:
-          kubectl-version: v1.22.0
+          kubectl_version: v1.22.0
       - browser-tools/install-chrome
       - browser-tools/install-chromedriver
       # Test various update-kubeconfig options
@@ -287,7 +287,7 @@ jobs:
           command: |
             aws-iam-authenticator
       - kubernetes/install:
-          kubectl-version: v1.22.0
+          kubectl_version: v1.22.0
       - run:
           name: Test with kubectl
           command: |

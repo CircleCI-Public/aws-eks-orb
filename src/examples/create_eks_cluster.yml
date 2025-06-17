@@ -21,7 +21,7 @@ usage:
           type: string
       steps:
         - kubernetes/install:
-            kubectl-version: v1.22.0
+            kubectl_version: v1.22.0
         - aws-eks/update_kubeconfig_with_authenticator:
             cluster_name: << parameters.cluster_name >>
         - run:
