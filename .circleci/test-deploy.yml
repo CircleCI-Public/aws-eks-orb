@@ -203,24 +203,24 @@ jobs:
             cat kube-config.test | grep << parameters.cluster_name >>
             sleep 10
             curl http://localhost:8080/api/
-      - kubernetes/create-or-update-resource:
+      - kubernetes/create_or_update_resource:
           resource-file-path: "tests/kubernetes-dashboard/kubernetes-dashboard.yml"
           get-rollout-status: true
           namespace: kube-system
           resource-name: "deployment/kubernetes-dashboard"
-      - kubernetes/create-or-update-resource:
+      - kubernetes/create_or_update_resource:
           resource-file-path: "tests/kubernetes-dashboard/influxdb-heapster.yml"
           get-rollout-status: true
           namespace: kube-system
           resource-name: "deployment/heapster"
-      - kubernetes/create-or-update-resource:
+      - kubernetes/create_or_update_resource:
           resource-file-path: "tests/kubernetes-dashboard/influxdb.yml"
           get-rollout-status: true
           namespace: kube-system
           resource-name: "deployment/monitoring-influxdb"
-      - kubernetes/create-or-update-resource:
+      - kubernetes/create_or_update_resource:
           resource-file-path: "tests/kubernetes-dashboard/heapster-rbac.yml"
-      - kubernetes/create-or-update-resource:
+      - kubernetes/create_or_update_resource:
           resource-file-path: "tests/kubernetes-dashboard/eks-admin-service-account.yml"
       - run:
           name: Verify kubernetes dashboard
@@ -386,7 +386,7 @@ jobs:
           cluster_name: << parameters.cluster_name >>
           aws_region: << parameters.region >>
           install_kubectl: true
-      - kubernetes/create-or-update-resource:
+      - kubernetes/create_or_update_resource:
           resource-file-path: ~/project/tests/nginx-deployment/deployment.yml
           resource-name: "deployment/nginx-deployment"
           get-rollout-status: true

@@ -49,7 +49,7 @@ jobs:
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
           install-kubectl: true
-      - kubernetes/create-or-update-resource:
+      - kubernetes/create_or_update_resource:
           resource-file-path: "tests/nginx-deployment/deployment.yaml"
           resource-name: "deployment/nginx-deployment"
           get-rollout-status: true

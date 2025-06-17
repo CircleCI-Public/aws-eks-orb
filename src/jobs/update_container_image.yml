@@ -104,7 +104,7 @@ steps:
       install_kubectl: true
       authenticator_release_tag: << parameters.authenticator_release_tag >>
       kubectl_version: << parameters.kubectl_version >>
-  - kubernetes/update-container-image:
+  - kubernetes/update_container_image:
       resource-name: << parameters.resource_name >>
       container-image-updates: << parameters.container_image_updates >>
       namespace: << parameters.namespace >>
