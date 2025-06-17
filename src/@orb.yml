@@ -6,5 +6,5 @@ display:
   home_url: https://aws.amazon.com/eks/
   source_url: https://github.com/CircleCI-Public/aws-eks-orb
 orbs:
-  helm: circleci/helm@1.2
-  kubernetes: circleci/kubernetes@1.0
+  helm: circleci/helm@3.2.0
+  kubernetes: circleci/kubernetes@2.0.0
