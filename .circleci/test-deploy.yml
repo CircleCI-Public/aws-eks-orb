@@ -204,24 +204,24 @@ jobs:
             sleep 10
             curl http://localhost:8080/api/
       - kubernetes/create_or_update_resource:
-          resource-file-path: "tests/kubernetes-dashboard/kubernetes-dashboard.yml"
-          get-rollout-status: true
+          resource_file_path: "tests/kubernetes-dashboard/kubernetes-dashboard.yml"
+          get_rollout_status: true
           namespace: kube-system
-          resource-name: "deployment/kubernetes-dashboard"
+          resource_name: "deployment/kubernetes-dashboard"
       - kubernetes/create_or_update_resource:
-          resource-file-path: "tests/kubernetes-dashboard/influxdb-heapster.yml"
-          get-rollout-status: true
+          resource_file_path: "tests/kubernetes-dashboard/influxdb-heapster.yml"
+          get_rollout_status: true
           namespace: kube-system
-          resource-name: "deployment/heapster"
+          resource_name: "deployment/heapster"
       - kubernetes/create_or_update_resource:
-          resource-file-path: "tests/kubernetes-dashboard/influxdb.yml"
-          get-rollout-status: true
+          resource_file_path: "tests/kubernetes-dashboard/influxdb.yml"
+          get_rollout_status: true
           namespace: kube-system
           resource-name: "deployment/monitoring-influxdb"
       - kubernetes/create_or_update_resource:
-          resource-file-path: "tests/kubernetes-dashboard/heapster-rbac.yml"
+          resource_file_path: "tests/kubernetes-dashboard/heapster-rbac.yml"
       - kubernetes/create_or_update_resource:
-          resource-file-path: "tests/kubernetes-dashboard/eks-admin-service-account.yml"
+          resource_file_path: "tests/kubernetes-dashboard/eks-admin-service-account.yml"
       - run:
           name: Verify kubernetes dashboard
           command: |
@@ -387,10 +387,10 @@ jobs:
           aws_region: << parameters.region >>
           install_kubectl: true
       - kubernetes/create_or_update_resource:
-          resource-file-path: ~/project/tests/nginx-deployment/deployment.yml
-          resource-name: "deployment/nginx-deployment"
-          get-rollout-status: true
-          show-kubectl-command: true
+          resource_file_path: ~/project/tests/nginx-deployment/deployment.yml
+          resource_name: "deployment/nginx-deployment"
+          get_rollout_status: true
+          show_kubectl_command: true
 workflows:
   test-deploy:
     jobs:
@@ -574,8 +574,8 @@ workflows:
           filters: *filters
           post-steps:
             - kubernetes/delete-resource:
-                resource-types: "deployments"
-                resource-names: "nginx-deployment"
+                resource_types: "deployments"
+                resource_names: "nginx-deployment"
                 now: true
                 wait: true
           requires:
