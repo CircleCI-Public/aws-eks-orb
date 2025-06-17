@@ -317,7 +317,7 @@ jobs:
           install_kubectl: true
       - attach_workspace:
           at: /tmp/workspace
-      - helm/install-helm-chart:
+      - helm/install_helm_chart:
           add-repo: << parameters.add-repo >>
           chart: grafana/grafana
           release-name: << parameters.release-name >>
@@ -573,7 +573,7 @@ workflows:
           get_rollout_status: true
           filters: *filters
           post-steps:
-            - kubernetes/delete-resource:
+            - kubernetes/delete_resource:
                 resource_types: "deployments"
                 resource_names: "nginx-deployment"
                 now: true
