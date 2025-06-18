@@ -4,10 +4,10 @@ A CircleCI Orb to simplify deployments to Amazon Elastic Container Service for K
 
 Here are some features that the AWS EKS orb provides:
 
-- Setting up and tearing down of EKS clusters via the `create-cluster` and `delete-cluster` commands / jobs
-- Allowing `kubectl` and other tools that access `kubeconfig` (like `helm`) to work with an EKS cluster via the `update-kubeconfig-with-authenticator` command
-- Updating deployments with container image updates via the `update-container-image` job
-- Installing helm and helm charts (See: `install-helm-on-cluster` and `install-helm-chart`)
+- Setting up and tearing down of EKS clusters via the `create_cluster` and `delete_cluster` commands / jobs
+- Allowing `kubectl` and other tools that access `kubeconfig` (like `helm`) to work with an EKS cluster via the `update_kubeconfig_with_authenticator` command
+- Updating deployments with container image updates via the `update_container_image` job
+- Installing helm and helm charts (See: `install_helm_on_cluster` and `install_helm_chart`)
 
 ## Usage
 
