@@ -42,7 +42,7 @@ jobs:
             else
               version=<< parameters.release_tag >>
             fi
-            
+
             if aws-iam-authenticator version | grep -q "$version"; then
               echo "Version $version installed"
               exit 0
@@ -173,7 +173,7 @@ jobs:
     steps:
       - checkout
       - kubernetes/install:
-          kubectl_version: v1.22.0
+          kubectl_version: v1.36.1
       - browser-tools/install_chrome
       - browser-tools/install_chromedriver
       # Test various update-kubeconfig options
@@ -286,7 +286,7 @@ jobs:
           command: |
             aws-iam-authenticator
       - kubernetes/install:
-          kubectl_version: v1.22.0
+          kubectl_version: v1.36.1
       - run:
           name: Test with kubectl
           command: |

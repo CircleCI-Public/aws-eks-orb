@@ -203,7 +203,7 @@ parameters:
     description: |
       Version of kubectl to install
     type: string
-    default: "v1.22.0"
+    default: "v1.36.1"
   aws_max_polling_wait_time:
     description: |
       Max wait time in any AWS polling operations
