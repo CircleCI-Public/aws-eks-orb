@@ -226,7 +226,7 @@ steps:
   - unless:
       condition: << parameters.skip_kubectl_install >>
       steps:
-        - kubernetes/install:
+        - kubernetes/install_kubectl:
             kubectl_version: << parameters.kubectl_version >>
   - run:
       environment:
