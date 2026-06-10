@@ -568,7 +568,7 @@ workflows:
           context: [CPE-OIDC]
           aws_region: "us-west-2"
           resource_name: "deployment/nginx-deployment"
-          container_image_updates: "nginx=nginx:1.9.1"
+          container_image_updates: "nginx=nginx:1.29.3"
           get_rollout_status: true
           filters: *filters
           post-steps:
