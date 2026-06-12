@@ -94,6 +94,34 @@ parameters:
       The authentication method used to access your AWS account. Import the aws-cli orb in your config and
       provide the aws-cli/setup command to authenticate with your preferred method. View examples for more information.
     type: steps
+  deploy_markers_mode:
+    description: >
+      Controls CircleCI deploy marker integration via the deploys orb.
+      OFF: no deploy markers are created.
+      LOG: logs a deployment event after the deploy completes.
+      PLAN: creates a planned deployment marker before the deploy; status updates are left to the caller.
+      PLAN_AND_UPDATE: full lifecycle — plan before deploy, mark as running, then set SUCCESS or FAILED after (default).
+    type: enum
+    enum: [OFF, LOG, PLAN, PLAN_AND_UPDATE]
+    default: PLAN_AND_UPDATE
+  deploy_markers_deploy_name:
+    description: >
+      Unique identifier for this deployment within the workflow. Used by PLAN and PLAN_AND_UPDATE modes.
+      Must be unique if planning multiple deployments in the same workflow.
+    type: string
+    default: "deploy"
+  deploy_markers_namespace:
+    description: >
+      Namespace of the deployment shown in the CircleCI Deploys UI (distinct from the Kubernetes namespace).
+      Used by LOG, PLAN, and PLAN_AND_UPDATE modes. Defaults to 'default' if not set.
+    type: string
+    default: ""
+  deploy_markers_target_version:
+    description: >
+      Version identifier shown in the CircleCI Deploys UI.
+      Used by LOG, PLAN, and PLAN_AND_UPDATE modes. Defaults to the short commit SHA if not set.
+    type: string
+    default: ""
 
 steps:
   - steps: << parameters.auth >>
@@ -104,6 +132,26 @@ steps:
       install_kubectl: true
       authenticator_release_tag: << parameters.authenticator_release_tag >>
       kubectl_version: << parameters.kubectl_version >>
+  - when:
+      condition:
+        or:
+          - equal: [<< parameters.deploy_markers_mode >>, "PLAN"]
+          - equal: [<< parameters.deploy_markers_mode >>, "PLAN_AND_UPDATE"]
+      steps:
+        - deploys/plan:
+            deploy_name: << parameters.deploy_markers_deploy_name >>
+            component_name: << parameters.resource_name >>
+            environment_name: << parameters.cluster_name >>
+            namespace: << parameters.deploy_markers_namespace >>
+            target_version: << parameters.deploy_markers_target_version >>
+  - when:
+      condition:
+        equal: [<< parameters.deploy_markers_mode >>, "PLAN_AND_UPDATE"]
+      steps:
+        - deploys/update_status:
+            deploy_name: << parameters.deploy_markers_deploy_name >>
+            status: RUNNING
+            when: always
   - kubernetes/update_container_image:
       resource_name: << parameters.resource_name >>
       container_image_updates: << parameters.container_image_updates >>
@@ -113,3 +161,24 @@ steps:
       pinned_revision_to_watch: << parameters.pinned_revision_to_watch >>
       watch_timeout: << parameters.watch_timeout >>
       show_kubectl_command: << parameters.show_kubectl_command >>
+  - when:
+      condition:
+        equal: [<< parameters.deploy_markers_mode >>, "LOG"]
+      steps:
+        - deploys/log:
+            component_name: << parameters.resource_name >>
+            environment_name: << parameters.cluster_name >>
+            namespace: << parameters.deploy_markers_namespace >>
+            target_version: << parameters.deploy_markers_target_version >>
+  - when:
+      condition:
+        equal: [<< parameters.deploy_markers_mode >>, "PLAN_AND_UPDATE"]
+      steps:
+        - deploys/update_status:
+            deploy_name: << parameters.deploy_markers_deploy_name >>
+            status: SUCCESS
+            when: on_success
+        - deploys/update_status:
+            deploy_name: << parameters.deploy_markers_deploy_name >>
+            status: FAILED
+            when: on_fail
