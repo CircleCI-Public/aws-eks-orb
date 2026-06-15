@@ -88,7 +88,7 @@ parameters:
     description: |
       Version of kubectl to install
     type: string
-    default: "v1.22.0"
+    default: "v1.36.1"
   auth:
     description: |
       The authentication method used to access your AWS account. Import the aws-cli orb in your config and
