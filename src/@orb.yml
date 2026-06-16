@@ -8,3 +8,4 @@ display:
 orbs:
   helm: circleci/helm@3.2.0
   kubernetes: circleci/kubernetes@2.0.0
+  deploys: circleci/deploys@1.0

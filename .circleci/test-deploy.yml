@@ -570,6 +570,8 @@ workflows:
           resource_name: "deployment/nginx-deployment"
           container_image_updates: "nginx=nginx:1.9.1"
           get_rollout_status: true
+          deploy_markers_mode: PLAN_AND_UPDATE
+          deploy_markers_deploy_name: test-deploy
           filters: *filters
           post-steps:
             - kubernetes/delete_resource:
