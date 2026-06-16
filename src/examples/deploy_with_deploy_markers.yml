@@ -1,0 +1,56 @@
+description: >
+  Update a container image on EKS with CircleCI deploy markers.
+  Four modes are available via the deploy_markers_mode parameter:
+    OFF             - no deploy markers
+    LOG             - log a deployment event after the deploy
+    PLAN            - create a planned marker before the deploy; caller manages status updates
+    PLAN_AND_UPDATE - full lifecycle: plan → running → success/failed (default)
+
+usage:
+  version: 2.1
+
+  orbs:
+    aws-eks: circleci/aws-eks@3.0
+    # Importing aws-cli orb is required
+    aws-cli: circleci/aws-cli@5.4
+
+  workflows:
+    deploy:
+      jobs:
+        # LOG mode — log a deployment event after the deploy completes
+        - aws-eks/update_container_image:
+            name: deploy-log
+            cluster_name: my-eks-demo
+            resource_name: deployment/nginx-deployment
+            container_image_updates: "nginx=nginx:1.9.1"
+            aws_region: us-west-2
+            deploy_markers_mode: LOG
+            deploy_markers_target_version: ${CIRCLE_SHA1:0:7}
+            auth:
+              - aws-cli/setup:
+                  role_arn: ${AWS_ROLE_ARN}
+
+        # PLAN mode — create a planned marker before deploy; status updates are left to the caller
+        - aws-eks/update_container_image:
+            name: deploy-plan
+            cluster_name: my-eks-demo
+            resource_name: deployment/nginx-deployment
+            container_image_updates: "nginx=nginx:1.9.1"
+            aws_region: us-west-2
+            deploy_markers_mode: PLAN
+            deploy_markers_target_version: ${CIRCLE_SHA1:0:7}
+            auth:
+              - aws-cli/setup:
+                  role_arn: ${AWS_ROLE_ARN}
+
+        # PLAN_AND_UPDATE mode — full lifecycle managed by the orb (default)
+        - aws-eks/update_container_image:
+            name: deploy-full
+            cluster_name: my-eks-demo
+            resource_name: deployment/nginx-deployment
+            container_image_updates: "nginx=nginx:1.9.1"
+            aws_region: us-west-2
+            deploy_markers_target_version: ${CIRCLE_SHA1:0:7}
+            auth:
+              - aws-cli/setup:
+                  role_arn: ${AWS_ROLE_ARN}
