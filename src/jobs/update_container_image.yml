@@ -111,6 +111,19 @@ parameters:
       Defaults to the workflow job ID, which is unique per job execution across all concurrent runs.
     type: string
     default: "${CIRCLE_WORKFLOW_JOB_ID}"
+  deploy_markers_component_name:
+    description: >
+      Component name shown in the CircleCI Deploys UI.
+      Used by LOG, PLAN, and PLAN_AND_UPDATE modes.
+      Defaults to the value of resource_name when not set.
+    type: string
+    default: ""
+  deploy_markers_environment_name:
+    description: >
+      Environment name shown in the CircleCI Deploys UI.
+      Used by LOG, PLAN, and PLAN_AND_UPDATE modes. Defaults to 'default' when not set.
+    type: string
+    default: "default"
   deploy_markers_namespace:
     description: >
       Namespace of the deployment shown in the CircleCI Deploys UI (distinct from the Kubernetes namespace).
@@ -141,8 +154,8 @@ steps:
       steps:
         - deploys/plan:
             deploy_name: << parameters.deploy_markers_deploy_name >>
-            component_name: << parameters.resource_name >>
-            environment_name: << parameters.cluster_name >>
+            component_name: <<#parameters.deploy_markers_component_name>><< parameters.deploy_markers_component_name >><</parameters.deploy_markers_component_name>><<^parameters.deploy_markers_component_name>><< parameters.resource_name >><</parameters.deploy_markers_component_name>>
+            environment_name: << parameters.deploy_markers_environment_name >>
             namespace: << parameters.deploy_markers_namespace >>
             target_version: << parameters.deploy_markers_target_version >>
   - when:
@@ -167,8 +180,8 @@ steps:
         equal: [<< parameters.deploy_markers_mode >>, "LOG"]
       steps:
         - deploys/log:
-            component_name: << parameters.resource_name >>
-            environment_name: << parameters.cluster_name >>
+            component_name: <<#parameters.deploy_markers_component_name>><< parameters.deploy_markers_component_name >><</parameters.deploy_markers_component_name>><<^parameters.deploy_markers_component_name>><< parameters.resource_name >><</parameters.deploy_markers_component_name>>
+            environment_name: << parameters.deploy_markers_environment_name >>
             namespace: << parameters.deploy_markers_namespace >>
             target_version: << parameters.deploy_markers_target_version >>
   - when:
