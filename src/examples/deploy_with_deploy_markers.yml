@@ -54,3 +54,17 @@ usage:
             auth:
               - aws-cli/setup:
                   role_arn: ${AWS_ROLE_ARN}
+
+        # PLAN_AND_UPDATE mode — custom component and environment names in the Deploys UI
+        - aws-eks/update_container_image:
+            name: deploy-full-custom-names
+            cluster_name: my-eks-demo
+            resource_name: deployment/nginx-deployment
+            container_image_updates: "nginx=nginx:1.9.1"
+            aws_region: us-west-2
+            deploy_markers_component_name: nginx
+            deploy_markers_environment_name: production
+            deploy_markers_target_version: ${CIRCLE_SHA1:0:7}
+            auth:
+              - aws-cli/setup:
+                  role_arn: ${AWS_ROLE_ARN}
