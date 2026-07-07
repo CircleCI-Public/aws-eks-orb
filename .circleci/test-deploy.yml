@@ -110,7 +110,7 @@ jobs:
           node_volume_size: 30
           node_volume_type: "gp2"
           max_pods_per_node: 30
-          node_ami_family: "AmazonLinux2"
+          node_ami_family: "AmazonLinux2023"
           node_private_networking: false
           node_labels: "nodeowner=cci,nodepurpose=testing"
           vpc_cidr: "192.168.0.0/16"
